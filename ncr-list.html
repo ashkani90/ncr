@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="menu_ncr_list">لیست NCRها</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- کامپوننت هدر -->
+        <div id="headerContainer"></div>
+        
+        <!-- کامپوننت سایدبار -->
+        <div id="sidebarContainer"></div>
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <!-- فیلترها -->
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label>جستجو</label>
+                        <input type="text" id="searchInput" placeholder="جستجو در شماره، قطعه، موضوع..." oninput="filterNCRs()">
+                    </div>
+                    <div class="form-group">
+                        <label>وضعیت</label>
+                        <select id="statusFilter" onchange="filterNCRs()">
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="open">باز</option>
+                            <option value="in_progress">در حال بررسی</option>
+                            <option value="closed">بسته</option>
+                            <option value="rejected">رد شده</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>اولویت</label>
+                        <select id="priorityFilter" onchange="filterNCRs()">
+                            <option value="">همه اولویت‌ها</option>
+                            <option value="high">بالا</option>
+                            <option value="medium">متوسط</option>
+                            <option value="low">کم</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>تاریخ از</label>
+                        <input type="date" id="dateFrom" onchange="filterNCRs()">
+                    </div>
+                    <div class="form-group">
+                        <label>تاریخ تا</label>
+                        <input type="date" id="dateTo" onchange="filterNCRs()">
+                    </div>
+                    <div class="form-group">
+                        <label>دپارتمان</label>
+                        <select id="departmentFilter" onchange="filterNCRs()">
+                            <option value="">همه دپارتمان‌ها</option>
+                            <option value="تولید">تولید</option>
+                            <option value="کنترل کیفیت">کنترل کیفیت</option>
+                            <option value="انبار">انبار</option>
+                            <option value="مهندسی">مهندسی</option>
+                            <option value="خرید">خرید</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()"><i class="fas fa-undo"></i> بازنشانی</button>
+                    <button class="btn btn-success" onclick="exportData()"><i class="fas fa-file-excel"></i> خروجی اکسل</button>
+                    <button class="btn btn-warning" onclick="printPage()"><i class="fas fa-print"></i> چاپ</button>
+                </div>
+            </div>
+
+            <!-- جدول NCRها -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>📋 لیست کامل NCRها</h3>
+                    <span class="table-count" id="recordCount">تعداد: 0</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="ncrTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('ncr_number')" style="cursor:pointer;">شماره <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable('part_name')" style="cursor:pointer;">قطعه <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable('subject')" style="cursor:pointer;">موضوع <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable('report_date')" style="cursor:pointer;">تاریخ <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable('priority')" style="cursor:pointer;">اولویت <i class="fas fa-sort"></i></th>
+                                <th>مرحله</th>
+                                <th onclick="sortTable('final_status')" style="cursor:pointer;">وضعیت <i class="fas fa-sort"></i></th>
+                                <th>گزارش‌دهنده</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ncrTableBody">
+                            <tr>
+                                <td colspan="9" style="text-align: center;">در حال بارگذاری...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <div class="pagination">
+                        <button onclick="changePage('prev')"><i class="fas fa-chevron-right"></i></button>
+                        <span id="pageInfo">صفحه 1 از 1</span>
+                        <button onclick="changePage('next')"><i class="fas fa-chevron-left"></i></button>
+                    </div>
+                    <div class="page-size">
+                        <label>تعداد در صفحه:</label>
+                        <select id="pageSize" onchange="changePageSize()">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کامپوننت فوتر -->
+            <div id="footerContainer"></div>       
+                        
+        </main> 
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="print.js"></script>
+    <script src="data/sample-data.js"></script>
+    <script src="components/loader.js"></script>
+
+    <script>
+        // ============================================
+        // بارگذاری کامپوننت‌ها
+        // ============================================
+        loadAllComponents();
+
+        let allNCRs = [];
+        let filteredNCRs = [];
+        let currentPage = 1;
+        let pageSize = 25;
+        let sortField = 'report_date';
+        let sortDirection = 'desc';
+
+        // ============================================
+        // بارگذاری اولیه
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNCRsFromDatabase();
+        });
+
+        // ============================================
+        // بارگذاری NCRها از دیتابیس از طریق API
+        // ============================================
+        async function loadNCRsFromDatabase() {
+            const tbody = document.getElementById('ncrTableBody');
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">در حال بارگذاری داده‌ها...</td></tr>';
+            
+            try {
+                console.log('📡 Fetching NCRs from API...');
+                
+                // استفاده از تابع getAllNCRs از database.js
+                const ncrs = await window.getAllNCRs();
+                
+                console.log('📡 NCRs received:', ncrs);
+                
+                if (ncrs && ncrs.length > 0) {
+                    allNCRs = ncrs;
+                    filteredNCRs = [...allNCRs];
+                    renderTable();
+                    document.getElementById('recordCount').textContent = 'تعداد: ' + allNCRs.length;
+                    console.log('✅ Loaded ' + allNCRs.length + ' NCRs from API');
+                } else {
+                    // اگر داده‌ای از API نیامد، از localStorage استفاده کن
+                    console.log('📦 No data from API, using localStorage fallback...');
+                    loadNCRsFromLocalStorage();
+                }
+            } catch (error) {
+                console.error('❌ Error loading NCRs:', error);
+                loadNCRsFromLocalStorage();
+            }
+        }
+
+        // ============================================
+        // بارگذاری از localStorage (fallback)
+        // ============================================
+        function loadNCRsFromLocalStorage() {
+            console.log('📦 Loading NCRs from localStorage...');
+            const stored = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            
+            if (stored && stored.length > 0) {
+                allNCRs = stored;
+                filteredNCRs = [...allNCRs];
+                renderTable();
+                document.getElementById('recordCount').textContent = 'تعداد: ' + allNCRs.length;
+                showNotification('داده‌ها از حافظه محلی بارگذاری شدند.', 'info');
+            } else {
+                // اگر هیچ داده‌ای وجود نداشت، از داده‌های نمونه استفاده کن
+                console.log('📦 No data in localStorage, loading sample data...');
+                loadSampleDataFromFile();
+            }
+        }
+
+        // ============================================
+        // بارگذاری داده‌های نمونه از فایل sample-data.js
+        // ============================================
+        function loadSampleDataFromFile() {
+            try {
+                if (window.SAMPLE_DATA && window.SAMPLE_DATA.ncrs) {
+                    allNCRs = window.SAMPLE_DATA.ncrs;
+                    filteredNCRs = [...allNCRs];
+                    renderTable();
+                    document.getElementById('recordCount').textContent = 'تعداد: ' + allNCRs.length;
+                    showNotification('داده‌های نمونه بارگذاری شدند.', 'info');
+                    console.log('✅ Loaded sample data:', allNCRs.length);
+                } else {
+                    const tbody = document.getElementById('ncrTableBody');
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">هیچ NCR ثبت نشده است</td></tr>';
+                    document.getElementById('recordCount').textContent = 'تعداد: 0';
+                }
+            } catch (e) {
+                console.error('❌ Error loading sample data:', e);
+                const tbody = document.getElementById('ncrTableBody');
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">خطا در بارگذاری داده‌ها</td></tr>';
+            }
+        }
+
+        // ============================================
+        // فیلتر کردن NCRها - اصلاح شده
+        // ============================================
+        function filterNCRs() {
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const department = document.getElementById('departmentFilter').value;
+
+            console.log('🔍 Filtering with:', { search, status, priority, dateFrom, dateTo, department });
+
+            filteredNCRs = allNCRs.filter(function(ncr) {
+                // جستجو در فیلدهای مختلف
+                const searchableFields = [
+                    ncr.ncr_number || '',
+                    ncr.part_name || '',
+                    ncr.subject || '',
+                    ncr.part_code || '',
+                    ncr.reporter_name || '',
+                    ncr.description || ''
+                ];
+                const matchSearch = !search || searchableFields.some(field => 
+                    field.toString().toLowerCase().includes(search)
+                );
+
+                // فیلتر وضعیت - با توجه به داده‌های واقعی
+                let ncrStatus = ncr.final_status || 'open';
+                // اگر final_status خالی بود، از quality_status استفاده کن
+                if (!ncrStatus || ncrStatus === '') {
+                    ncrStatus = ncr.quality_status === 'approved' ? 'in_progress' : 'open';
+                }
+                const matchStatus = !status || ncrStatus === status;
+
+                // فیلتر اولویت
+                const ncrPriority = ncr.priority || 'medium';
+                const matchPriority = !priority || ncrPriority === priority;
+
+                // فیلتر تاریخ
+                const matchDate = (!dateFrom || (ncr.report_date && ncr.report_date >= dateFrom)) && 
+                                  (!dateTo || (ncr.report_date && ncr.report_date <= dateTo));
+
+                // فیلتر دپارتمان
+                const matchDepartment = !department || (ncr.reporter_department && ncr.reporter_department === department);
+
+                return matchSearch && matchStatus && matchPriority && matchDate && matchDepartment;
+            });
+
+            console.log('🔍 Filtered results:', filteredNCRs.length);
+
+            currentPage = 1;
+            renderTable();
+            document.getElementById('recordCount').textContent = 'تعداد: ' + filteredNCRs.length;
+        }
+
+        // ============================================
+        // بازنشانی فیلترها
+        // ============================================
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('priorityFilter').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            document.getElementById('departmentFilter').value = '';
+            filterNCRs();
+            showNotification('فیلترها بازنشانی شدند.', 'info');
+        }
+
+        // ============================================
+        // رندر جدول - اصلاح شده
+        // ============================================
+        function renderTable() {
+            const tbody = document.getElementById('ncrTableBody');
+            
+            if (!filteredNCRs || filteredNCRs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">هیچ NCR یافت نشد</td></tr>';
+                return;
+            }
+
+            // مرتب‌سازی
+            const sorted = [...filteredNCRs].sort(function(a, b) {
+                let aVal = a[sortField] || '';
+                let bVal = b[sortField] || '';
+                if (sortField === 'report_date' || sortField === 'created_at') {
+                    aVal = new Date(aVal);
+                    bVal = new Date(bVal);
+                }
+                if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+                if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            const totalPages = Math.ceil(sorted.length / pageSize) || 1;
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, sorted.length);
+            const pageData = sorted.slice(start, end);
+
+            document.getElementById('pageInfo').textContent = 'صفحه ' + currentPage + ' از ' + totalPages;
+
+            // برچسب‌ها
+            const priorityLabels = {
+                high: '<span class="badge badge-danger">بالا</span>',
+                medium: '<span class="badge badge-warning">متوسط</span>',
+                low: '<span class="badge badge-info">کم</span>'
+            };
+            
+            const statusLabels = {
+                closed: '<span class="badge badge-success">بسته</span>',
+                in_progress: '<span class="badge badge-warning">در حال بررسی</span>',
+                open: '<span class="badge badge-danger">باز</span>',
+                rejected: '<span class="badge badge-secondary">رد شده</span>'
+            };
+
+            let html = '';
+            pageData.forEach(function(ncr) {
+                const ncrNumber = ncr.ncr_number || '-';
+                const partName = ncr.part_name || '-';
+                const subject = ncr.subject || '-';
+                const reportDate = ncr.report_date || '-';
+                
+                // اولویت
+                const priorityKey = ncr.priority || 'medium';
+                const priorityHtml = priorityLabels[priorityKey] || priorityLabels.medium;
+                
+                // وضعیت
+                let statusKey = ncr.final_status || 'open';
+                if (!statusKey || statusKey === '') {
+                    statusKey = ncr.quality_status === 'approved' ? 'in_progress' : 'open';
+                }
+                const statusHtml = statusLabels[statusKey] || statusLabels.open;
+                
+                // مرحله
+                const stepHtml = getStepBadge(ncr);
+                
+                // گزارش‌دهنده
+                const reporter = ncr.reporter_name || '-';
+                
+                html += '<tr>' +
+                    '<td><strong><a href="ncr-detail.html?number=' + ncrNumber + '" class="link-primary">' + ncrNumber + '</a></strong></td>' +
+                    '<td>' + partName + '</td>' +
+                    '<td>' + subject + '</td>' +
+                    '<td>' + reportDate + '</td>' +
+                    '<td>' + priorityHtml + '</td>' +
+                    '<td>' + stepHtml + '</td>' +
+                    '<td>' + statusHtml + '</td>' +
+                    '<td>' + reporter + '</td>' +
+                    '<td>' +
+                        '<button class="btn btn-sm btn-primary" onclick="viewNCR(\'' + ncrNumber + '\')"><i class="fas fa-eye"></i></button> ' +
+                        '<button class="btn btn-sm btn-success" onclick="editNCR(\'' + ncrNumber + '\')"><i class="fas fa-edit"></i></button> ' +
+                        '<button class="btn btn-sm btn-danger" onclick="deleteNCR(\'' + ncrNumber + '\')"><i class="fas fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // ============================================
+        // دریافت مرحله NCR
+        // ============================================
+        function getStepBadge(ncr) {
+            // بر اساس داده‌های واقعی
+            if (ncr.final_status === 'closed') {
+                return '<span class="badge badge-success">مرحله 6: بسته</span>';
+            } else if (ncr.final_quality_status === 'approved') {
+                return '<span class="badge badge-info">مرحله 5: بررسی نهایی</span>';
+            } else if (ncr.cft_status === 'approved') {
+                return '<span class="badge badge-info">مرحله 4: CFT</span>';
+            } else if (ncr.fmea_status === 'completed') {
+                return '<span class="badge badge-info">مرحله 3: FMEA</span>';
+            } else if (ncr.quality_status === 'approved') {
+                return '<span class="badge badge-info">مرحله 2: ریشه‌یابی</span>';
+            } else {
+                return '<span class="badge badge-secondary">مرحله 1: ثبت</span>';
+            }
+        }
+
+        // ============================================
+        // مرتب‌سازی
+        // ============================================
+        function sortTable(field) {
+            if (sortField === field) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortDirection = 'asc';
+            }
+            renderTable();
+        }
+
+        // ============================================
+        // تغییر صفحه
+        // ============================================
+        function changePage(direction) {
+            var totalPages = Math.ceil(filteredNCRs.length / pageSize) || 1;
+            if (direction === 'prev' && currentPage > 1) currentPage--;
+            if (direction === 'next' && currentPage < totalPages) currentPage++;
+            renderTable();
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            renderTable();
+        }
+
+        // ============================================
+        // عملیات روی NCR
+        // ============================================
+        function viewNCR(number) {
+            if (number && number !== '-') {
+                window.location.href = 'ncr-detail.html?number=' + number;
+            } else {
+                showNotification('شماره NCR معتبر نیست.', 'error');
+            }
+        }
+
+        function editNCR(number) {
+            if (number && number !== '-') {
+                window.location.href = 'ncr-detail.html?number=' + number + '&edit=true';
+            } else {
+                showNotification('شماره NCR معتبر نیست.', 'error');
+            }
+        }
+
+        async function deleteNCR(number) {
+            if (!number || number === '-') {
+                showNotification('شماره NCR معتبر نیست.', 'error');
+                return;
+            }
+            
+            if (!confirm('آیا از حذف NCR ' + number + ' مطمئن هستید؟')) return;
+
+            try {
+                const result = await window.deleteNCR(number);
+                if (result) {
+                    showNotification('NCR با موفقیت حذف شد!', 'success');
+                    loadNCRsFromDatabase();
+                    return;
+                }
+            } catch (error) {
+                console.warn('⚠️ API delete failed, using localStorage:', error);
+            }
+
+            // Fallback: حذف از localStorage
+            var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            ncrs = ncrs.filter(function(n) { return n.ncr_number !== number; });
+            localStorage.setItem('ncrs', JSON.stringify(ncrs));
+            loadNCRsFromDatabase();
+            showNotification('NCR با موفقیت حذف شد!', 'success');
+        }
+
+        // ============================================
+        // توابع نمایش پیام
+        // ============================================
+        function showNotification(message, type) {
+            var colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12',
+                info: '#3498db'
+            };
+            
+            // حذف اعلان‌های قبلی
+            document.querySelectorAll('.custom-notification').forEach(el => el.remove());
+            
+            var notification = document.createElement('div');
+            notification.className = 'custom-notification';
+            notification.style.cssText = 'position: fixed; top: 80px; right: 20px; padding: 15px 25px; background: ' + (colors[type] || '#3498db') + '; color: white; border-radius: 10px; font-weight: bold; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: slideDown 0.5s ease; max-width: 400px;';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(function() {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(function() { notification.remove(); }, 500);
+            }, 3000);
+        }
+
+        // ============================================
+        // توابع خروجی و چاپ
+        // ============================================
+        function exportData() {
+            if (window.exportToExcel) {
+                window.exportToExcel();
+            } else {
+                showNotification('قابلیت خروجی در حال آماده‌سازی است...', 'info');
+            }
+        }
+
+        function printPage() {
+            if (window.printPage) {
+                window.printPage();
+            } else {
+                window.print();
+            }
+        }
+
+        // ============================================
+        // بارگذاری مجدد داده‌ها (برای رفع خطا)
+        // ============================================
+        function refreshData() {
+            showNotification('در حال بارگذاری مجدد داده‌ها...', 'info');
+            loadNCRsFromDatabase();
+        }
+
+        // بارگذاری مجدد هر 60 ثانیه (اختیاری)
+        // setInterval(refreshData, 60000);
+
+        console.log('✅ ncr-list.html loaded successfully');
+    </script>
+
+    <style>
+        .header-language {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .language-label {
+            font-size: 13px;
+            color: var(--gray, #95a5a6);
+            white-space: nowrap;
+        }
+        .lang-select {
+            padding: 5px 10px;
+            border: 2px solid var(--light-gray, #e9ecef);
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Vazir', 'Segoe UI', Tahoma, Arial, sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+            color: var(--dark, #2c3e50);
+        }
+        .lang-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pagination {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .pagination button {
+            padding: 5px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+        .pagination button:hover {
+            background: #f8f9fa;
+        }
+        .page-size {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-size select {
+            padding: 5px 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+        }
+        .link-primary {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .link-primary:hover {
+            text-decoration: underline;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-actions {
+                flex-direction: column;
+            }
+            .filter-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .table-footer {
+                flex-direction: column;
+            }
+            .header-language .language-label {
+                display: none;
+            }
+        }
+    </style>
+</body>
+</html>

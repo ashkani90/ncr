@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم مدیریت عدم انطباق - NCR</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5'/%3E%3Cpath d='M2 12l10 5 10-5'/%3E%3C/svg%3E" alt="Logo">
+                <h1>سیستم مدیریت عدم انطباق</h1>
+                <p>مطابق با استاندارد ISO 9001:2015</p>
+            </div>
+            
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="fa">فارسی</button>
+                <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="zh">中文</button>
+            </div>
+
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> نام کاربری</label>
+                    <input type="text" id="username" placeholder="نام کاربری خود را وارد کنید" required>
+                </div>
+                <div class="form-group password-group">
+                    <label><i class="fas fa-lock"></i> رمز عبور</label>
+                    <div class="password-input">
+                        <input type="password" id="password" placeholder="رمز عبور را وارد کنید" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkmark"></span>
+                        مرا بخاطر بسپار
+                    </label>
+                    <a href="#" class="forgot-password" onclick="openForgotModal(event)">آیا رمز عبور را فراموش کرده‌اید؟</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> ورود به سیستم
+                </button>
+            </form>
+            
+            <!-- پیام خطا/موفقیت -->
+            <div id="loginError" class="error-message" style="display:none;"></div>
+            
+            <div class="login-footer">
+                <p>سیستم مدیریت یکپارچه عدم انطباق - نسخه 2.0</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- مودال فراموشی رمز عبور -->
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal-box">
+            <h3 id="forgotTitle">فراموشی رمز عبور</h3>
+            <p id="forgotDesc">برای دریافت رمز موقت، ایمیل خود را وارد کنید.</p>
+            <div class="form-group">
+                <label id="forgotEmailLabel">ایمیل</label>
+                <input type="email" id="forgotEmail" placeholder="example@domain.com" dir="ltr">
+            </div>
+            <div class="forgot-message" id="forgotMessage"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="sendTemporaryPassword()">
+                    <i class="fas fa-paper-plane"></i> <span id="forgotSendBtn">ارسال رمز موقت</span>
+                </button>
+                <button class="btn btn-secondary" onclick="closeForgotModal()">
+                    <span id="forgotCloseBtn">بستن</span>
+                </button>
+            </div>
+        </div>
+    </div>    
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script>
+    // ============================================
+    // ورود به سیستم - نسخه نهایی
+    // ============================================
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const rememberMe = document.getElementById('rememberMe').checked;
+        const loginBtn = document.getElementById('loginBtn');
+        const errorEl = document.getElementById('loginError');
+        
+        // مخفی کردن پیام خطای قبلی
+        errorEl.style.display = 'none';
+        errorEl.className = 'error-message';
+        
+        if (!username || !password) {
+            showError('لطفاً نام کاربری و رمز عبور را وارد کنید!');
+            return;
+        }
+        
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ورود...';
+        
+        try {
+            console.log('🔑 Attempting login with:', username);
+            console.log('📡 API URL:', window.API_BASE_URL);
+            
+            // تست اتصال API اول
+            console.log('📡 Testing API connection...');
+            try {
+                const testResult = await window.testApiConnection();
+                console.log('🔍 API Test:', testResult);
+            } catch (testErr) {
+                console.warn('⚠️ API test failed, continuing anyway:', testErr);
+            }
+            
+            // لاگین
+            const result = await window.loginUser(username, password);
+            console.log('🔑 Login result:', result);
+            
+            if (result && result.success) {
+                // ذخیره اطلاعات کاربر
+                const user = result.user;
+                user.password = password;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                if (rememberMe) {
+                    localStorage.setItem('rememberMe', 'true');
+                } else {
+                    localStorage.removeItem('rememberMe');
+                }
+                
+                showSuccess('ورود با موفقیت انجام شد!');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 800);
+            } else {
+                showError(result?.error || 'نام کاربری یا رمز عبور اشتباه است!');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ورود به سیستم';
+            }
+        } catch (error) {
+            console.error('❌ Login error:', error);
+            
+            // در صورت خطا، سعی می‌کنیم با localStorage لاگین کنیم
+            try {
+                console.log('📦 Trying localStorage fallback...');
+                const fallbackResult = window.loginFromLocalStorage ? 
+                    window.loginFromLocalStorage(username, password) : 
+                    null;
+                
+                if (fallbackResult && fallbackResult.success) {
+                    const user = fallbackResult.user;
+                    user.password = password;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    if (rememberMe) {
+                        localStorage.setItem('rememberMe', 'true');
+                    }
+                    showSuccess('ورود با موفقیت انجام شد!');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 800);
+                    return;
+                }
+            } catch (fallbackErr) {
+                console.error('❌ Fallback error:', fallbackErr);
+            }
+            
+            showError('خطا در اتصال به سرور! لطفاً دوباره تلاش کنید.');
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ورود به سیستم';
+        }
+    });
+
+    function showError(message) {
+        const errorEl = document.getElementById('loginError');
+        errorEl.style.display = 'block';
+        errorEl.className = 'error-message error';
+        errorEl.style.background = '#f8d7da';
+        errorEl.style.color = '#721c24';
+        errorEl.style.border = '1px solid #f5c6cb';
+        errorEl.style.padding = '12px 15px';
+        errorEl.style.borderRadius = '8px';
+        errorEl.style.marginBottom = '15px';
+        errorEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+    }
+
+    function showSuccess(message) {
+        const errorEl = document.getElementById('loginError');
+        errorEl.style.display = 'block';
+        errorEl.className = 'error-message success';
+        errorEl.style.background = '#d4edda';
+        errorEl.style.color = '#155724';
+        errorEl.style.border = '1px solid #c3e6cb';
+        errorEl.style.padding = '12px 15px';
+        errorEl.style.borderRadius = '8px';
+        errorEl.style.marginBottom = '15px';
+        errorEl.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
+    }
+
+    // ============================================
+    // توابع کمکی
+    // ============================================
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const icon = document.querySelector('.toggle-password i');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    }
+
+    // ============================================
+    // فراموشی رمز عبور - توابع مودال
+    // ============================================
+    function openForgotModal(e) {
+        e.preventDefault();
+        document.getElementById('forgotModal').classList.add('show');
+        document.getElementById('forgotEmail').value = '';
+        document.getElementById('forgotMessage').className = 'forgot-message';
+        document.getElementById('forgotMessage').textContent = '';
+        document.getElementById('forgotMessage').style.display = 'none';
+    }
+
+    function closeForgotModal() {
+        document.getElementById('forgotModal').classList.remove('show');
+    }
+
+    function sendTemporaryPassword() {
+        var email = document.getElementById('forgotEmail').value.trim();
+        var msg = document.getElementById('forgotMessage');
+        msg.style.display = 'block';
+
+        if (!email) {
+            msg.className = 'forgot-message error';
+            msg.textContent = 'لطفاً ایمیل خود را وارد کنید!';
+            return;
+        }
+        if (!email.includes('@') || !email.includes('.')) {
+            msg.className = 'forgot-message error';
+            msg.textContent = 'لطفاً یک ایمیل معتبر وارد کنید!';
+            return;
+        }
+
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        var user = null;
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].email && users[i].email.toLowerCase() === email.toLowerCase()) {
+                user = users[i];
+                break;
+            }
+        }
+
+        if (!user) {
+            msg.className = 'forgot-message error';
+            msg.textContent = 'ایمیل وارد شده در سیستم یافت نشد!';
+            return;
+        }
+
+        var tempPass = Math.floor(100000 + Math.random() * 900000).toString();
+        user.temp_password = tempPass;
+        user.temp_password_expiry = new Date(Date.now() + 30 * 60000).toISOString();
+        localStorage.setItem('users', JSON.stringify(users));
+
+        msg.className = 'forgot-message success';
+        msg.textContent = 'رمز موقت به ایمیل ' + email + ' ارسال شد! (شبیه‌سازی: ' + tempPass + ')';
+
+        setTimeout(function() {
+            closeForgotModal();
+            document.getElementById('password').value = tempPass;
+            showToast('رمز موقت در فیلد رمز عبور قرار داده شد.', 'success');
+        }, 3000);
+    }
+
+    function showToast(msg, type) {
+        var colors = { success: '#27ae60', error: '#e74c3c', warning: '#f39c12', info: '#3498db' };
+        var t = document.createElement('div');
+        t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:15px 30px;background:' + (colors[type] || '#3498db') + ';color:white;border-radius:10px;font-weight:600;font-size:14px;z-index:99999;box-shadow:0 10px 30px rgba(0,0,0,0.2);max-width:90%;text-align:center;font-family:inherit;';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(function() { 
+            t.style.opacity = '0'; 
+            t.style.transition = 'opacity 0.5s'; 
+            setTimeout(function() { 
+                if (t.parentNode) t.remove(); 
+            }, 500); 
+        }, 4000);
+    }
+
+    // بستن مودال با کلیک خارج
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('forgotModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) closeForgotModal();
+            });
+        }
+    });
+
+    // بستن مودال با ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeForgotModal();
+    });
+
+    // انتخاب زبان
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.lang-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            var lang = this.dataset.lang;
+            if (window.setLanguage) {
+                window.setLanguage(lang);
+            }
+        });
+    });
+
+    // چک کردن remember me
+    if (localStorage.getItem('rememberMe') === 'true') {
+        document.getElementById('rememberMe').checked = true;
+    }
+
+    // اگر کاربر قبلاً لاگین کرده بود، مستقیماً به داشبورد برود
+    document.addEventListener('DOMContentLoaded', function() {
+        var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && currentUser.username) {
+            // کاربر قبلاً لاگین کرده، اما ممکن است جلسه منقضی شده باشد
+            console.log('👤 User already logged in:', currentUser.username);
+        }
+    });
+
+    console.log('✅ index.html loaded successfully');
+    console.log('🌐 Current URL:', window.location.href);
+    console.log('📡 API_URL:', window.API_BASE_URL);
+    </script>
+</body>
+</html>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت کاربران</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .users-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            padding: 25px;
+        }
+        .users-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .users-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .user-table th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            text-align: right;
+        }
+        .user-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .user-table tr:hover {
+            background: #fafafa;
+        }
+        .role-badge {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .role-badge.admin { background: #d4edda; color: #155724; }
+        .role-badge.quality { background: #d1ecf1; color: #0c5460; }
+        .role-badge.production { background: #fff3cd; color: #856404; }
+        .role-badge.purchasing { background: #e8daef; color: #6c3483; }
+        .role-badge.warehouse { background: #fdebd0; color: #935e38; }
+        .role-badge.engineering { background: #d5f5e3; color: #1a6e4a; }
+        .role-badge.ceo { background: #fadbd8; color: #922b21; }
+        .role-badge.user { background: #e9ecef; color: #495057; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+        @media (max-width: 768px) {
+            .user-table {
+                font-size: 13px;
+            }
+            .user-table th, .user-table td {
+                padding: 8px 10px;
+            }
+            .users-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="dashboard.html">داشبورد</a>
+                    <span class="separator">/</span>
+                    <span class="current">مدیریت کاربران</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h2 id="pageTitle">مدیریت کاربران</h2>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="header-notifications" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationBadge">0</span>
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="dropdown-header">
+                            <span>اعلان‌ها</span>
+                            <a href="notifications.html">مشاهده همه</a>
+                        </div>
+                        <div class="dropdown-body" id="notificationList">
+                            <div class="no-notifications">هیچ اعلان جدیدی وجود ندارد</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-settings">
+                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+                </div>
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+                    <span id="userName">کاربر</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
+                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- سایدبار -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📋 NCR System</h2>
+                <p>ISO 9001:2015</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
+                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
+                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
+                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
+                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
+                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
+                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
+                <a href="users.html" class="active"><i class="fas fa-users"></i> مدیریت کاربران</a>
+                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
+            </nav>
+        </aside>
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <div class="users-container">
+                <div class="users-header">
+                    <h3><i class="fas fa-users" style="color:#667eea;"></i> لیست کاربران</h3>
+                    <button class="btn btn-primary" onclick="openAddUserModal()">
+                        <i class="fas fa-user-plus"></i> افزودن کاربر جدید
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="user-table" id="userTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>نام کاربری</th>
+                                <th>نام کامل</th>
+                                <th>ایمیل</th>
+                                <th>نقش</th>
+                                <th>دپارتمان</th>
+                                <th>تاریخ ثبت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align:center;">در حال بارگذاری...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- مودال افزودن/ویرایش کاربر -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-box">
+            <h3 id="modalTitle">افزودن کاربر جدید</h3>
+            <form id="userForm" onsubmit="saveUser(event)">
+                <input type="hidden" id="editUserId" value="0">
+                <div class="form-group">
+                    <label>نام کاربری <span class="required">*</span></label>
+                    <input type="text" id="username" placeholder="نام کاربری" required>
+                </div>
+                <div class="form-group" id="passwordGroup">
+                    <label>رمز عبور <span class="required" id="passwordRequired">*</span></label>
+                    <input type="password" id="password" placeholder="رمز عبور" required>
+                </div>
+                <div class="form-group">
+                    <label>نام کامل <span class="required">*</span></label>
+                    <input type="text" id="fullName" placeholder="نام و نام خانوادگی" required>
+                </div>
+                <div class="form-group">
+                    <label>ایمیل</label>
+                    <input type="email" id="email" placeholder="example@domain.com">
+                </div>
+                <div class="form-group">
+                    <label>نقش <span class="required">*</span></label>
+                    <select id="role" required>
+                        <option value="admin">مدیر</option>
+                        <option value="quality">کارشناس کیفیت</option>
+                        <option value="production">کارشناس تولید</option>
+                        <option value="purchasing">کارشناس خرید</option>
+                        <option value="warehouse">کارشناس انبار</option>
+                        <option value="engineering">کارشناس مهندسی</option>
+                        <option value="ceo">مدیرعامل</option>
+                        <option value="user">کاربر عادی</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>دپارتمان</label>
+                    <select id="department">
+                        <option value="">انتخاب کنید</option>
+                        <option value="مدیریت">مدیریت</option>
+                        <option value="کنترل کیفیت">کنترل کیفیت</option>
+                        <option value="تولید">تولید</option>
+                        <option value="انبار">انبار</option>
+                        <option value="مهندسی">مهندسی</option>
+                        <option value="خرید">خرید</option>
+                        <option value="خدمات پس از فروش">خدمات پس از فروش</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>زبان</label>
+                    <select id="language">
+                        <option value="fa">فارسی</option>
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()"><i class="fas fa-times"></i> انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script>
+    // ============================================
+    // مدیریت کاربران - نسخه نهایی
+    // ============================================
+    // توجه: API_BASE_URL قبلاً در database.js تعریف شده است
+    // از window.API_BASE_URL استفاده می‌کنیم
+    
+    let users = [];
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
+        
+        if (currentUser) {
+            document.getElementById('userName').textContent = currentUser.full_name;
+        }
+
+        loadUsers();
+        updateNotifications();
+    });
+
+    // ============================================
+    // بارگذاری کاربران از API یا localStorage
+    // ============================================
+    async function loadUsers() {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">در حال بارگذاری...</td></tr>';
+        
+        try {
+            // استفاده از آدرس کامل
+            const url = 'https://ncr.page.gd/api/get_users.php';
+            console.log('📡 Fetching users from:', url);
+            
+            const response = await fetch(url);
+            console.log('📡 Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error('HTTP error! status: ' + response.status);
+            }
+            
+            const result = await response.json();
+            console.log('📡 Users result:', result);
+            
+            if (result.success) {
+                users = result.data;
+                renderUsers();
+                return;
+            } else {
+                console.error('❌ Error loading users:', result.error);
+            }
+        } catch (error) {
+            console.error('❌ Fetch error:', error);
+        }
+        
+        // اگر API کار نکرد، از localStorage استفاده کن
+        loadUsersFromLocalStorage();
+    }
+
+    function loadUsersFromLocalStorage() {
+        console.log('📦 Loading users from localStorage...');
+        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        
+        if (storedUsers.length === 0) {
+            // ایجاد کاربران پیش‌فرض
+            const defaultUsers = [
+                { id: 1, username: 'admin', full_name: 'مدیر سیستم', email: 'admin@ncr-system.com', role: 'admin', department: 'مدیریت', language: 'fa', created_at: new Date().toISOString() },
+                { id: 2, username: 'quality', full_name: 'علی حسینی', email: 'quality@ncr-system.com', role: 'quality', department: 'کنترل کیفیت', language: 'fa', created_at: new Date().toISOString() },
+                { id: 3, username: 'production', full_name: 'احمد رضایی', email: 'production@ncr-system.com', role: 'production', department: 'تولید', language: 'fa', created_at: new Date().toISOString() }
+            ];
+            localStorage.setItem('users', JSON.stringify(defaultUsers));
+            users = defaultUsers;
+        } else {
+            users = storedUsers;
+        }
+        
+        renderUsers();
+        showNotification('بارگذاری از حافظه محلی انجام شد.', 'info');
+    }
+
+    function renderUsers() {
+        const tbody = document.getElementById('userTableBody');
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">هیچ کاربری ثبت نشده است</td></tr>';
+            return;
+        }
+
+        const roleLabels = {
+            admin: 'مدیر',
+            quality: 'کارشناس کیفیت',
+            production: 'کارشناس تولید',
+            purchasing: 'کارشناس خرید',
+            warehouse: 'کارشناس انبار',
+            engineering: 'کارشناس مهندسی',
+            ceo: 'مدیرعامل',
+            user: 'کاربر عادی'
+        };
+
+        tbody.innerHTML = users.map((user, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${user.username}</strong></td>
+                <td>${user.full_name}</td>
+                <td>${user.email || '-'}</td>
+                <td><span class="role-badge ${user.role}">${roleLabels[user.role] || user.role}</span></td>
+                <td>${user.department || '-'}</td>
+                <td>${user.created_at ? new Date(user.created_at).toLocaleDateString('fa-IR') : '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="editUser(${user.id})"><i class="fas fa-edit"></i></button>
+                    ${user.username !== 'admin' ? `<button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id}, '${user.username}')"><i class="fas fa-trash"></i></button>` : ''}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ============================================
+    // توابع مدیریت کاربران
+    // ============================================
+    function openAddUserModal() {
+        document.getElementById('modalTitle').textContent = 'افزودن کاربر جدید';
+        document.getElementById('editUserId').value = '0';
+        document.getElementById('username').value = '';
+        document.getElementById('username').disabled = false;
+        document.getElementById('password').value = '';
+        document.getElementById('passwordGroup').style.display = 'block';
+        document.getElementById('passwordRequired').style.display = 'inline';
+        document.getElementById('fullName').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('role').value = 'user';
+        document.getElementById('department').value = '';
+        document.getElementById('language').value = 'fa';
+        document.getElementById('userModal').classList.add('show');
+    }
+
+    function editUser(id) {
+        const user = users.find(u => u.id === id);
+        if (!user) {
+            showNotification('کاربر یافت نشد!', 'error');
+            return;
+        }
+
+        document.getElementById('modalTitle').textContent = 'ویرایش کاربر';
+        document.getElementById('editUserId').value = user.id;
+        document.getElementById('username').value = user.username;
+        document.getElementById('username').disabled = true;
+        document.getElementById('password').value = '';
+        document.getElementById('passwordGroup').style.display = 'none';
+        document.getElementById('passwordRequired').style.display = 'none';
+        document.getElementById('fullName').value = user.full_name;
+        document.getElementById('email').value = user.email || '';
+        document.getElementById('role').value = user.role;
+        document.getElementById('department').value = user.department || '';
+        document.getElementById('language').value = user.language || 'fa';
+        document.getElementById('userModal').classList.add('show');
+    }
+
+    function closeUserModal() {
+        document.getElementById('userModal').classList.remove('show');
+        document.getElementById('username').disabled = false;
+    }
+
+    async function saveUser(event) {
+        event.preventDefault();
+        
+        const id = parseInt(document.getElementById('editUserId').value);
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const role = document.getElementById('role').value;
+        const department = document.getElementById('department').value;
+        const language = document.getElementById('language').value;
+
+        if (!username || !fullName) {
+            showNotification('لطفاً فیلدهای الزامی را تکمیل کنید.', 'error');
+            return;
+        }
+
+        if (id === 0 && !password) {
+            showNotification('رمز عبور الزامی است.', 'error');
+            return;
+        }
+
+        try {
+            // ابتدا سعی می‌کنیم از API استفاده کنیم
+            const url = 'https://ncr.page.gd/api/get_users.php';
+            let method = 'POST';
+            let data = { username, full_name: fullName, email, role, department, language };
+
+            if (id > 0) {
+                method = 'PUT';
+                data.id = id;
+            } else {
+                data.password = password;
+            }
+
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                closeUserModal();
+                showNotification(result.message || 'عملیات با موفقیت انجام شد.', 'success');
+                loadUsers();
+                return;
+            } else {
+                showNotification(result.error || 'خطا در انجام عملیات.', 'error');
+                return;
+            }
+        } catch (error) {
+            console.warn('⚠️ API save failed, using localStorage:', error);
+        }
+
+        // اگر API کار نکرد، از localStorage استفاده کن
+        saveUserToLocalStorage(id, username, password, fullName, email, role, department, language);
+    }
+
+    function saveUserToLocalStorage(id, username, password, fullName, email, role, department, language) {
+        let storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        
+        if (id === 0) {
+            // افزودن کاربر جدید
+            const newUser = {
+                id: Date.now(),
+                username: username,
+                password: password,
+                full_name: fullName,
+                email: email,
+                role: role,
+                department: department,
+                language: language,
+                created_at: new Date().toISOString()
+            };
+            
+            // بررسی تکراری نبودن نام کاربری
+            if (storedUsers.find(u => u.username === username)) {
+                showNotification('نام کاربری قبلاً ثبت شده است!', 'error');
+                return;
+            }
+            
+            storedUsers.push(newUser);
+            showNotification('کاربر با موفقیت ایجاد شد.', 'success');
+        } else {
+            // ویرایش کاربر
+            const index = storedUsers.findIndex(u => u.id === id);
+            if (index === -1) {
+                showNotification('کاربر یافت نشد!', 'error');
+                return;
+            }
+            storedUsers[index].full_name = fullName;
+            storedUsers[index].email = email;
+            storedUsers[index].role = role;
+            storedUsers[index].department = department;
+            storedUsers[index].language = language;
+            if (password) {
+                storedUsers[index].password = password;
+            }
+            showNotification('کاربر با موفقیت بروزرسانی شد.', 'success');
+        }
+        
+        localStorage.setItem('users', JSON.stringify(storedUsers));
+        closeUserModal();
+        loadUsers();
+    }
+
+    async function deleteUser(id, username) {
+        if (!confirm(`آیا از حذف کاربر "${username}" مطمئن هستید؟`)) return;
+
+        try {
+            // ابتدا سعی می‌کنیم از API استفاده کنیم
+            const response = await fetch('https://ncr.page.gd/api/get_users.php', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('کاربر با موفقیت حذف شد.', 'success');
+                loadUsers();
+                return;
+            } else if (result.error) {
+                showNotification(result.error, 'error');
+                return;
+            }
+        } catch (error) {
+            console.warn('⚠️ API delete failed, using localStorage:', error);
+        }
+
+        // اگر API کار نکرد، از localStorage استفاده کن
+        let storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        storedUsers = storedUsers.filter(u => u.id !== id);
+        localStorage.setItem('users', JSON.stringify(storedUsers));
+        showNotification('کاربر با موفقیت حذف شد.', 'success');
+        loadUsers();
+    }
+
+    // ============================================
+    // توابع عمومی
+    // ============================================
+    function showNotification(message, type) {
+        const colors = {
+            success: '#27ae60',
+            error: '#e74c3c',
+            warning: '#f39c12',
+            info: '#3498db'
+        };
+        
+        // حذف اعلان‌های قبلی
+        const oldNotifications = document.querySelectorAll('.custom-notification');
+        oldNotifications.forEach(el => el.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = 'custom-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 25px;
+            background: ${colors[type] || '#3498db'};
+            color: white;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 99999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideDown 0.5s ease;
+            max-width: 400px;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                if (notification.parentNode) notification.remove();
+            }, 500);
+        }, 3000);
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+        document.getElementById('mainContent').classList.toggle('expanded');
+    }
+
+    function toggleUserMenu() {
+        document.getElementById('userDropdown').classList.toggle('show');
+    }
+
+    function toggleNotifications() {
+        document.getElementById('notificationsDropdown').classList.toggle('show');
+    }
+
+    function updateNotifications() {
+        const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        const unread = notifications.filter(n => !n.is_read);
+        document.getElementById('notificationBadge').textContent = unread.length;
+    }
+
+    function changePassword() {
+        window.location.href = 'profile.html?action=change-password';
+    }
+
+    function logout() {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+    }
+
+    // بستن مودال با کلیک خارج
+    document.getElementById('userModal').addEventListener('click', function(e) {
+        if (e.target === this) closeUserModal();
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-profile')) {
+            document.getElementById('userDropdown').classList.remove('show');
+        }
+        if (!e.target.closest('.header-notifications')) {
+            document.getElementById('notificationsDropdown').classList.remove('show');
+        }
+    });
+
+    console.log('✅ users.html loaded successfully');
+    console.log('📡 API_URL:', window.API_BASE_URL || 'https://ncr.page.gd/api/');
+    </script>
+</body>
+</html>

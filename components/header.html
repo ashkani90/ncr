@@ -1,0 +1,60 @@
+<!-- components/header.html -->
+<header class="app-header">
+    <div class="header-left">
+        <button class="hamburger" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="breadcrumb" id="breadcrumb">
+            <a href="dashboard.html" data-i18n="menu_dashboard">داشبورد</a>
+            <span class="separator">/</span>
+            <span class="current" id="pageTitle" data-i18n="dashboard_title">داشبورد</span>
+        </div>
+    </div>
+    <div class="header-center">
+        <h2 id="headerTitle" data-i18n="dashboard_title">داشبورد مدیریت</h2>
+    </div>
+    <div class="header-right">
+        <div class="header-date">
+            <i class="fas fa-calendar-alt"></i>
+            <span id="currentDate"></span>
+        </div>
+        
+        <!-- انتخاب زبان در هدر -->
+        <div class="header-language">
+            <span class="language-label"><i class="fas fa-globe"></i> <span data-i18n="language">زبان</span></span>
+            <select id="languageSelector" class="lang-select" onchange="window.setLanguage(this.value)">
+                <option value="fa">فارسی</option>
+                <option value="en">English</option>
+                <option value="zh">中文</option>
+            </select>
+        </div>
+        
+        <div class="header-notifications" onclick="toggleNotifications()">
+            <i class="fas fa-bell"></i>
+            <span class="badge" id="notificationBadge">0</span>
+            <div class="notifications-dropdown" id="notificationsDropdown">
+                <div class="dropdown-header">
+                    <span data-i18n="notifications">اعلان‌ها</span>
+                    <a href="notifications.html" data-i18n="view_all">مشاهده همه</a>
+                </div>
+                <div class="dropdown-body" id="notificationList">
+                    <div class="no-notifications" data-i18n="no_notifications">هیچ اعلان جدیدی وجود ندارد</div>
+                </div>
+            </div>
+        </div>
+        <div class="header-settings">
+            <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+        </div>
+        <div class="user-profile" onclick="toggleUserMenu()">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+            <span id="userName">کاربر</span>
+            <i class="fas fa-chevron-down"></i>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="profile.html"><i class="fas fa-user-edit"></i> <span data-i18n="edit_profile">ویرایش پروفایل</span></a>
+                <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> <span data-i18n="change_password">تغییر رمز عبور</span></a>
+                <hr>
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">خروج</span></a>
+            </div>
+        </div>
+    </div>
+</header>

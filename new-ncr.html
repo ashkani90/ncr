@@ -1,0 +1,3013 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت NCR جدید - نسخه سازمانی</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="i18n.js?v=2"></script>
+    <style>
+        /* استایل‌های اضافی مختص این صفحه */
+        .form-progress {
+            margin-bottom: 25px;
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 45px;
+            right: 45px;
+            height: 3px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .progress-step .step-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .progress-step.active .step-num {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .progress-step.completed .step-num {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .progress-step.locked .step-num {
+            background: #e9ecef;
+            color: #adb5bd;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .progress-step .step-label {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #6c757d;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .progress-step.active .step-label {
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .progress-step.completed .step-label {
+            color: #27ae60;
+        }
+
+        .progress-step.locked .step-label {
+            color: #adb5bd;
+        }
+
+        .form-step {
+            display: none;
+            animation: fadeSlide 0.4s ease;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-step h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-right: 15px;
+            border-right: 4px solid #667eea;
+            font-size: 18px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px 22px;
+        }
+
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-grid .half-width {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+        }
+
+        .form-group label .hint {
+            font-weight: 400;
+            font-size: 11px;
+            color: #95a5a6;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 9px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #fafcff;
+            width: 100%;
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled,
+        .form-group textarea:disabled {
+            background: #f0f2f7;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.10);
+            background: #fff;
+        }
+
+        .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .form-group .help-text {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            padding: 5px 0;
+        }
+
+        .checkbox-group label {
+            font-weight: 400;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 22px;
+            padding: 5px 0;
+        }
+
+        .radio-group label {
+            font-weight: 400;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sub-field {
+            display: none;
+        }
+
+        .sub-field.visible {
+            display: block;
+        }
+
+        .sub-field .nested-section {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            border: 1px solid #e8edf5;
+            margin-top: 5px;
+        }
+
+        .sub-field .nested-section .nested-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .step-actions .btn {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-actions .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .step-actions .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .step-actions .btn-primary:disabled {
+            background: #a8b5e8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .step-actions .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .step-actions .btn-success:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        .step-actions .btn-success:disabled {
+            background: #90c8a8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .step-actions .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .step-actions .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .step-actions .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .step-actions .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .step-actions .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        .step-actions .btn-warning:hover {
+            background: #d68910;
+        }
+
+        .step-actions .btn-info {
+            background: #3498db;
+            color: white;
+        }
+        .step-actions .btn-info:hover {
+            background: #2c81ba;
+        }
+
+        .step-actions .btn-success-outline {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #27ae60;
+        }
+        .step-actions .btn-success-outline:hover {
+            background: #27ae60;
+            color: white;
+        }
+
+        .step-actions .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .info-box {
+            background: #eef2ff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #2c3e50;
+            border-right: 4px solid #667eea;
+            margin-top: 6px;
+        }
+
+        .info-box i {
+            color: #667eea;
+            margin-left: 6px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #856404;
+            border: 1px solid #ffe69b;
+            margin-top: 6px;
+        }
+
+        .warning-box i {
+            color: #f39c12;
+            margin-left: 6px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+        .status-badge.in-progress { background: #cce5ff; color: #004085; }
+        .status-badge.approved { background: #d4edda; color: #155724; }
+        .status-badge.rejected { background: #f8d7da; color: #721c24; }
+        .status-badge.closed { background: #d6d8db; color: #383d41; }
+        .status-badge.waiting { background: #e8daef; color: #6c3483; }
+        .status-badge.review { background: #fdebd0; color: #a04000; }
+        .status-badge.info { background: #cce5ff; color: #004085; }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #2c3e50;
+            color: #fff;
+            padding: 16px 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+        .toast-message.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+        .toast-message.success {
+            background: #27ae60;
+        }
+        .toast-message.error {
+            background: #e74c3c;
+        }
+        .toast-message.info {
+            background: #3498db;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .workflow-status {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 20px;
+        }
+        .workflow-status .current-stage {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .workflow-status .stage-label {
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .readonly-mode .form-group input,
+        .readonly-mode .form-group select,
+        .readonly-mode .form-group textarea {
+            background: #f8f9fa !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+            border-color: #dee2e6;
+        }
+
+        .notification-item.unread {
+            background: #f0f4ff;
+            border-right: 3px solid #667eea;
+        }
+        .notification-item .ncr-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .notification-item .ncr-link:hover {
+            text-decoration: underline;
+        }
+
+        .submission-success {
+            background: #d4edda;
+            border: 2px solid #27ae60;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .submission-success i {
+            color: #27ae60;
+            font-size: 32px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .submission-success h4 {
+            color: #155724;
+            margin-bottom: 5px;
+        }
+        .submission-success p {
+            color: #155724;
+            font-size: 14px;
+        }
+
+        .step-disabled-msg {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .step-disabled-msg i {
+            font-size: 28px;
+            color: #f39c12;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .step-disabled-msg h4 {
+            color: #856404;
+        }
+        .step-disabled-msg p {
+            color: #856404;
+        }
+
+        .step1-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px 20px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .step1-summary-grid .summary-item {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            padding: 4px 0;
+            border-bottom: 1px dashed #e9ecef;
+        }
+        .step1-summary-grid .summary-item .label {
+            color: #6c757d;
+            font-weight: 400;
+            min-width: 70px;
+        }
+        .step1-summary-grid .summary-item .value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        .step1-summary-grid .full-row {
+            grid-column: 1 / -1;
+        }
+
+        /* Fishbone Input Styles */
+        .fishbone-container {
+            margin: 10px 0;
+        }
+        .fishbone-category {
+            background: #f8faff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+        .fishbone-category .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .fishbone-category .category-header input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .fishbone-category .category-header .category-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            flex: 1;
+        }
+        .fishbone-category .category-header .category-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .fishbone-category .category-header .category-actions .btn {
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+        .fishbone-category .sub-items {
+            margin-top: 8px;
+            padding-right: 28px;
+            display: none;
+        }
+        .fishbone-category .sub-items.expanded {
+            display: block;
+        }
+        .fishbone-category .sub-items .sub-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 13px;
+            color: #2c3e50;
+            border-bottom: 1px dashed #e9ecef;
+        }
+        .fishbone-category .sub-items .sub-item .sub-item-text {
+            flex: 1;
+            padding: 2px 6px;
+            background: #fff;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .fishbone-category .sub-items .sub-item .sub-item-text:hover {
+            border-color: #e9ecef;
+        }
+        .fishbone-category .sub-items .sub-item .remove-sub {
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .fishbone-category .sub-items .sub-item .remove-sub:hover {
+            opacity: 1;
+        }
+        .fishbone-category .add-sub {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .fishbone-category .add-sub input {
+            flex: 1;
+            padding: 4px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            min-width: 80px;
+        }
+        .fishbone-category .add-sub input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .fishbone-category .add-sub .btn {
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        /* Fishbone Diagram - Professional Vector SVG */
+        .fishbone-diagram-container {
+            margin-top: 25px;
+            padding: 20px;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            overflow-x: auto;
+        }
+        .fishbone-diagram-container .diagram-title {
+            text-align: center;
+            font-weight: 800;
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .fishbone-svg-wrapper {
+            width: 100%;
+            min-width: 860px;
+            background: #fafcff;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+        }
+        .fishbone-svg-wrapper svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .no-fishbone-data {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .no-fishbone-data i {
+            font-size: 30px;
+            display: block;
+            margin-bottom: 10px;
+            color: #adb5bd;
+        }
+
+        @media print {
+            .fishbone-diagram-container {
+                border: 1px solid #cbd5e1 !important;
+                background: white !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+            .fishbone-svg-wrapper {
+                background: white !important;
+                border: none !important;
+                min-width: 100% !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .sub-field .nested-section .nested-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .form-grid .half-width {
+                grid-column: span 1;
+            }
+            .step1-summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .sub-field .nested-section .nested-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid .half-width {
+                grid-column: span 1;
+            }
+            .progress-bar::before {
+                display: none;
+            }
+            .progress-step {
+                min-width: 40px;
+            }
+            .progress-step .step-label {
+                font-size: 9px;
+            }
+            .step-actions {
+                flex-direction: column;
+            }
+            .step-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .workflow-status {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .step1-summary-grid {
+                grid-template-columns: 1fr;
+            }
+            .fishbone-category .add-sub {
+                flex-wrap: wrap;
+            }
+            .fishbone-category .add-sub input {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-message" id="toastMessage">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastText">پیام</span>
+    </div>
+
+    <div class="app-container">
+
+        <header class="app-header">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="dashboard.html" data-i18n="menu_dashboard">داشبورد</a>
+                    <span class="separator">/</span>
+                    <a href="ncr-list.html" data-i18n="menu_ncr_list">لیست NCR</a>
+                    <span class="separator">/</span>
+                    <span class="current" data-i18n="menu_new_ncr">ثبت NCR جدید</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h2 id="pageTitle" data-i18n="menu_new_ncr">ثبت NCR جدید</h2>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="header-language">
+                    <span class="language-label"><i class="fas fa-globe"></i> <span data-i18n="language">زبان</span></span>
+                    <select id="languageSelector" class="lang-select" onchange="window.setLanguage(this.value)">
+                        <option value="fa">فارسی</option>
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
+                <div class="header-notifications" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationBadge">0</span>
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="dropdown-header">
+                            <span data-i18n="notifications">اعلان‌ها</span>
+                            <a href="notifications.html" data-i18n="view_all">مشاهده همه</a>
+                        </div>
+                        <div class="dropdown-body" id="notificationList">
+                            <div class="no-notifications" data-i18n="no_notifications">هیچ اعلان جدیدی وجود ندارد</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-settings">
+                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+                </div>
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+                    <span id="userName">کاربر</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html"><i class="fas fa-user-edit"></i> <span data-i18n="edit_profile">ویرایش پروفایل</span></a>
+                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> <span data-i18n="change_password">تغییر رمز عبور</span></a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">خروج</span></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📋 NCR System</h2>
+                <p>ISO 9001:2015</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> <span data-i18n="menu_dashboard">داشبورد</span></a>
+                <a href="ncr-list.html"><i class="fas fa-list"></i> <span data-i18n="menu_ncr_list">لیست NCRها</span></a>
+                <a href="new-ncr.html" class="active"><i class="fas fa-plus-circle"></i> <span data-i18n="menu_new_ncr">ثبت NCR جدید</span></a>
+                <a href="claim-form.html"><i class="fas fa-file-signature"></i> <span data-i18n="menu_claim">فرم کلیم</span></a>
+                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> <span data-i18n="menu_shortage">عدم ارسال قطعه</span></a>
+                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> <span data-i18n="menu_purchase">درخواست خرید</span></a>
+                <a href="corrective-action.html"><i class="fas fa-tools"></i> <span>اقدام اصلاحی/پیشگیرانه</span></a>
+                <a href="user-management.html"><i class="fas fa-users-cog"></i> <span>مدیریت کاربران</span></a>
+                <a href="notifications.html"><i class="fas fa-bell"></i> <span data-i18n="menu_notifications">اعلان‌ها</span></a>
+                <a href="settings.html"><i class="fas fa-cog"></i> <span data-i18n="menu_settings">تنظیمات</span></a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+
+            <div class="form-section" id="formSection">
+
+                <div class="workflow-status" id="workflowStatus">
+                    <div>
+                        <span class="stage-label">مرحله جاری:</span>
+                        <span class="current-stage" id="currentStageLabel">شناسایی عدم انطباق</span>
+                    </div>
+                    <div>
+                        <span style="color:#6c757d;font-size:13px;">
+                            وضعیت: <span id="ncrStatusBadge" class="status-badge pending">در انتظار</span>
+                        </span>
+                    </div>
+                    <div>
+                        <span style="color:#6c757d;font-size:13px;">
+                            مسئول: <span id="responsibleUser">گزارش‌دهنده</span>
+                        </span>
+                    </div>
+                    <div id="editModeSpan">
+                        <span style="color:#6c757d;font-size:13px;">
+                            حالت: <span id="editModeLabel" class="status-badge info">ویرایش</span>
+                        </span>
+                    </div>
+                    <div id="assignedUserDiv" style="display:none;">
+                        <span style="color:#6c757d;font-size:13px;">
+                            ارسال به: <span id="assignedUserLabel" class="status-badge waiting">-</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-progress">
+                    <div class="progress-bar" id="progressSteps">
+                        <div class="progress-step active" data-step="1" onclick="goToStep(1)">
+                            <span class="step-num">1</span>
+                            <span class="step-label">شناسایی</span>
+                        </div>
+                        <div class="progress-step locked" data-step="2" onclick="goToStep(2)">
+                            <span class="step-num">2</span>
+                            <span class="step-label">ارزیابی و تحلیل</span>
+                        </div>
+                        <div class="progress-step locked" data-step="3" onclick="goToStep(3)">
+                            <span class="step-num">3</span>
+                            <span class="step-label">تعیین تکلیف</span>
+                        </div>
+                        <div class="progress-step locked" data-step="4" onclick="goToStep(4)">
+                            <span class="step-num">4</span>
+                            <span class="step-label">پایش</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="ncrForm" onsubmit="return false;">
+
+                    <!-- STEP 1: IDENTIFICATION -->
+                    <div class="form-step active" data-step="1">
+                        <h3><i class="fas fa-search" style="color:#667eea;"></i> مرحله ۱: شناسایی عدم انطباق</h3>
+                        <p style="color:#6c757d;font-size:14px;margin-bottom:15px;">
+                            <i class="fas fa-user-check" style="color:#27ae60;"></i> 
+                            مسئول: <strong>گزارش‌دهنده (کاربر)</strong>
+                            <span style="margin-right:15px;font-size:13px;color:#95a5a6;">
+                                (وضعیت: <span id="step1Status" class="status-badge pending">در انتظار</span>)
+                            </span>
+                        </p>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>شماره NCR <span class="required">*</span></label>
+                                <input type="text" id="ncrNumber" readonly style="background:#f0f2f7;font-weight:700;">
+                            </div>
+                            <div class="form-group">
+                                <label>تاریخ گزارش <span class="required">*</span></label>
+                                <input type="date" id="reportDate">
+                            </div>
+                            <div class="form-group">
+                                <label>گزارش‌دهنده <span class="required">*</span></label>
+                                <input type="text" id="reporterName" placeholder="نام و نام خانوادگی">
+                            </div>
+                            <div class="form-group">
+                                <label>سمت گزارش‌دهنده <span class="required">*</span></label>
+                                <input type="text" id="reporterPosition" placeholder="سمت / عنوان شغلی">
+                            </div>
+                            <div class="form-group">
+                                <label>دپارتمان گزارش‌دهنده <span class="required">*</span></label>
+                                <select id="reporterDepartment">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="تولید">تولید</option>
+                                    <option value="کنترل کیفیت">کنترل کیفیت</option>
+                                    <option value="انبار">انبار</option>
+                                    <option value="مهندسی">مهندسی</option>
+                                    <option value="خرید">خرید</option>
+                                    <option value="مدیریت">مدیریت</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>محل شناسایی <span class="required">*</span></label>
+                                <select id="locationFound" onchange="toggleLocationSubs()">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="ورودی">ورودی (کنترل کیفی ورودی)</option>
+                                    <option value="حین تولید">حین تولید</option>
+                                    <option value="محصول نهایی">محصول نهایی</option>
+                                    <option value="انبار">انبار</option>
+                                    <option value="خدمات پس از فروش">خدمات پس از فروش</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field full-width" id="subInput">
+                                <label>شماره برگ بازرسی مربوطه</label>
+                                <input type="text" id="inspectionNumber" placeholder="شماره برگ بازرسی">
+                            </div>
+
+                            <div class="form-group sub-field" id="subProduction">
+                                <label>ایستگاه کاری <span class="hint">(انتخاب کنید)</span></label>
+                                <select id="workStation" onchange="toggleWorkStationSubs()">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="اسکلت">اسکلت</option>
+                                    <option value="ورقکوبی">ورقکوبی</option>
+                                    <option value="نصب فایبرگلاس">نصب فایبرگلاس</option>
+                                    <option value="نقاشی">نقاشی</option>
+                                    <option value="مکانیک">مکانیک</option>
+                                    <option value="سراجی">سراجی</option>
+                                    <option value="برق">برق</option>
+                                    <option value="تزئینات">تزئینات</option>
+                                    <option value="تکمیل نهایی">تکمیل نهایی</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field full-width" id="subSkeleton">
+                                <label>فرآیند اسکلت</label>
+                                <select id="skeletonProcess">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="فرآیند آماده سازی شاسی">فرآیند آماده سازی شاسی</option>
+                                    <option value="فرآیند آماده سازی بدنه چپ (سمت راننده)">فرآیند آماده سازی بدنه چپ (سمت راننده)</option>
+                                    <option value="فرآیند آماده سازی بدنه راست (سمت کمک راننده)">فرآیند آماده سازی بدنه راست (سمت کمک راننده)</option>
+                                    <option value="فرآیند نصب بدنه چپ به شاسی">فرآیند نصب بدنه چپ به شاسی</option>
+                                    <option value="فرآیند نصب بدنه راست به شاسی">فرآیند نصب بدنه راست به شاسی</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field full-width" id="subSheetMetal">
+                                <label>فرآیند ورقکوبی</label>
+                                <select id="sheetMetalProcess">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="فرآیند نصب ورق بدنه چپ">فرآیند نصب ورق بدنه چپ</option>
+                                    <option value="فرآیند نصب ورق بدنه راست">فرآیند نصب ورق بدنه راست</option>
+                                    <option value="فرآیند نصب ورق منبری">فرآیند نصب ورق منبری</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field full-width" id="subFiber">
+                                <label>فرآیند نصب فایبرگلاس</label>
+                                <select id="fiberProcess">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="فرآیند نصب پوسته جلو">فرآیند نصب پوسته جلو</option>
+                                    <option value="فرآیند نصب پوسته عقب">فرآیند نصب پوسته عقب</option>
+                                    <option value="فرآیند نصب سپر جلو">فرآیند نصب سپر جلو</option>
+                                    <option value="فرآیند نصب سپر عقب">فرآیند نصب سپر عقب</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field full-width" id="subPainting">
+                                <label>فرآیند نقاشی</label>
+                                <select id="paintingProcess">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="فرآیند آستر پاشی">فرآیند آستر پاشی</option>
+                                    <option value="فرآیند پوست آب زنی">فرآیند پوست آب زنی</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>محصول <span class="required">*</span></label>
+                                <select id="productType" onchange="toggleProductSubs()">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="اتوبوس">اتوبوس</option>
+                                    <option value="سواری">سواری</option>
+                                    <option value="کامیونت">کامیونت</option>
+                                    <option value="مینی بوس">مینی بوس</option>
+                                    <option value="کشنده">کشنده</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field" id="subBus">
+                                <label>مدل اتوبوس</label>
+                                <select id="busModel">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="27 نفره VIP">27 نفره VIP</option>
+                                    <option value="44 نفره">44 نفره</option>
+                                    <option value="55 نفره">55 نفره</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field" id="subCar">
+                                <label>مدل سواری</label>
+                                <select id="carModel">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="آرکانا">آرکانا</option>
+                                    <option value="وویا فری">وویا فری</option>
+                                    <option value="ام هیرو">ام هیرو</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field" id="subTruck">
+                                <label>مدل کامیونت</label>
+                                <select id="truckModel">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="هیوندای">هیوندای</option>
+                                    <option value="فوتون">فوتون</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field" id="subMinibus">
+                                <label>مدل مینی بوس</label>
+                                <select id="minibusModel">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="هیوندای">هیوندای</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group sub-field" id="subTractor">
+                                <label>مدل کشنده</label>
+                                <select id="tractorModel">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="ایویکو">ایویکو</option>
+                                    <option value="مان">مان</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>کد قطعه <span class="required">*</span></label>
+                                <input type="text" id="partCode" placeholder="کد فنی قطعه">
+                            </div>
+                            <div class="form-group">
+                                <label>نام قطعه <span class="required">*</span></label>
+                                <input type="text" id="partName" placeholder="نام کامل قطعه">
+                            </div>
+                            <div class="form-group">
+                                <label>تعداد <span class="required">*</span></label>
+                                <input type="number" id="quantity" placeholder="0" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label>واحد سنجش</label>
+                                <select id="unit">
+                                    <option value="عدد">عدد</option>
+                                    <option value="کیلوگرم">کیلوگرم</option>
+                                    <option value="متر">متر</option>
+                                    <option value="لیتر">لیتر</option>
+                                    <option value="تن">تن</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>شرح عدم انطباق <span class="required">*</span></label>
+                                <textarea id="description" rows="3" placeholder="شرح کامل عدم انطباق مشاهده شده..." oninput="renderFishboneDiagram()"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>تصاویر و مستندات</label>
+                                <input type="file" id="documents" multiple accept="image/*,.pdf,.doc,.docx">
+                                <small class="help-text">فایل‌های تصویر، PDF یا Word را آپلود کنید</small>
+                            </div>
+                        </div>
+
+                        <div class="step-actions" id="step1Actions">
+                            <button type="button" class="btn btn-primary" id="btnStep1Submit" onclick="submitStep1()">
+                                <i class="fas fa-paper-plane"></i> ارسال به مدیریت کیفیت
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                                <i class="fas fa-save"></i> ذخیره پیش‌نویس
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="goBackToList()" style="display:none;" id="btnBackToList1">
+                                <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                            </button>
+                        </div>
+
+                        <div id="step1SuccessMessage" style="display:none;" class="submission-success">
+                            <i class="fas fa-check-circle"></i>
+                            <h4>✅ NCR با موفقیت به مدیریت کیفیت ارسال شد!</h4>
+                            <p>مدیر کیفیت پس از بررسی، مرحله ارزیابی و تحلیل را تکمیل خواهد کرد.</p>
+                            <button type="button" class="btn btn-success-outline" onclick="goBackToList()" style="margin-top:10px;">
+                                <i class="fas fa-list"></i> مشاهده لیست NCRها
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: EVALUATION & ANALYSIS -->
+                    <div class="form-step" data-step="2">
+                        <h3><i class="fas fa-microscope" style="color:#667eea;"></i> مرحله ۲: ارزیابی و تحلیل</h3>
+                        <p style="color:#6c757d;font-size:14px;margin-bottom:15px;">
+                            <i class="fas fa-user-check" style="color:#27ae60;"></i> 
+                            مسئول: <strong>مدیریت کیفیت</strong>
+                            <span style="margin-right:15px;font-size:13px;color:#95a5a6;">
+                                (وضعیت: <span id="step2Status" class="status-badge pending">در انتظار</span>)
+                            </span>
+                        </p>
+
+                        <div id="step2AccessDenied" style="display:none;" class="step-disabled-msg">
+                            <i class="fas fa-lock"></i>
+                            <h4>دسترسی غیرمجاز</h4>
+                            <p>این مرحله مختص <strong>مدیریت کیفیت</strong> می‌باشد. پس از ارسال NCR توسط گزارش‌دهنده، مدیر کیفیت می‌تواند وارد این بخش شود.</p>
+                        </div>
+
+                        <div class="info-box" style="margin-bottom:20px;background:#f0f4ff;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>اطلاعات شناسایی عدم انطباق (فقط خواندنی):</strong>
+                            <div class="step1-summary-grid" id="step1SummaryFull">
+                                <div class="summary-item"><span class="label">شماره NCR:</span> <span class="value" id="sNCR">-</span></div>
+                                <div class="summary-item"><span class="label">تاریخ گزارش:</span> <span class="value" id="sReportDate">-</span></div>
+                                <div class="summary-item"><span class="label">گزارش‌دهنده:</span> <span class="value" id="sReporter">-</span></div>
+                                <div class="summary-item"><span class="label">سمت گزارش‌دهنده:</span> <span class="value" id="sReporterPos">-</span></div>
+                                <div class="summary-item"><span class="label">دپارتمان گزارش‌دهنده:</span> <span class="value" id="sReporterDept">-</span></div>
+                                <div class="summary-item"><span class="label">محل شناسایی:</span> <span class="value" id="sLocation">-</span></div>
+                                <div class="summary-item" id="sInspectionRow" style="display:none;"><span class="label">شماره برگ بازرسی:</span> <span class="value" id="sInspection">-</span></div>
+                                <div class="summary-item" id="sWorkStationRow" style="display:none;"><span class="label">ایستگاه کاری:</span> <span class="value" id="sWorkStation">-</span></div>
+                                <div class="summary-item" id="sSkeletonRow" style="display:none;"><span class="label">فرآیند اسکلت:</span> <span class="value" id="sSkeleton">-</span></div>
+                                <div class="summary-item" id="sSheetMetalRow" style="display:none;"><span class="label">فرآیند ورقکوبی:</span> <span class="value" id="sSheetMetal">-</span></div>
+                                <div class="summary-item" id="sFiberRow" style="display:none;"><span class="label">فرآیند فایبرگلاس:</span> <span class="value" id="sFiber">-</span></div>
+                                <div class="summary-item" id="sPaintingRow" style="display:none;"><span class="label">فرآیند نقاشی:</span> <span class="value" id="sPainting">-</span></div>
+                                <div class="summary-item"><span class="label">محصول:</span> <span class="value" id="sProduct">-</span></div>
+                                <div class="summary-item" id="sModelRow" style="display:none;"><span class="label">مدل:</span> <span class="value" id="sModel">-</span></div>
+                                <div class="summary-item"><span class="label">کد قطعه:</span> <span class="value" id="sPartCode">-</span></div>
+                                <div class="summary-item"><span class="label">نام قطعه:</span> <span class="value" id="sPartName">-</span></div>
+                                <div class="summary-item"><span class="label">تعداد:</span> <span class="value" id="sQuantity">-</span></div>
+                                <div class="summary-item"><span class="label">واحد سنجش:</span> <span class="value" id="sUnit">-</span></div>
+                                <div class="summary-item full-row"><span class="label">شرح عدم انطباق:</span> <span class="value" id="sDescription">-</span></div>
+                            </div>
+                        </div>
+
+                        <h4 style="color:#2c3e50; margin-bottom:15px; border-bottom:2px solid #eef2ff; padding-bottom:8px;">
+                            <i class="fas fa-clipboard-check" style="color:#667eea;"></i> ۲-۱: ارزیابی
+                        </h4>
+
+                        <div class="form-grid" id="step2FormFields">
+                            <div class="form-group">
+                                <label>مرجع استاندارد/رویه</label>
+                                <input type="text" id="standardRef" placeholder="شماره استاندارد یا رویه">
+                            </div>
+                            <div class="form-group">
+                                <label>بچ نامبر / بارنامه</label>
+                                <input type="text" id="batchNumber" placeholder="شماره بچ یا بارنامه">
+                            </div>
+                            <div class="form-group">
+                                <label>اقدام فوری انجام‌شده <span class="required">*</span></label>
+                                <select id="immediateAction">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="قرنطینه">قرنطینه</option>
+                                    <option value="جداسازی">جداسازی</option>
+                                    <option value="توقف تولید">توقف تولید</option>
+                                    <option value="علامت گذاری">علامت گذاری</option>
+                                    <option value="اطلاع رسانی">اطلاع رسانی</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>شدت <span class="required">*</span></label>
+                                <select id="severity">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="بحرانی">بحرانی</option>
+                                    <option value="عمده">عمده</option>
+                                    <option value="جزئی">جزئی</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>نظرات کارشناسی کیفیت</label>
+                                <textarea id="qualityNotes" rows="2" placeholder="نظرات تخصصی در مورد عدم انطباق..."></textarea>
+                            </div>
+                        </div>
+
+                        <h4 style="color:#2c3e50; margin:25px 0 15px; border-bottom:2px solid #eef2ff; padding-bottom:8px;">
+                            <i class="fas fa-brain" style="color:#667eea;"></i> ۲-۲: تحلیل ریشه‌ای
+                        </h4>
+
+                        <div class="form-grid" id="step2AnalysisFields">
+                            <div class="form-group">
+                                <label>روش تحلیل <span class="required">*</span></label>
+                                <select id="analysisMethod" onchange="toggleAnalysisSubs()">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="fishbone">Ishikawa Fishbone</option>
+                                    <option value="5why">5 Why</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subFishbone">
+                                <label>دسته‌بندی Fishbone <span class="hint">(انتخاب کنید و زیرشاخه اضافه کنید)</span></label>
+                                <div class="fishbone-container" id="fishboneContainer">
+                                </div>
+                                
+                                <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
+                                    <button type="button" class="btn btn-info" onclick="renderFishboneDiagram()">
+                                        <i class="fas fa-rotate"></i> بروزرسانی نمودار Fishbone
+                                    </button>
+                                    <button type="button" class="btn btn-secondary no-print" onclick="window.print()">
+                                        <i class="fas fa-print"></i> چاپ نمودار
+                                    </button>
+                                </div>
+                                
+                                <div class="fishbone-diagram-container" id="fishboneDiagramContainer" style="display:none;">
+                                    <div class="diagram-title">
+                                        <i class="fas fa-diagram-project" style="color:#667eea;"></i> نمودار علت و معلول استخوان ماهی (Ishikawa Fishbone Diagram)
+                                    </div>
+                                    <div class="fishbone-svg-wrapper">
+                                        <svg id="fishboneSvg" viewBox="0 0 1150 560" preserveAspectRatio="xMidYMid meet"></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="sub5Why">
+                                <label>تحلیل 5 Why</label>
+                                <div class="nested-section" style="margin-top:0;">
+                                    <div class="nested-grid">
+                                        <div class="form-group"><label>چرا ۱:</label><input type="text" id="why1" placeholder="علت اول"></div>
+                                        <div class="form-group"><label>چرا ۲:</label><input type="text" id="why2" placeholder="علت دوم"></div>
+                                        <div class="form-group"><label>چرا ۳:</label><input type="text" id="why3" placeholder="علت سوم"></div>
+                                        <div class="form-group"><label>چرا ۴:</label><input type="text" id="why4" placeholder="علت چهارم"></div>
+                                        <div class="form-group"><label>چرا ۵:</label><input type="text" id="why5" placeholder="علت پنجم (ریشه‌ای)"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>نتیجه‌گیری تحلیل</label>
+                                <textarea id="analysisConclusion" rows="2" placeholder="نتیجه‌گیری نهایی از تحلیل ریشه‌ای"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="step-actions" id="step2Actions">
+                            <button type="button" class="btn btn-secondary" onclick="goToStep(1)"><i class="fas fa-arrow-right"></i> مرحله قبل</button>
+                            <button type="button" class="btn btn-primary" id="btnStep2Submit" onclick="submitStep2()">
+                                <i class="fas fa-paper-plane"></i> ارسال به کمیته فنی
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="saveDraft()"><i class="fas fa-save"></i> ذخیره پیش‌نویس</button>
+                            <button type="button" class="btn btn-secondary" onclick="goBackToList()" style="display:none;" id="btnBackToList2">
+                                <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                            </button>
+                        </div>
+
+                        <div id="step2SuccessMessage" style="display:none;" class="submission-success">
+                            <i class="fas fa-check-circle"></i>
+                            <h4>✅ مرحله ارزیابی و تحلیل با موفقیت به کمیته فنی ارسال شد!</h4>
+                            <p>کمیته فنی پس از بررسی، مرحله تعیین تکلیف را تکمیل خواهد کرد.</p>
+                            <button type="button" class="btn btn-success-outline" onclick="goBackToList()" style="margin-top:10px;">
+                                <i class="fas fa-list"></i> مشاهده لیست NCRها
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: DISPOSITION -->
+                    <div class="form-step" data-step="3">
+                        <h3><i class="fas fa-gavel" style="color:#667eea;"></i> مرحله ۳: تعیین تکلیف</h3>
+                        <p style="color:#6c757d;font-size:14px;margin-bottom:15px;">
+                            <i class="fas fa-user-check" style="color:#27ae60;"></i> 
+                            مسئول: <strong>کمیته فنی</strong>
+                            <span style="margin-right:15px;font-size:13px;color:#95a5a6;">
+                                (وضعیت: <span id="step3Status" class="status-badge pending">در انتظار</span>)
+                            </span>
+                        </p>
+
+                        <div id="step3AccessDenied" style="display:none;" class="step-disabled-msg">
+                            <i class="fas fa-lock"></i>
+                            <h4>دسترسی غیرمجاز</h4>
+                            <p>این مرحله مختص <strong>کمیته فنی</strong> می‌باشد. پس از ارسال توسط مدیر کیفیت، کمیته فنی می‌تواند وارد این بخش شود.</p>
+                        </div>
+
+                        <div class="info-box" style="margin-bottom:20px;background:#f0f4ff;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>خلاصه اطلاعات (فقط خواندنی):</strong>
+                            <div style="margin-top:8px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:5px 20px;">
+                                <span>NCR: <span id="summaryNCR3">-</span></span>
+                                <span>قطعه: <span id="summaryPart3">-</span></span>
+                                <span>شدت: <span id="summarySeverity">-</span></span>
+                                <span>تحلیل: <span id="summaryAnalysis">-</span></span>
+                            </div>
+                        </div>
+
+                        <div class="form-grid" id="step3FormFields">
+                            <div class="form-group full-width">
+                                <label>آیا عدم انطباق مورد تأیید است؟ <span class="required">*</span></label>
+                                <div class="radio-group" id="confirmationGroup">
+                                    <label><input type="radio" name="confirmation" value="yes" onchange="toggleConfirmationSubs()"> بله</label>
+                                    <label><input type="radio" name="confirmation" value="no" onchange="toggleConfirmationSubs()"> خیر</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subRejectReason">
+                                <label>دلیل عدم تأیید عدم انطباق</label>
+                                <textarea id="rejectReason" rows="2" placeholder="دلیل رد عدم انطباق..."></textarea>
+                                <div class="info-box">
+                                    <i class="fas fa-info-circle"></i> پس از ثبت، پرونده بسته و خاتمه می‌یابد.
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subDisposition">
+                                <label>نوع تعیین تکلیف <span class="required">*</span></label>
+                                <select id="dispositionType" onchange="toggleDispositionSubs()">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="rework">رفع عدم انطباق با دوباره‌کاری</option>
+                                    <option value="concession">مجوز ارفاقی</option>
+                                    <option value="hold">نگهداری تا اطلاع ثانوی</option>
+                                    <option value="scrap">ضایعات</option>
+                                    <option value="claim">کلیم گردد</option>
+                                    <option value="purchase">درخواست خرید صادر شود</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subRework">
+                                <div class="nested-section">
+                                    <div class="nested-title"><i class="fas fa-tools" style="color:#667eea;"></i> دوباره‌کاری</div>
+                                    <div class="nested-grid">
+                                        <div class="form-group"><label>مسئول</label><input type="text" id="reworkResponsible" placeholder="نام مسئول"></div>
+                                        <div class="form-group"><label>مهلت اجرا</label><input type="date" id="reworkDeadline"></div>
+                                        <div class="form-group"><label>شماره فرم اقدام اصلاحی</label><input type="text" id="reworkActionNumber" placeholder="شماره فرم"></div>
+                                    </div>
+                                    <div class="info-box">
+                                        <i class="fas fa-external-link-alt"></i> با انتخاب این گزینه، صفحه اقدام اصلاحی باز می‌شود و شماره سند درج می‌گردد.
+                                        <button type="button" class="btn btn-primary" style="padding:4px 14px; font-size:12px; margin-right:10px;" onclick="openActionForm()">باز کردن فرم اقدام اصلاحی</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subConcession">
+                                <div class="nested-section">
+                                    <div class="nested-title"><i class="fas fa-file-signature" style="color:#667eea;"></i> مجوز ارفاقی</div>
+                                    <div class="nested-grid">
+                                        <div class="form-group"><label>شماره مجوز ارفاقی</label><input type="text" id="concessionNumber" placeholder="شماره مجوز"></div>
+                                    </div>
+                                    <div class="info-box">
+                                        <i class="fas fa-external-link-alt"></i> با انتخاب این گزینه، صفحه مجوز ارفاقی باز می‌شود و برای تأیید نهایی به مدیریت ارسال می‌گردد.
+                                        <button type="button" class="btn btn-primary" style="padding:4px 14px; font-size:12px; margin-right:10px;" onclick="openConcessionForm()">باز کردن فرم مجوز ارفاقی</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subHold">
+                                <div class="nested-section">
+                                    <div class="nested-title"><i class="fas fa-pause-circle" style="color:#667eea;"></i> نگهداری تا اطلاع ثانوی</div>
+                                    <div class="nested-grid">
+                                        <div class="form-group"><label>علت نگهداری</label><input type="text" id="holdReason" placeholder="دلیل نگهداری"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subScrap">
+                                <div class="nested-section">
+                                    <div class="nested-title"><i class="fas fa-trash-alt" style="color:#e74c3c;"></i> ضایعات</div>
+                                    <div style="padding:8px 0; color:#6c757d; font-size:13px;">قطعه به عنوان ضایعات محسوب می‌شود.</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subClaim">
+                                <div class="nested-section">
+                                    <div class="nested-title"><i class="fas fa-file-invoice" style="color:#667eea;"></i> کلیم</div>
+                                    <div class="nested-grid">
+                                        <div class="form-group"><label>شماره فرم کلیم</label><input type="text" id="claimNumber" placeholder="شماره فرم کلیم"></div>
+                                    </div>
+                                    <div class="info-box">
+                                        <i class="fas fa-external-link-alt"></i> با انتخاب این گزینه، صفحه کلیم باز می‌شود و برای تأمین‌کننده ارسال می‌گردد.
+                                        <button type="button" class="btn btn-primary" style="padding:4px 14px; font-size:12px; margin-right:10px;" onclick="openClaimForm()">باز کردن فرم کلیم</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subPurchase">
+                                <div class="nested-section">
+                                    <div class="nested-title"><i class="fas fa-shopping-cart" style="color:#667eea;"></i> درخواست خرید</div>
+                                    <div class="nested-grid">
+                                        <div class="form-group"><label>شماره فرم درخواست خرید</label><input type="text" id="purchaseNumber" placeholder="شماره فرم"></div>
+                                    </div>
+                                    <div class="info-box">
+                                        <i class="fas fa-external-link-alt"></i> با انتخاب این گزینه، صفحه درخواست خرید باز می‌شود و برای تأیید به مدیر بالاتر ارسال می‌گردد.
+                                        <button type="button" class="btn btn-primary" style="padding:4px 14px; font-size:12px; margin-right:10px;" onclick="openPurchaseForm()">باز کردن فرم درخواست خرید</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" style="margin-top:15px; padding-top:15px; border-top:2px solid #e9ecef;">
+                                <label>نیاز به صدور اقدام اصلاحی</label>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="correctiveAction" value="yes" onchange="toggleCorrectiveSubs()"> می‌باشد</label>
+                                    <label><input type="radio" name="correctiveAction" value="no" onchange="toggleCorrectiveSubs()" checked> نمی‌باشد</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subCorrective">
+                                <label>شماره فرم اقدام اصلاحی</label>
+                                <input type="text" id="correctiveNumber" placeholder="شماره فرم اقدام اصلاحی">
+                                <div class="info-box">
+                                    <i class="fas fa-external-link-alt"></i> با انتخاب این گزینه، صفحه اقدام اصلاحی باز می‌شود.
+                                    <button type="button" class="btn btn-primary" style="padding:3px 12px; font-size:11px; margin-right:8px;" onclick="openActionForm()">باز کردن فرم</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step-actions" id="step3Actions">
+                            <button type="button" class="btn btn-secondary" onclick="goToStep(2)"><i class="fas fa-arrow-right"></i> مرحله قبل</button>
+                            <button type="button" class="btn btn-primary" id="btnStep3Submit" onclick="submitStep3()">
+                                <i class="fas fa-paper-plane"></i> ارسال به پایش
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="saveDraft()"><i class="fas fa-save"></i> ذخیره پیش‌نویس</button>
+                            <button type="button" class="btn btn-secondary" onclick="goBackToList()" style="display:none;" id="btnBackToList3">
+                                <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                            </button>
+                        </div>
+
+                        <div id="step3SuccessMessage" style="display:none;" class="submission-success">
+                            <i class="fas fa-check-circle"></i>
+                            <h4>✅ مرحله تعیین تکلیف با موفقیت به مدیریت کیفیت برای پایش ارسال شد!</h4>
+                            <p>مدیر کیفیت پس از پایش، NCR را نهایی خواهد کرد.</p>
+                            <button type="button" class="btn btn-success-outline" onclick="goBackToList()" style="margin-top:10px;">
+                                <i class="fas fa-list"></i> مشاهده لیست NCRها
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: MONITORING -->
+                    <div class="form-step" data-step="4">
+                        <h3><i class="fas fa-chart-line" style="color:#667eea;"></i> مرحله ۴: پایش</h3>
+                        <p style="color:#6c757d;font-size:14px;margin-bottom:15px;">
+                            <i class="fas fa-user-check" style="color:#27ae60;"></i> 
+                            مسئول: <strong>مدیریت کیفیت (پایش)</strong>
+                            <span style="margin-right:15px;font-size:13px;color:#95a5a6;">
+                                (وضعیت: <span id="step4Status" class="status-badge pending">در انتظار</span>)
+                            </span>
+                        </p>
+
+                        <div id="step4AccessDenied" style="display:none;" class="step-disabled-msg">
+                            <i class="fas fa-lock"></i>
+                            <h4>دسترسی غیرمجاز</h4>
+                            <p>این مرحله مختص <strong>مدیریت کیفیت</strong> می‌باشد. پس از ارسال توسط کمیته فنی، مدیر کیفیت می‌تواند وارد این بخش شود.</p>
+                        </div>
+
+                        <div class="info-box" style="margin-bottom:20px;background:#f0f4ff;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>تعیین تکلیف انجام شده (فقط خواندنی):</strong>
+                            <div style="margin-top:8px;font-size:13px;">
+                                <span>نوع تعیین تکلیف: <span id="summaryDisposition">-</span></span>
+                            </div>
+                        </div>
+
+                        <div class="form-grid" id="step4FormFields">
+                            <div class="form-group full-width">
+                                <label>اقدامات تعریف شده در مرحله تعیین تکلیف اثربخش بوده است؟ <span class="required">*</span></label>
+                                <div class="radio-group" id="effectivenessGroup">
+                                    <label><input type="radio" name="effectiveness" value="yes" onchange="toggleEffectivenessSubs()"> بوده است</label>
+                                    <label><input type="radio" name="effectiveness" value="no" onchange="toggleEffectivenessSubs()"> نبوده است</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width sub-field" id="subIneffective">
+                                <label>شماره اقدام اصلاحی جدید</label>
+                                <input type="text" id="ineffectiveActionNumber" placeholder="شماره فرم اقدام اصلاحی">
+                                <div class="warning-box">
+                                    <i class="fas fa-exclamation-triangle"></i> اقدامات اثربخش نبوده است. لطفاً فرم اقدام اصلاحی را تکمیل کنید.
+                                    <button type="button" class="btn btn-warning" style="padding:3px 12px; font-size:11px; margin-right:8px;" onclick="openActionForm()">باز کردن فرم اقدام اصلاحی</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>تاریخ پایش</label>
+                                <input type="date" id="monitoringDate">
+                            </div>
+                            <div class="form-group">
+                                <label>مسئول پایش</label>
+                                <input type="text" id="monitoringResponsible" placeholder="نام مسئول">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>نکات نهایی</label>
+                                <textarea id="monitoringNotes" rows="2" placeholder="توضیحات نهایی..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>وضعیت نهایی</label>
+                                <select id="finalStatus">
+                                    <option value="open">باز</option>
+                                    <option value="in_progress">در حال بررسی</option>
+                                    <option value="closed">بسته</option>
+                                    <option value="rejected">رد شده</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="step-actions" id="step4Actions">
+                            <button type="button" class="btn btn-secondary" onclick="goToStep(3)"><i class="fas fa-arrow-right"></i> مرحله قبل</button>
+                            <button type="button" class="btn btn-success" id="btnStep4Submit" onclick="submitStep4()">
+                                <i class="fas fa-check-circle"></i> ثبت نهایی NCR
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="saveDraft()"><i class="fas fa-save"></i> ذخیره پیش‌نویس</button>
+                            <button type="reset" class="btn btn-danger"><i class="fas fa-undo"></i> بازنشانی</button>
+                            <button type="button" class="btn btn-secondary" onclick="goBackToList()" style="display:none;" id="btnBackToList4">
+                                <i class="fas fa-arrow-right"></i> بازگشت به لیست
+                            </button>
+                        </div>
+
+                        <div id="step4SuccessMessage" style="display:none;" class="submission-success">
+                            <i class="fas fa-check-circle"></i>
+                            <h4>✅ NCR با موفقیت ثبت و بسته شد!</h4>
+                            <p>تمامی مراحل تکمیل گردید و NCR در سیستم ثبت شد.</p>
+                            <button type="button" class="btn btn-success-outline" onclick="goBackToList()" style="margin-top:10px;">
+                                <i class="fas fa-list"></i> مشاهده لیست NCRها
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="print.js"></script>
+    <script src="data/sample-data.js"></script>    
+
+    <script>
+        // ============================================
+        // USER ROLES & CONFIG
+        // ============================================
+        var USER_ROLES = {
+            reporter: 'reporter',
+            quality: 'quality',
+            cft: 'cft',
+            admin: 'admin'
+        };
+
+        var STEP_CONFIG = {
+            1: { title: 'شناسایی عدم انطباق', responsible: 'گزارش‌دهنده', role: USER_ROLES.reporter, nextRole: USER_ROLES.quality, nextStep: 2 },
+            2: { title: 'ارزیابی و تحلیل', responsible: 'مدیریت کیفیت', role: USER_ROLES.quality, nextRole: USER_ROLES.cft, nextStep: 3 },
+            3: { title: 'تعیین تکلیف', responsible: 'کمیته فنی', role: USER_ROLES.cft, nextRole: USER_ROLES.quality, nextStep: 4 },
+            4: { title: 'پایش', responsible: 'مدیریت کیفیت', role: USER_ROLES.quality, nextRole: null, nextStep: null }
+        };
+
+        var currentUser = {
+            id: 2,
+            username: 'quality_user',
+            full_name: 'مدیر کیفیت',
+            role: 'quality',
+            department: 'کنترل کیفیت'
+        };
+
+        var ncrData = {
+            ncr_number: '',
+            status: 'draft',
+            current_step: 1,
+            step1_data: {},
+            step2_data: {},
+            step3_data: {},
+            step4_data: {},
+            step1_completed: false,
+            step2_completed: false,
+            step3_completed: false,
+            step4_completed: false,
+            step1_submitted_at: null,
+            step2_submitted_at: null,
+            step3_submitted_at: null,
+            step4_submitted_at: null,
+            created_by: '',
+            created_at: '',
+            updated_at: '',
+            assigned_to: null,
+            assigned_role: null
+        };
+
+        var fishboneData = {
+            categories: [
+                { id: 'man', label: 'MAN', checked: false, subItems: [] },
+                { id: 'machine', label: 'MACHINE', checked: false, subItems: [] },
+                { id: 'method', label: 'METHOD', checked: false, subItems: [] },
+                { id: 'material', label: 'MATERIAL', checked: false, subItems: [] },
+                { id: 'environment', label: 'ENVIRONMENT', checked: false, subItems: [] },
+                { id: 'measurement', label: 'MEASUREMENT', checked: false, subItems: [] }
+            ]
+        };
+
+        var currentStep = 1;
+        var totalSteps = 4;
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showToast(message, type) {
+            var toast = document.getElementById('toastMessage');
+            var text = document.getElementById('toastText');
+            var icon = document.getElementById('toastIcon');
+            text.textContent = message;
+            toast.className = 'toast-message show';
+            if (type === 'success') {
+                toast.classList.add('success');
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                toast.classList.add('error');
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                toast.classList.add('info');
+                icon.className = 'fas fa-info-circle';
+            }
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function getToday() {
+            var d = new Date();
+            var month = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            var year = d.getFullYear();
+            return year + '-' + month + '-' + day;
+        }
+
+        function generateNCRNumber() {
+            var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            var count = ncrs.length + 1;
+            var year = new Date().getFullYear();
+            return 'NCR-' + year + '-' + String(count).padStart(4, '0');
+        }
+
+        function formatPersianDate(dateStr) {
+            if (!dateStr) return '-';
+            var parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            var months = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+            var m = parseInt(parts[1]) - 1;
+            return parseInt(parts[2]) + ' ' + months[m] + ' ' + parts[0];
+        }
+
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var mainContent = document.getElementById('mainContent');
+            if (sidebar) {
+                sidebar.classList.toggle('open');
+                sidebar.classList.toggle('collapsed');
+                if (mainContent) mainContent.classList.toggle('expanded');
+            }
+        }
+
+        function toggleUserMenu() {
+            var dropdown = document.getElementById('userDropdown');
+            if (dropdown) dropdown.classList.toggle('show');
+        }
+
+        function toggleNotifications() {
+            var dropdown = document.getElementById('notificationsDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+                loadNotifications();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        function changePassword() {
+            window.location.href = 'profile.html?action=change-password';
+        }
+
+        function displayCurrentDate() {
+            var now = new Date();
+            var options = { year: 'numeric', month: 'long', day: 'numeric' };
+            var el = document.getElementById('currentDate');
+            if (el) el.textContent = now.toLocaleDateString('fa-IR', options);
+        }
+
+        function displayUserInfo() {
+            var user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                currentUser = user;
+                var nameEl = document.getElementById('userName');
+                if (nameEl) nameEl.textContent = user.full_name || 'کاربر';
+            } else {
+                var nameEl = document.getElementById('userName');
+                if (nameEl) nameEl.textContent = currentUser.full_name || 'کاربر';
+            }
+        }
+
+        function updateNotifications() {
+            var notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            var unread = notifications.filter(function(n) { return !n.is_read; });
+            var badge = document.getElementById('notificationBadge');
+            if (badge) badge.textContent = unread.length;
+        }
+
+        function loadNotifications() {
+            var list = document.getElementById('notificationList');
+            var notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="no-notifications">هیچ اعلان جدیدی وجود ندارد</div>';
+                return;
+            }
+            
+            var html = '';
+            notifications.slice(0, 10).forEach(function(n) {
+                var iconClass = 'info';
+                var icon = 'fa-info-circle';
+                if (n.type === 'success') { iconClass = 'success'; icon = 'fa-check-circle'; }
+                else if (n.type === 'warning') { iconClass = 'warning'; icon = 'fa-exclamation-triangle'; }
+                else if (n.type === 'danger') { iconClass = 'danger'; icon = 'fa-exclamation-circle'; }
+                
+                var unreadClass = n.is_read ? '' : 'unread';
+                var linkHtml = n.link ? '<a href="' + n.link + '" class="ncr-link" onclick="handleNotificationClick(\'' + n.id + '\')">مشاهده</a>' : '';
+                
+                html += '<div class="notification-item ' + unreadClass + '" data-id="' + n.id + '">';
+                html += '  <div class="notification-icon ' + iconClass + '"><i class="fas ' + icon + '"></i></div>';
+                html += '  <div class="notification-content">';
+                html += '    <div class="notification-title">' + n.title + '</div>';
+                html += '    <div class="notification-message">' + n.message + '</div>';
+                html += '    <div class="notification-time">' + n.created_at + ' ' + linkHtml + '</div>';
+                html += '  </div>';
+                html += '</div>';
+            });
+            
+            if (notifications.length > 10) {
+                html += '<div style="text-align:center;padding:10px;color:#6c757d;font-size:13px;">و ' + (notifications.length - 10) + ' اعلان دیگر...</div>';
+            }
+            
+            list.innerHTML = html;
+        }
+
+        function handleNotificationClick(id) {
+            var notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            var found = false;
+            for (var i = 0; i < notifications.length; i++) {
+                if (notifications[i].id == id) {
+                    notifications[i].is_read = true;
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                updateNotifications();
+                loadNotifications();
+            }
+            var dropdown = document.getElementById('notificationsDropdown');
+            if (dropdown) dropdown.classList.remove('show');
+        }
+
+        // ============================================
+        // PERMISSIONS
+        // ============================================
+        function getUserRole() {
+            return currentUser.role || 'reporter';
+        }
+
+        function canAccessStep(step) {
+            var userRole = getUserRole();
+            var config = STEP_CONFIG[step];
+            if (!config) return false;
+            if (userRole === 'admin') return true;
+            if (ncrData.status === 'closed') return true;
+            if (userRole === config.role) return true;
+            if (userRole === 'reporter') {
+                if (step === 1) return true;
+                return false;
+            }
+            return false;
+        }
+
+        function canEditStep(step) {
+            var userRole = getUserRole();
+            var config = STEP_CONFIG[step];
+            if (!config) return false;
+            if (userRole === 'admin') return true;
+            if (isStepCompleted(step)) return false;
+            if (isStepSubmitted(step)) {
+                if (config.nextRole === userRole) return true;
+                return false;
+            }
+            if (userRole === config.role) {
+                if (step === 1 && !ncrData.step1_submitted_at) return true;
+                var submittedKey = 'step' + step + '_submitted_at';
+                if (!ncrData[submittedKey]) return true;
+            }
+            return false;
+        }
+
+        function isStepCompleted(step) {
+            var completedKey = 'step' + step + '_completed';
+            return ncrData[completedKey] || false;
+        }
+
+        function isStepSubmitted(step) {
+            var submittedKey = 'step' + step + '_submitted_at';
+            return ncrData[submittedKey] !== null && ncrData[submittedKey] !== undefined;
+        }
+
+        function canUserEditCurrentStep() {
+            var currentStep = ncrData.current_step || 1;
+            if (ncrData.status === 'closed') return false;
+            return canEditStep(currentStep);
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function goToStep(step) {
+            if (step < 1 || step > totalSteps) return;
+            if (!canAccessStep(step)) {
+                showToast('شما دسترسی به این مرحله را ندارید.', 'error');
+                return;
+            }
+            currentStep = step;
+            ncrData.current_step = step;
+            updateUI();
+            saveNCRToStorage();
+        }
+
+        function updateUI() {
+            document.querySelectorAll('.form-step').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            var target = document.querySelector('.form-step[data-step="' + currentStep + '"]');
+            if (target) target.classList.add('active');
+
+            document.querySelectorAll('.progress-step').forEach(function(el) {
+                var num = parseInt(el.dataset.step);
+                el.classList.remove('active', 'completed', 'locked');
+                if (num === currentStep) {
+                    el.classList.add('active');
+                } else if (isStepCompleted(num)) {
+                    el.classList.add('completed');
+                } else if (!canAccessStep(num)) {
+                    el.classList.add('locked');
+                } else if (isStepSubmitted(num)) {
+                    el.classList.add('locked');
+                }
+            });
+
+            updateStepStatus();
+            updateStepButtons();
+            updateReadOnlyMode();
+            updateAccessMessages();
+
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function updateStepStatus() {
+            var stageLabel = document.getElementById('currentStageLabel');
+            if (stageLabel && STEP_CONFIG[currentStep]) {
+                stageLabel.textContent = STEP_CONFIG[currentStep].title;
+            }
+            
+            var respUser = document.getElementById('responsibleUser');
+            if (respUser && STEP_CONFIG[currentStep]) {
+                var roleName = STEP_CONFIG[currentStep].responsible;
+                if (isStepSubmitted(currentStep) && STEP_CONFIG[currentStep].nextRole) {
+                    var nextRoleNames = {
+                        'quality': 'مدیریت کیفیت',
+                        'cft': 'کمیته فنی',
+                        'reporter': 'گزارش‌دهنده'
+                    };
+                    roleName = 'در انتظار ' + (nextRoleNames[STEP_CONFIG[currentStep].nextRole] || STEP_CONFIG[currentStep].nextRole);
+                }
+                respUser.textContent = roleName;
+            }
+            
+            var statusBadge = document.getElementById('ncrStatusBadge');
+            if (statusBadge) {
+                var statusMap = {
+                    'draft': { text: 'پیش‌نویس', class: 'pending' },
+                    'step1_submitted': { text: 'در انتظار بررسی کیفیت', class: 'waiting' },
+                    'step2_submitted': { text: 'در انتظار بررسی کمیته فنی', class: 'waiting' },
+                    'step3_submitted': { text: 'در انتظار پایش', class: 'waiting' },
+                    'closed': { text: 'بسته شده', class: 'closed' }
+                };
+                var s = statusMap[ncrData.status] || statusMap['draft'];
+                statusBadge.textContent = s.text;
+                statusBadge.className = 'status-badge ' + s.class;
+            }
+            
+            for (var i = 1; i <= 4; i++) {
+                var statusEl = document.getElementById('step' + i + 'Status');
+                if (statusEl) {
+                    if (isStepCompleted(i)) {
+                        statusEl.className = 'status-badge approved';
+                        statusEl.textContent = 'تکمیل شده';
+                    } else if (isStepSubmitted(i)) {
+                        statusEl.className = 'status-badge waiting';
+                        statusEl.textContent = 'در انتظار بررسی';
+                    } else {
+                        statusEl.className = 'status-badge pending';
+                        statusEl.textContent = 'در انتظار';
+                    }
+                }
+            }
+            
+            var editLabel = document.getElementById('editModeLabel');
+            if (editLabel) {
+                if (canUserEditCurrentStep() && ncrData.status !== 'closed') {
+                    editLabel.textContent = 'ویرایش';
+                    editLabel.className = 'status-badge info';
+                } else {
+                    editLabel.textContent = 'فقط خواندنی';
+                    editLabel.className = 'status-badge closed';
+                }
+            }
+            
+            var assignedDiv = document.getElementById('assignedUserDiv');
+            var assignedLabel = document.getElementById('assignedUserLabel');
+            if (assignedDiv && assignedLabel) {
+                if (ncrData.assigned_role) {
+                    assignedDiv.style.display = 'inline-block';
+                    var roleNames = {
+                        'quality': 'مدیریت کیفیت',
+                        'cft': 'کمیته فنی',
+                        'reporter': 'گزارش‌دهنده'
+                    };
+                    assignedLabel.textContent = roleNames[ncrData.assigned_role] || ncrData.assigned_role;
+                } else {
+                    assignedDiv.style.display = 'none';
+                }
+            }
+        }
+
+        function updateStepButtons() {
+            var submitBtns = { 1: 'btnStep1Submit', 2: 'btnStep2Submit', 3: 'btnStep3Submit', 4: 'btnStep4Submit' };
+            var backBtns = { 1: 'btnBackToList1', 2: 'btnBackToList2', 3: 'btnBackToList3', 4: 'btnBackToList4' };
+            
+            var btnId = submitBtns[currentStep];
+            if (btnId) {
+                var btn = document.getElementById(btnId);
+                if (btn) {
+                    var canEdit = canEditStep(currentStep) && ncrData.status !== 'closed';
+                    btn.disabled = !canEdit;
+                    if (isStepCompleted(currentStep) || ncrData.status === 'closed') {
+                        btn.style.display = 'none';
+                    } else {
+                        btn.style.display = 'inline-flex';
+                        var labels = { 1: 'ارسال به مدیریت کیفیت', 2: 'ارسال به کمیته فنی', 3: 'ارسال به پایش', 4: 'ثبت نهایی NCR' };
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> ' + (labels[currentStep] || 'ارسال');
+                    }
+                }
+            }
+            
+            var backBtnId = backBtns[currentStep];
+            if (backBtnId) {
+                var backBtn = document.getElementById(backBtnId);
+                if (backBtn) {
+                    if (isStepCompleted(currentStep) || ncrData.status === 'closed') {
+                        backBtn.style.display = 'inline-flex';
+                    } else {
+                        backBtn.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        function updateReadOnlyMode() {
+            var formSection = document.getElementById('formSection');
+            var isReadOnly = !canUserEditCurrentStep() || ncrData.status === 'closed';
+            
+            var stepEl = document.querySelector('.form-step.active');
+            if (stepEl) {
+                var inputs = stepEl.querySelectorAll('input, select, textarea');
+                inputs.forEach(function(el) {
+                    if (el.hasAttribute('readonly')) return;
+                    if (isReadOnly) {
+                        el.disabled = true;
+                    } else {
+                        el.disabled = false;
+                    }
+                });
+            }
+            
+            if (isReadOnly) {
+                formSection.classList.add('readonly-mode');
+            } else {
+                formSection.classList.remove('readonly-mode');
+            }
+        }
+
+        function updateAccessMessages() {
+            var accessMessages = { 2: 'step2AccessDenied', 3: 'step3AccessDenied', 4: 'step4AccessDenied' };
+            
+            for (var i = 2; i <= 4; i++) {
+                var msgEl = document.getElementById(accessMessages[i]);
+                if (msgEl) {
+                    var userRole = getUserRole();
+                    var config = STEP_CONFIG[i];
+                    
+                    if (userRole !== 'admin' && userRole !== config.role && !isStepCompleted(i)) {
+                        msgEl.style.display = 'block';
+                        var fieldsEl = document.getElementById('step' + i + 'FormFields');
+                        if (fieldsEl) {
+                            fieldsEl.style.opacity = '0.5';
+                            fieldsEl.style.pointerEvents = 'none';
+                        }
+                        var analysisFields = document.getElementById('step' + i + 'AnalysisFields');
+                        if (analysisFields) {
+                            analysisFields.style.opacity = '0.5';
+                            analysisFields.style.pointerEvents = 'none';
+                        }
+                    } else {
+                        msgEl.style.display = 'none';
+                        var fieldsEl = document.getElementById('step' + i + 'FormFields');
+                        if (fieldsEl) {
+                            fieldsEl.style.opacity = '1';
+                            fieldsEl.style.pointerEvents = 'auto';
+                        }
+                        var analysisFields = document.getElementById('step' + i + 'AnalysisFields');
+                        if (analysisFields) {
+                            analysisFields.style.opacity = '1';
+                            analysisFields.style.pointerEvents = 'auto';
+                        }
+                    }
+                }
+            }
+        }
+
+        function goBackToList() {
+            window.location.href = 'ncr-list.html';
+        }
+
+        // ============================================
+        // FISHBONE FUNCTIONS
+        // ============================================
+        function renderFishbone() {
+            var container = document.getElementById('fishboneContainer');
+            if (!container) return;
+            
+            var html = '';
+            fishboneData.categories.forEach(function(cat) {
+                var subItemsHtml = '';
+                cat.subItems.forEach(function(item, index) {
+                    subItemsHtml += `
+                        <div class="sub-item">
+                            <span class="sub-item-text">${item}</span>
+                            <span class="remove-sub" onclick="removeSubItem('${cat.id}', ${index})" title="حذف زیرشاخه">
+                                <i class="fas fa-times-circle"></i>
+                            </span>
+                        </div>
+                    `;
+                });
+                
+                var subItemsClass = cat.subItems.length > 0 ? 'expanded' : '';
+                
+                html += `
+                    <div class="fishbone-category" data-category="${cat.id}">
+                        <div class="category-header" onclick="toggleCategoryExpand('${cat.id}')">
+                            <input type="checkbox" ${cat.checked ? 'checked' : ''} 
+                                   onchange="toggleFishboneCheck('${cat.id}')" 
+                                   onclick="event.stopPropagation();">
+                            <span class="category-label">${cat.label}</span>
+                            <span class="category-actions">
+                                <button type="button" class="btn btn-sm btn-info" onclick="event.stopPropagation();toggleCategoryExpand('${cat.id}')">
+                                    <i class="fas ${cat.subItems.length > 0 ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="sub-items ${subItemsClass}" id="subItems_${cat.id}">
+                            ${subItemsHtml}
+                            <div class="add-sub">
+                                <input type="text" id="subInput_${cat.id}" placeholder="زیرشاخه جدید..." 
+                                       onkeydown="if(event.key==='Enter'){event.preventDefault();addSubItem('${cat.id}');}">
+                                <button type="button" class="btn btn-sm btn-success" onclick="addSubItem('${cat.id}')">
+                                    <i class="fas fa-plus"></i> افزودن
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function toggleFishboneCheck(categoryId) {
+            var cat = fishboneData.categories.find(function(c) { return c.id === categoryId; });
+            if (cat) {
+                cat.checked = !cat.checked;
+                var container = document.getElementById('fishboneContainer');
+                var checkbox = container.querySelector('.fishbone-category[data-category="' + categoryId + '"] input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.checked = cat.checked;
+                }
+                renderFishboneDiagram();
+            }
+        }
+
+        function toggleCategoryExpand(categoryId) {
+            var subItems = document.getElementById('subItems_' + categoryId);
+            if (subItems) {
+                subItems.classList.toggle('expanded');
+                var icon = document.querySelector('.fishbone-category[data-category="' + categoryId + '"] .category-actions .btn i');
+                if (icon) {
+                    if (subItems.classList.contains('expanded')) {
+                        icon.className = 'fas fa-chevron-up';
+                    } else {
+                        icon.className = 'fas fa-chevron-down';
+                    }
+                }
+            }
+        }
+
+        function addSubItem(categoryId) {
+            var input = document.getElementById('subInput_' + categoryId);
+            if (!input) return;
+            var value = input.value.trim();
+            if (!value) {
+                showToast('لطفاً متن زیرشاخه را وارد کنید.', 'error');
+                return;
+            }
+            
+            var cat = fishboneData.categories.find(function(c) { return c.id === categoryId; });
+            if (cat) {
+                if (cat.subItems.indexOf(value) !== -1) {
+                    showToast('این زیرشاخه قبلاً اضافه شده است.', 'error');
+                    return;
+                }
+                cat.subItems.push(value);
+                if (!cat.checked) {
+                    cat.checked = true;
+                }
+                input.value = '';
+                renderFishbone();
+                var subItems = document.getElementById('subItems_' + categoryId);
+                if (subItems) {
+                    subItems.classList.add('expanded');
+                }
+                renderFishboneDiagram();
+                showToast('زیرشاخه با موفقیت اضافه شد.', 'success');
+            }
+        }
+
+        function removeSubItem(categoryId, index) {
+            var cat = fishboneData.categories.find(function(c) { return c.id === categoryId; });
+            if (cat) {
+                var removed = cat.subItems.splice(index, 1);
+                renderFishbone();
+                renderFishboneDiagram();
+                showToast('زیرشاخه "' + removed[0] + '" حذف شد.', 'info');
+            }
+        }
+
+        function getFishboneData() {
+            var result = { checked: [], subItems: {} };
+            fishboneData.categories.forEach(function(cat) {
+                if (cat.checked) result.checked.push(cat.id);
+                if (cat.subItems.length > 0) result.subItems[cat.id] = cat.subItems;
+            });
+            return result;
+        }
+
+        function loadFishboneData(data) {
+            if (!data) return;
+            if (data.checked && data.checked.length > 0) {
+                fishboneData.categories.forEach(function(cat) {
+                    if (data.checked.indexOf(cat.id) !== -1) cat.checked = true;
+                });
+            }
+            if (data.subItems) {
+                fishboneData.categories.forEach(function(cat) {
+                    if (data.subItems[cat.id]) cat.subItems = data.subItems[cat.id];
+                });
+            }
+            renderFishbone();
+            renderFishboneDiagram();
+        }
+
+        // ==========================================================
+        // ISHIKAWA FISHBONE DIAGRAM RENDERER - PROFESSIONAL SVG
+        // ==========================================================
+        function renderFishboneDiagram() {
+            var container = document.getElementById('fishboneDiagramContainer');
+            var svg = document.getElementById('fishboneSvg');
+            if (!container || !svg) return;
+
+            // بررسی وجود داده
+            var hasData = false;
+            fishboneData.categories.forEach(function(cat) {
+                if (cat.checked || cat.subItems.length > 0) hasData = true;
+            });
+            if (!hasData) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+
+            var descEl = document.getElementById('description');
+            var problemText = (descEl && descEl.value && descEl.value.trim()) ? descEl.value.trim() : 'عدم انطباق و شرح معلول (Problem Effect)';
+
+            var spineY = 270;
+            var spineStartX = 100;
+            var spineEndX = 860;
+
+            // 6 شاخه استاندارد: 3 بالا (مواد، روش، اندازه‌گیری) و 3 پایین (محیط، ماشین، انسان)
+            var branchConfigs = [
+                { id: 'material', defaultLabel: 'MATERIAL', isTop: true, topX: 230, topY: 60, spineX: 360 },
+                { id: 'method', defaultLabel: 'METHOD', isTop: true, topX: 470, topY: 60, spineX: 600 },
+                { id: 'measurement', defaultLabel: 'MEASUREMENT', isTop: true, topX: 710, topY: 60, spineX: 840 },
+                { id: 'environment', defaultLabel: 'ENVIRONMENT', isTop: false, bottomX: 230, bottomY: 480, spineX: 360 },
+                { id: 'machine', defaultLabel: 'MACHINE', isTop: false, bottomX: 470, bottomY: 480, spineX: 600 },
+                { id: 'man', defaultLabel: 'MAN', isTop: false, bottomX: 710, bottomY: 480, spineX: 840 }
+            ];
+
+            var svgContent = `
+                <defs>
+                    <marker id="mainSpineArrow" markerWidth="14" markerHeight="14" refX="10" refY="7" orient="auto">
+                        <polygon points="0 2, 12 7, 0 12" fill="#1e293b" />
+                    </marker>
+                    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+                        <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12" />
+                    </filter>
+                    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+                        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.08" />
+                    </filter>
+                </defs>
+            `;
+
+            // دم ماهی
+            svgContent += `
+                <g class="fish-tail">
+                    <path d="M 45 200 C 70 240, 70 300, 45 340 C 95 300, 95 240, 45 200 Z" fill="#64748b" opacity="0.35" />
+                    <circle cx="${spineStartX}" cy="${spineY}" r="5" fill="#1e293b" />
+                </g>
+            `;
+
+            // ستون فقرات اصلی
+            svgContent += `
+                <line x1="${spineStartX}" y1="${spineY}" x2="${spineEndX}" y2="${spineY}" 
+                      stroke="#1e293b" stroke-width="4" stroke-linecap="round" marker-end="url(#mainSpineArrow)" />
+            `;
+
+            // رسم شاخه‌ها
+            branchConfigs.forEach(function(cfg) {
+                var catData = fishboneData.categories.find(function(c) { return c.id === cfg.id; }) || {
+                    id: cfg.id, label: cfg.defaultLabel, checked: false, subItems: []
+                };
+
+                var isActive = catData.checked || (catData.subItems && catData.subItems.length > 0);
+                var boneColor = isActive ? '#dc2626' : '#94a3b8';
+                var textColor = isActive ? '#b91c1c' : '#475569';
+                var strokeWidth = isActive ? '3.5' : '2';
+                var dashArray = isActive ? 'none' : 'none';
+
+                var startX = cfg.isTop ? cfg.topX : cfg.bottomX;
+                var startY = cfg.isTop ? cfg.topY : cfg.bottomY;
+                var endX = cfg.spineX;
+                var endY = spineY;
+
+                // خط استخوان شیب‌دار
+                svgContent += `
+                    <line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" 
+                          stroke="${boneColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-dasharray="${dashArray}" />
+                    <circle cx="${endX}" cy="${endY}" r="${isActive ? '6' : '4.5'}" fill="${boneColor}" stroke="#ffffff" stroke-width="1.5" />
+                `;
+
+                // لیبل عنوان شاخه
+                var badgeWidth = 135;
+                var badgeHeight = 32;
+                var badgeX = startX - (badgeWidth / 2);
+                var badgeY = cfg.isTop ? startY - badgeHeight - 6 : startY + 6;
+                var badgeBg = isActive ? '#ef4444' : '#f1f5f9';
+                var badgeTextFill = isActive ? '#ffffff' : '#334155';
+                var badgeBorder = isActive ? '#dc2626' : '#cbd5e1';
+
+                svgContent += `
+                    <g filter="${isActive ? 'url(#cardShadow)' : 'none'}">
+                        <rect x="${badgeX}" y="${badgeY}" width="${badgeWidth}" height="${badgeHeight}" rx="6"
+                              fill="${badgeBg}" stroke="${badgeBorder}" stroke-width="${isActive ? '1.5' : '1'}" />
+                        <text x="${badgeX + (badgeWidth / 2)}" y="${badgeY + 20}" 
+                              text-anchor="middle" font-family="inherit, Vazirmatn, Arial, sans-serif" font-weight="800" font-size="13" 
+                              fill="${badgeTextFill}" letter-spacing="0.5">
+                            ${catData.label}
+                        </text>
+                    </g>
+                `;
+
+                // رسم زیرشاخه‌ها
+                if (catData.subItems && catData.subItems.length > 0) {
+                    var totalSubs = catData.subItems.length;
+                    catData.subItems.forEach(function(subText, idx) {
+                        var t = 0.28 + (idx + 1) * (0.58 / (totalSubs + 1));
+                        var jointX = startX + t * (endX - startX);
+                        var jointY = startY + t * (endY - startY);
+                        var ribLength = 110;
+                        var ribEndX = jointX - ribLength;
+                        var ribEndY = jointY;
+
+                        var displaySubText = subText.length > 18 ? subText.substring(0, 16) + '...' : subText;
+
+                        // خط تیغه فرعی
+                        svgContent += `
+                            <line x1="${jointX}" y1="${jointY}" x2="${ribEndX}" y2="${ribEndY}" 
+                                  stroke="${boneColor}" stroke-width="2" stroke-linecap="round" />
+                            <circle cx="${jointX}" cy="${jointY}" r="3" fill="${boneColor}" />
+                        `;
+
+                        // شماره و متن زیرشاخه
+                        svgContent += `
+                            <g class="sub-branch-item">
+                                <circle cx="${ribEndX - 10}" cy="${ribEndY}" r="8.5" fill="${isActive ? '#fee2e2' : '#f1f5f9'}" stroke="${boneColor}" stroke-width="1.2" />
+                                <text x="${ribEndX - 10}" y="${ribEndY + 3.5}" text-anchor="middle" font-size="10" font-weight="700" fill="${textColor}" font-family="Arial, sans-serif">
+                                    ${idx + 1}
+                                </text>
+                                <text x="${ribEndX - 24}" y="${ribEndY + 4}" text-anchor="end" font-size="11.5" font-weight="600" fill="#1e293b" font-family="inherit, Vazirmatn, sans-serif">
+                                    ${displaySubText}
+                                    <title>${subText}</title>
+                                </text>
+                            </g>
+                        `;
+                    });
+                }
+            });
+
+            // سر ماهی - جعبه مشکل
+            var boxX = spineEndX + 18;
+            var boxY = spineY - 55;
+            var boxW = 240;
+            var boxH = 110;
+
+            var displayProblem = problemText;
+            var problemLine1 = displayProblem;
+            var problemLine2 = '';
+            if (displayProblem.length > 28) {
+                var splitIdx = displayProblem.lastIndexOf(' ', 28);
+                if (splitIdx === -1) splitIdx = 28;
+                problemLine1 = displayProblem.substring(0, splitIdx);
+                problemLine2 = displayProblem.substring(splitIdx).trim();
+                if (problemLine2.length > 30) {
+                    problemLine2 = problemLine2.substring(0, 27) + '...';
+                }
+            }
+
+            svgContent += `
+                <g class="problem-box" filter="url(#cardShadow)">
+                    <rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="10" 
+                          fill="#ef4444" stroke="#dc2626" stroke-width="2" />
+                    <text x="${boxX + (boxW / 2)}" y="${boxY + 28}" 
+                          text-anchor="middle" font-family="inherit, Vazirmatn, Arial, sans-serif" font-weight="800" font-size="13" fill="#ffffff">
+                        🚨 معلول / شرح مشکل (Effect):
+                    </text>
+                    <line x1="${boxX + 15}" y1="${boxY + 38}" x2="${boxX + boxW - 15}" y2="${boxY + 38}" stroke="#fca5a5" stroke-width="1" />
+                    <text x="${boxX + (boxW / 2)}" y="${boxY + 64}" 
+                          text-anchor="middle" font-family="inherit, Vazirmatn, Tahoma, sans-serif" font-weight="700" font-size="12" fill="#ffffff">
+                        ${problemLine1}
+                    </text>
+                    ${problemLine2 ? `
+                        <text x="${boxX + (boxW / 2)}" y="${boxY + 86}" 
+                              text-anchor="middle" font-family="inherit, Vazirmatn, Tahoma, sans-serif" font-weight="700" font-size="12" fill="#ffffff">
+                            ${problemLine2}
+                        </text>
+                    ` : ''}
+                    <title>${problemText}</title>
+                </g>
+            `;
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ============================================
+        // STEP 1 SUMMARY
+        // ============================================
+        function updateStep1FullSummary() {
+            var d1 = ncrData.step1_data || {};
+            document.getElementById('sNCR').textContent = d1.ncr_number || '-';
+            document.getElementById('sReportDate').textContent = formatPersianDate(d1.report_date);
+            document.getElementById('sReporter').textContent = d1.reporter_name || '-';
+            document.getElementById('sReporterPos').textContent = d1.reporter_position || '-';
+            document.getElementById('sReporterDept').textContent = d1.reporter_department || '-';
+            document.getElementById('sLocation').textContent = d1.location_found || '-';
+            
+            document.getElementById('sInspectionRow').style.display = d1.inspection_number ? 'flex' : 'none';
+            document.getElementById('sInspection').textContent = d1.inspection_number || '-';
+            document.getElementById('sWorkStationRow').style.display = d1.work_station ? 'flex' : 'none';
+            document.getElementById('sWorkStation').textContent = d1.work_station || '-';
+            document.getElementById('sSkeletonRow').style.display = d1.skeleton_process ? 'flex' : 'none';
+            document.getElementById('sSkeleton').textContent = d1.skeleton_process || '-';
+            document.getElementById('sSheetMetalRow').style.display = d1.sheet_metal_process ? 'flex' : 'none';
+            document.getElementById('sSheetMetal').textContent = d1.sheet_metal_process || '-';
+            document.getElementById('sFiberRow').style.display = d1.fiber_process ? 'flex' : 'none';
+            document.getElementById('sFiber').textContent = d1.fiber_process || '-';
+            document.getElementById('sPaintingRow').style.display = d1.painting_process ? 'flex' : 'none';
+            document.getElementById('sPainting').textContent = d1.painting_process || '-';
+            
+            document.getElementById('sProduct').textContent = d1.product_type || '-';
+            var model = '';
+            if (d1.product_type === 'اتوبوس') model = d1.bus_model;
+            else if (d1.product_type === 'سواری') model = d1.car_model;
+            else if (d1.product_type === 'کامیونت') model = d1.truck_model;
+            else if (d1.product_type === 'مینی بوس') model = d1.minibus_model;
+            else if (d1.product_type === 'کشنده') model = d1.tractor_model;
+            document.getElementById('sModelRow').style.display = model ? 'flex' : 'none';
+            document.getElementById('sModel').textContent = model || '-';
+            
+            document.getElementById('sPartCode').textContent = d1.part_code || '-';
+            document.getElementById('sPartName').textContent = d1.part_name || '-';
+            document.getElementById('sQuantity').textContent = d1.quantity || '-';
+            document.getElementById('sUnit').textContent = d1.unit || '-';
+            document.getElementById('sDescription').textContent = d1.description || '-';
+        }
+
+        function updateStep3Summary() {
+            document.getElementById('summaryNCR3').textContent = ncrData.ncr_number || '-';
+            document.getElementById('summaryPart3').textContent = document.getElementById('partName').value || '-';
+            document.getElementById('summarySeverity').textContent = document.getElementById('severity').value || '-';
+            document.getElementById('summaryAnalysis').textContent = document.getElementById('analysisMethod').value || '-';
+        }
+
+        function updateStep4Summary() {
+            var disp = document.getElementById('dispositionType');
+            document.getElementById('summaryDisposition').textContent = disp.options[disp.selectedIndex] ? disp.options[disp.selectedIndex].text : '-';
+        }
+
+        // ============================================
+        // CONDITIONAL FIELD TOGGLES
+        // ============================================
+        function toggleLocationSubs() {
+            var val = document.getElementById('locationFound').value;
+            document.querySelectorAll('.sub-field').forEach(function(el) { el.classList.remove('visible'); });
+            if (val === 'ورودی') document.getElementById('subInput').classList.add('visible');
+            else if (val === 'حین تولید') {
+                document.getElementById('subProduction').classList.add('visible');
+                toggleWorkStationSubs();
+            }
+        }
+
+        function toggleWorkStationSubs() {
+            var val = document.getElementById('workStation').value;
+            ['subSkeleton', 'subSheetMetal', 'subFiber', 'subPainting'].forEach(function(id) {
+                document.getElementById(id).classList.remove('visible');
+            });
+            if (val === 'اسکلت') document.getElementById('subSkeleton').classList.add('visible');
+            else if (val === 'ورقکوبی') document.getElementById('subSheetMetal').classList.add('visible');
+            else if (val === 'نصب فایبرگلاس') document.getElementById('subFiber').classList.add('visible');
+            else if (val === 'نقاشی') document.getElementById('subPainting').classList.add('visible');
+        }
+
+        function toggleProductSubs() {
+            var val = document.getElementById('productType').value;
+            ['subBus', 'subCar', 'subTruck', 'subMinibus', 'subTractor'].forEach(function(id) {
+                document.getElementById(id).classList.remove('visible');
+            });
+            if (val === 'اتوبوس') document.getElementById('subBus').classList.add('visible');
+            else if (val === 'سواری') document.getElementById('subCar').classList.add('visible');
+            else if (val === 'کامیونت') document.getElementById('subTruck').classList.add('visible');
+            else if (val === 'مینی بوس') document.getElementById('subMinibus').classList.add('visible');
+            else if (val === 'کشنده') document.getElementById('subTractor').classList.add('visible');
+        }
+
+        function toggleAnalysisSubs() {
+            var val = document.getElementById('analysisMethod').value;
+            document.getElementById('subFishbone').classList.remove('visible');
+            document.getElementById('sub5Why').classList.remove('visible');
+            document.getElementById('fishboneDiagramContainer').style.display = 'none';
+            if (val === 'fishbone') {
+                document.getElementById('subFishbone').classList.add('visible');
+                renderFishbone();
+                renderFishboneDiagram();
+            } else if (val === '5why') {
+                document.getElementById('sub5Why').classList.add('visible');
+            }
+        }
+
+        function toggleConfirmationSubs() {
+            var el = document.querySelector('input[name="confirmation"]:checked');
+            document.getElementById('subRejectReason').classList.remove('visible');
+            document.getElementById('subDisposition').classList.remove('visible');
+            if (el) {
+                if (el.value === 'no') document.getElementById('subRejectReason').classList.add('visible');
+                else if (el.value === 'yes') {
+                    document.getElementById('subDisposition').classList.add('visible');
+                    toggleDispositionSubs();
+                }
+            }
+        }
+
+        function toggleDispositionSubs() {
+            var val = document.getElementById('dispositionType').value;
+            ['subRework', 'subConcession', 'subHold', 'subScrap', 'subClaim', 'subPurchase'].forEach(function(id) {
+                document.getElementById(id).classList.remove('visible');
+            });
+            if (val === 'rework') document.getElementById('subRework').classList.add('visible');
+            else if (val === 'concession') document.getElementById('subConcession').classList.add('visible');
+            else if (val === 'hold') document.getElementById('subHold').classList.add('visible');
+            else if (val === 'scrap') document.getElementById('subScrap').classList.add('visible');
+            else if (val === 'claim') document.getElementById('subClaim').classList.add('visible');
+            else if (val === 'purchase') document.getElementById('subPurchase').classList.add('visible');
+        }
+
+        function toggleCorrectiveSubs() {
+            var el = document.querySelector('input[name="correctiveAction"]:checked');
+            document.getElementById('subCorrective').classList.remove('visible');
+            if (el && el.value === 'yes') document.getElementById('subCorrective').classList.add('visible');
+        }
+
+        function toggleEffectivenessSubs() {
+            var el = document.querySelector('input[name="effectiveness"]:checked');
+            document.getElementById('subIneffective').classList.remove('visible');
+            if (el && el.value === 'no') document.getElementById('subIneffective').classList.add('visible');
+        }
+
+        // ============================================
+        // VALIDATION
+        // ============================================
+        function validateStep(step) {
+            var requiredFields = {
+                1: ['reportDate', 'reporterName', 'reporterPosition', 'reporterDepartment', 'locationFound', 'productType', 'partCode', 'partName', 'description'],
+                2: ['immediateAction', 'severity', 'analysisMethod'],
+                3: ['confirmation'],
+                4: ['effectiveness']
+            };
+
+            var fields = requiredFields[step] || [];
+            var isValid = true;
+            var firstInvalid = null;
+
+            fields.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (el.type === 'radio' || el.tagName === 'INPUT' && el.type === 'radio') {
+                    var radios = document.querySelectorAll('input[name="' + id + '"]');
+                    var checked = false;
+                    radios.forEach(function(r) { if (r.checked) checked = true; });
+                    if (!checked) { isValid = false; if (!firstInvalid) firstInvalid = el; }
+                    return;
+                }
+                if (!el.value || !el.value.trim()) {
+                    el.style.borderColor = '#e74c3c';
+                    isValid = false;
+                    if (!firstInvalid) firstInvalid = el;
+                } else {
+                    el.style.borderColor = '';
+                }
+            });
+
+            if (step === 3) {
+                var conf = document.querySelector('input[name="confirmation"]:checked');
+                if (conf && conf.value === 'yes') {
+                    var disp = document.getElementById('dispositionType');
+                    if (!disp.value) {
+                        disp.style.borderColor = '#e74c3c';
+                        isValid = false;
+                        if (!firstInvalid) firstInvalid = disp;
+                    } else {
+                        disp.style.borderColor = '';
+                    }
+                } else if (conf && conf.value === 'no') {
+                    var reason = document.getElementById('rejectReason');
+                    if (!reason.value || !reason.value.trim()) {
+                        reason.style.borderColor = '#e74c3c';
+                        isValid = false;
+                        if (!firstInvalid) firstInvalid = reason;
+                    } else {
+                        reason.style.borderColor = '';
+                    }
+                }
+            }
+
+            if (step === 4) {
+                var eff = document.querySelector('input[name="effectiveness"]:checked');
+                if (!eff) {
+                    isValid = false;
+                    showToast('لطفاً اثربخشی اقدامات را مشخص کنید.', 'error');
+                    return false;
+                }
+            }
+
+            if (!isValid) {
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                showToast('لطفاً تمام فیلدهای الزامی (علامت‌دار) را تکمیل کنید.', 'error');
+            }
+            return isValid;
+        }
+
+        // ============================================
+        // SUBMIT FUNCTIONS
+        // ============================================
+        function submitStep1() {
+            if (!validateStep(1)) return;
+            ncrData.step1_data = getStep1Data();
+            ncrData.step1_completed = true;
+            ncrData.step1_submitted_at = new Date().toISOString();
+            ncrData.status = 'step1_submitted';
+            ncrData.assigned_role = 'quality';
+            ncrData.updated_at = new Date().toISOString();
+            ncrData.current_step = 1;
+            saveNCRToStorage();
+            updateStep1FullSummary();
+            document.getElementById('step1Actions').style.display = 'none';
+            document.getElementById('step1SuccessMessage').style.display = 'block';
+            showToast('✅ NCR با موفقیت به مدیریت کیفیت ارسال شد!', 'success');
+            addNotification('📋 NCR جدید نیاز به بررسی دارد', 'NCR ' + ncrData.ncr_number + ' توسط ' + ncrData.step1_data.reporter_name + ' ثبت شده است.', 'warning', 'new-ncr.html?number=' + ncrData.ncr_number);
+            var stepEl = document.querySelector('.form-step.active');
+            if (stepEl) stepEl.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = true; });
+            updateUI();
+            if (getUserRole() === 'quality' || getUserRole() === 'admin') setTimeout(function() { goToStep(2); }, 1500);
+        }
+
+        function submitStep2() {
+            if (!validateStep(2)) return;
+            var fishboneDataObj = getFishboneData();
+            ncrData.step2_data = getStep2Data();
+            ncrData.step2_data.fishbone_checked = fishboneDataObj.checked;
+            ncrData.step2_data.fishbone_subitems = fishboneDataObj.subItems;
+            ncrData.step2_completed = true;
+            ncrData.step2_submitted_at = new Date().toISOString();
+            ncrData.status = 'step2_submitted';
+            ncrData.assigned_role = 'cft';
+            ncrData.updated_at = new Date().toISOString();
+            ncrData.current_step = 2;
+            saveNCRToStorage();
+            document.getElementById('step2Actions').style.display = 'none';
+            document.getElementById('step2SuccessMessage').style.display = 'block';
+            showToast('✅ مرحله ارزیابی و تحلیل با موفقیت به کمیته فنی ارسال شد!', 'success');
+            addNotification('🔍 NCR نیاز به تعیین تکلیف دارد', 'NCR ' + ncrData.ncr_number + ' پس از تحلیل ریشه‌ای، نیاز به تعیین تکلیف دارد.', 'info', 'new-ncr.html?number=' + ncrData.ncr_number);
+            var stepEl = document.querySelector('.form-step.active');
+            if (stepEl) stepEl.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = true; });
+            updateUI();
+            if (getUserRole() === 'cft' || getUserRole() === 'admin') setTimeout(function() { goToStep(3); }, 1500);
+        }
+
+        function submitStep3() {
+            if (!validateStep(3)) return;
+            ncrData.step3_data = getStep3Data();
+            ncrData.step3_completed = true;
+            ncrData.step3_submitted_at = new Date().toISOString();
+            ncrData.status = 'step3_submitted';
+            ncrData.assigned_role = 'quality';
+            ncrData.updated_at = new Date().toISOString();
+            ncrData.current_step = 3;
+            saveNCRToStorage();
+            document.getElementById('step3Actions').style.display = 'none';
+            document.getElementById('step3SuccessMessage').style.display = 'block';
+            showToast('✅ مرحله تعیین تکلیف با موفقیت به مدیریت کیفیت برای پایش ارسال شد!', 'success');
+            addNotification('📊 NCR نیاز به پایش دارد', 'NCR ' + ncrData.ncr_number + ' پس از تعیین تکلیف، نیاز به پایش اثربخشی دارد.', 'info', 'new-ncr.html?number=' + ncrData.ncr_number);
+            var stepEl = document.querySelector('.form-step.active');
+            if (stepEl) stepEl.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = true; });
+            updateUI();
+            if (getUserRole() === 'quality' || getUserRole() === 'admin') setTimeout(function() { goToStep(4); }, 1500);
+        }
+
+        function submitStep4() {
+            if (!validateStep(4)) return;
+            ncrData.step4_data = getStep4Data();
+            ncrData.step4_completed = true;
+            ncrData.step4_submitted_at = new Date().toISOString();
+            ncrData.status = 'closed';
+            ncrData.assigned_role = null;
+            ncrData.updated_at = new Date().toISOString();
+            ncrData.current_step = 4;
+            saveNCRToStorage();
+            document.getElementById('step4Actions').style.display = 'none';
+            document.getElementById('step4SuccessMessage').style.display = 'block';
+            showToast('✅ NCR ' + ncrData.ncr_number + ' با موفقیت ثبت و بسته شد!', 'success');
+            addNotification('✅ NCR بسته شد', 'NCR ' + ncrData.ncr_number + ' با موفقیت به پایان رسید و بسته شد.', 'success', 'ncr-detail.html?number=' + ncrData.ncr_number);
+            var stepEl = document.querySelector('.form-step.active');
+            if (stepEl) stepEl.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = true; });
+            updateUI();
+        }
+
+        // ============================================
+        // GET DATA FUNCTIONS
+        // ============================================
+        function getStep1Data() {
+            return {
+                ncr_number: document.getElementById('ncrNumber').value,
+                report_date: document.getElementById('reportDate').value,
+                reporter_name: document.getElementById('reporterName').value,
+                reporter_position: document.getElementById('reporterPosition').value,
+                reporter_department: document.getElementById('reporterDepartment').value,
+                location_found: document.getElementById('locationFound').value,
+                inspection_number: document.getElementById('inspectionNumber').value,
+                work_station: document.getElementById('workStation').value,
+                skeleton_process: document.getElementById('skeletonProcess').value,
+                sheet_metal_process: document.getElementById('sheetMetalProcess').value,
+                fiber_process: document.getElementById('fiberProcess').value,
+                painting_process: document.getElementById('paintingProcess').value,
+                product_type: document.getElementById('productType').value,
+                bus_model: document.getElementById('busModel').value,
+                car_model: document.getElementById('carModel').value,
+                truck_model: document.getElementById('truckModel').value,
+                minibus_model: document.getElementById('minibusModel').value,
+                tractor_model: document.getElementById('tractorModel').value,
+                part_code: document.getElementById('partCode').value,
+                part_name: document.getElementById('partName').value,
+                quantity: document.getElementById('quantity').value,
+                unit: document.getElementById('unit').value,
+                description: document.getElementById('description').value,
+                created_by: currentUser.full_name || currentUser.username,
+                created_at: new Date().toISOString()
+            };
+        }
+
+        function getStep2Data() {
+            var fishboneDataObj = getFishboneData();
+            return {
+                standard_ref: document.getElementById('standardRef').value,
+                batch_number: document.getElementById('batchNumber').value,
+                immediate_action: document.getElementById('immediateAction').value,
+                severity: document.getElementById('severity').value,
+                quality_notes: document.getElementById('qualityNotes').value,
+                analysis_method: document.getElementById('analysisMethod').value,
+                fishbone_checked: fishboneDataObj.checked,
+                fishbone_subitems: fishboneDataObj.subItems,
+                why1: document.getElementById('why1').value,
+                why2: document.getElementById('why2').value,
+                why3: document.getElementById('why3').value,
+                why4: document.getElementById('why4').value,
+                why5: document.getElementById('why5').value,
+                analysis_conclusion: document.getElementById('analysisConclusion').value,
+                quality_checker: currentUser.full_name || currentUser.username,
+                quality_check_date: getToday()
+            };
+        }
+
+        function getStep3Data() {
+            var conf = document.querySelector('input[name="confirmation"]:checked');
+            var confirmation = conf ? conf.value : '';
+            var correctiveAction = document.querySelector('input[name="correctiveAction"]:checked');
+            var correctiveActionVal = correctiveAction ? correctiveAction.value : '';
+            return {
+                confirmation: confirmation,
+                reject_reason: document.getElementById('rejectReason').value,
+                disposition_type: document.getElementById('dispositionType').value,
+                rework_responsible: document.getElementById('reworkResponsible').value,
+                rework_deadline: document.getElementById('reworkDeadline').value,
+                rework_action_number: document.getElementById('reworkActionNumber').value,
+                concession_number: document.getElementById('concessionNumber').value,
+                hold_reason: document.getElementById('holdReason').value,
+                claim_number: document.getElementById('claimNumber').value,
+                purchase_number: document.getElementById('purchaseNumber').value,
+                corrective_action: correctiveActionVal,
+                corrective_number: document.getElementById('correctiveNumber').value,
+                cft_committee: currentUser.department + ' - ' + (currentUser.full_name || currentUser.username),
+                cft_date: getToday()
+            };
+        }
+
+        function getStep4Data() {
+            var eff = document.querySelector('input[name="effectiveness"]:checked');
+            var effectiveness = eff ? eff.value : '';
+            return {
+                effectiveness: effectiveness,
+                ineffective_action_number: document.getElementById('ineffectiveActionNumber').value,
+                monitoring_date: document.getElementById('monitoringDate').value,
+                monitoring_responsible: document.getElementById('monitoringResponsible').value,
+                monitoring_notes: document.getElementById('monitoringNotes').value,
+                final_status: document.getElementById('finalStatus').value,
+                closure_date: getToday(),
+                closure_by: currentUser.full_name || currentUser.username
+            };
+        }
+
+        // ============================================
+        // STORAGE FUNCTIONS
+        // ============================================
+        function saveNCRToStorage() {
+            var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            var existingIndex = ncrs.findIndex(function(n) { return n.ncr_number === ncrData.ncr_number; });
+            var fullData = { ...ncrData, step1_data: ncrData.step1_data || {}, step2_data: ncrData.step2_data || {}, step3_data: ncrData.step3_data || {}, step4_data: ncrData.step4_data || {}, updated_at: new Date().toISOString() };
+            if (existingIndex !== -1) { ncrs[existingIndex] = fullData; } else { fullData.created_at = new Date().toISOString(); ncrs.push(fullData); }
+            localStorage.setItem('ncrs', JSON.stringify(ncrs));
+        }
+
+        function loadNCRFromStorage(number) {
+            var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            var ncr = ncrs.find(function(n) { return n.ncr_number === number; });
+            if (ncr) { Object.assign(ncrData, ncr); populateForm(ncr); updateUI(); return true; }
+            return false;
+        }
+
+        function populateForm(ncr) {
+            if (ncr.step1_data) {
+                var d1 = ncr.step1_data;
+                document.getElementById('ncrNumber').value = d1.ncr_number || '';
+                document.getElementById('reportDate').value = d1.report_date || '';
+                document.getElementById('reporterName').value = d1.reporter_name || '';
+                document.getElementById('reporterPosition').value = d1.reporter_position || '';
+                document.getElementById('reporterDepartment').value = d1.reporter_department || '';
+                document.getElementById('locationFound').value = d1.location_found || '';
+                document.getElementById('inspectionNumber').value = d1.inspection_number || '';
+                document.getElementById('workStation').value = d1.work_station || '';
+                document.getElementById('skeletonProcess').value = d1.skeleton_process || '';
+                document.getElementById('sheetMetalProcess').value = d1.sheet_metal_process || '';
+                document.getElementById('fiberProcess').value = d1.fiber_process || '';
+                document.getElementById('paintingProcess').value = d1.painting_process || '';
+                document.getElementById('productType').value = d1.product_type || '';
+                document.getElementById('busModel').value = d1.bus_model || '';
+                document.getElementById('carModel').value = d1.car_model || '';
+                document.getElementById('truckModel').value = d1.truck_model || '';
+                document.getElementById('minibusModel').value = d1.minibus_model || '';
+                document.getElementById('tractorModel').value = d1.tractor_model || '';
+                document.getElementById('partCode').value = d1.part_code || '';
+                document.getElementById('partName').value = d1.part_name || '';
+                document.getElementById('quantity').value = d1.quantity || '';
+                document.getElementById('unit').value = d1.unit || 'عدد';
+                document.getElementById('description').value = d1.description || '';
+                updateStep1FullSummary();
+            }
+            if (ncr.step2_data) {
+                var d2 = ncr.step2_data;
+                document.getElementById('standardRef').value = d2.standard_ref || '';
+                document.getElementById('batchNumber').value = d2.batch_number || '';
+                document.getElementById('immediateAction').value = d2.immediate_action || '';
+                document.getElementById('severity').value = d2.severity || '';
+                document.getElementById('qualityNotes').value = d2.quality_notes || '';
+                document.getElementById('analysisMethod').value = d2.analysis_method || '';
+                document.getElementById('analysisConclusion').value = d2.analysis_conclusion || '';
+                document.getElementById('why1').value = d2.why1 || '';
+                document.getElementById('why2').value = d2.why2 || '';
+                document.getElementById('why3').value = d2.why3 || '';
+                document.getElementById('why4').value = d2.why4 || '';
+                document.getElementById('why5').value = d2.why5 || '';
+                if (d2.fishbone_checked || d2.fishbone_subitems) {
+                    loadFishboneData({ checked: d2.fishbone_checked || [], subItems: d2.fishbone_subitems || {} });
+                }
+                updateStep3Summary();
+                updateStep4Summary();
+            }
+            if (ncr.step3_data) {
+                var d3 = ncr.step3_data;
+                if (d3.confirmation === 'yes') document.querySelector('input[name="confirmation"][value="yes"]').checked = true;
+                else if (d3.confirmation === 'no') document.querySelector('input[name="confirmation"][value="no"]').checked = true;
+                document.getElementById('rejectReason').value = d3.reject_reason || '';
+                document.getElementById('dispositionType').value = d3.disposition_type || '';
+                document.getElementById('reworkResponsible').value = d3.rework_responsible || '';
+                document.getElementById('reworkDeadline').value = d3.rework_deadline || '';
+                document.getElementById('reworkActionNumber').value = d3.rework_action_number || '';
+                document.getElementById('concessionNumber').value = d3.concession_number || '';
+                document.getElementById('holdReason').value = d3.hold_reason || '';
+                document.getElementById('claimNumber').value = d3.claim_number || '';
+                document.getElementById('purchaseNumber').value = d3.purchase_number || '';
+                if (d3.corrective_action === 'yes') document.querySelector('input[name="correctiveAction"][value="yes"]').checked = true;
+                else document.querySelector('input[name="correctiveAction"][value="no"]').checked = true;
+                document.getElementById('correctiveNumber').value = d3.corrective_number || '';
+                updateStep3Summary();
+                updateStep4Summary();
+            }
+            if (ncr.step4_data) {
+                var d4 = ncr.step4_data;
+                if (d4.effectiveness === 'yes') document.querySelector('input[name="effectiveness"][value="yes"]').checked = true;
+                else if (d4.effectiveness === 'no') document.querySelector('input[name="effectiveness"][value="no"]').checked = true;
+                document.getElementById('ineffectiveActionNumber').value = d4.ineffective_action_number || '';
+                document.getElementById('monitoringDate').value = d4.monitoring_date || '';
+                document.getElementById('monitoringResponsible').value = d4.monitoring_responsible || '';
+                document.getElementById('monitoringNotes').value = d4.monitoring_notes || '';
+                document.getElementById('finalStatus').value = d4.final_status || 'open';
+            }
+            toggleLocationSubs();
+            toggleProductSubs();
+            toggleAnalysisSubs();
+            toggleConfirmationSubs();
+            toggleDispositionSubs();
+            toggleCorrectiveSubs();
+            toggleEffectivenessSubs();
+            if (ncr.step1_completed) {
+                var step1Fields = document.querySelector('.form-step[data-step="1"]');
+                if (step1Fields) step1Fields.querySelectorAll('input, select, textarea').forEach(function(el) { if (!el.hasAttribute('readonly')) el.disabled = true; });
+            }
+        }
+
+        // ============================================
+        // DRAFT & NOTIFICATION FUNCTIONS
+        // ============================================
+        function saveDraft() {
+            var data = getStep1Data();
+            data.draft_id = Date.now();
+            data.current_step = currentStep;
+            data.step1_completed = ncrData.step1_completed || false;
+            data.step2_completed = ncrData.step2_completed || false;
+            data.step3_completed = ncrData.step3_completed || false;
+            data.step4_completed = ncrData.step4_completed || false;
+            data.step1_submitted_at = ncrData.step1_submitted_at;
+            data.step2_submitted_at = ncrData.step2_submitted_at;
+            data.step3_submitted_at = ncrData.step3_submitted_at;
+            data.step4_submitted_at = ncrData.step4_submitted_at;
+            data.assigned_role = ncrData.assigned_role;
+            data.status = ncrData.status;
+            var drafts = JSON.parse(localStorage.getItem('ncr_drafts') || '[]');
+            var existingIndex = drafts.findIndex(function(d) { return d.ncr_number === data.ncr_number; });
+            if (existingIndex !== -1) { drafts[existingIndex] = data; } else { drafts.push(data); }
+            localStorage.setItem('ncr_drafts', JSON.stringify(drafts));
+            showToast('پیش‌نویس با موفقیت ذخیره شد!', 'success');
+        }
+
+        function addNotification(title, message, type, link) {
+            var notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            notifications.unshift({ id: Date.now(), title: title, message: message, type: type || 'info', link: link || '', is_read: false, created_at: new Date().toLocaleString('fa-IR') });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            updateNotifications();
+        }
+
+        function openActionForm() { showToast('🔧 صفحه اقدام اصلاحی باز می‌شود', 'info'); window.open('corrective-action.html', '_blank'); }
+        function openConcessionForm() { showToast('📄 صفحه مجوز ارفاقی باز می‌شود', 'info'); }
+        function openClaimForm() { showToast('📋 صفحه کلیم باز می‌شود', 'info'); window.open('claim-form.html', '_blank'); }
+        function openPurchaseForm() { showToast('🛒 صفحه درخواست خرید باز می‌شود', 'info'); window.open('purchase-request.html', '_blank'); }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var ncrNumber = urlParams.get('number');
+            renderFishbone();
+            if (ncrNumber) {
+                var loaded = loadNCRFromStorage(ncrNumber);
+                if (!loaded) showToast('NCR مورد نظر یافت نشد.', 'error');
+                else {
+                    var statusMap = { 'draft': 1, 'step1_submitted': 1, 'step2_submitted': 2, 'step3_submitted': 3, 'closed': 4 };
+                    var step = statusMap[ncrData.status] || 1;
+                    var userRole = getUserRole();
+                    if (ncrData.status === 'step1_submitted' && userRole === 'quality') step = 2;
+                    else if (ncrData.status === 'step2_submitted' && userRole === 'cft') step = 3;
+                    else if (ncrData.status === 'step3_submitted' && userRole === 'quality') step = 4;
+                    currentStep = step;
+                    ncrData.current_step = step;
+                    if (canAccessStep(step)) goToStep(step);
+                    else { for (var i = 1; i <= 4; i++) { if (canAccessStep(i)) { goToStep(i); break; } } }
+                }
+            } else {
+                document.getElementById('ncrNumber').value = generateNCRNumber();
+                ncrData.ncr_number = document.getElementById('ncrNumber').value;
+                ncrData.created_by = currentUser.full_name || currentUser.username;
+                ncrData.created_at = new Date().toISOString();
+                ncrData.status = 'draft';
+                currentStep = 1;
+                ncrData.current_step = 1;
+                goToStep(1);
+            }
+            var today = getToday();
+            document.getElementById('reportDate').value = today;
+            document.getElementById('reworkDeadline').value = today;
+            document.getElementById('monitoringDate').value = today;
+            displayCurrentDate();
+            displayUserInfo();
+            updateNotifications();
+            updateStep1FullSummary();
+            updateStep3Summary();
+            updateStep4Summary();
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.user-profile')) { var dd = document.getElementById('userDropdown'); if (dd) dd.classList.remove('show'); }
+                if (!e.target.closest('.header-notifications')) { var nd = document.getElementById('notificationsDropdown'); if (nd) nd.classList.remove('show'); }
+            });
+            console.log('✅ NCR Form initialized.');
+            console.log('Current user:', currentUser);
+            console.log('User role:', getUserRole());
+            console.log('NCR Data:', ncrData);
+        });
+    </script>
+
+</body>
+</html>

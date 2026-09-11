@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ویرایش پروفایل</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="dashboard.html">داشبورد</a>
+                    <span class="separator">/</span>
+                    <span class="current">ویرایش پروفایل</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h2 id="pageTitle">ویرایش پروفایل</h2>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="header-settings">
+                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+                </div>
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+                    <span id="userName">کاربر</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
+                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- سایدبار -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📋 NCR System</h2>
+                <p>ISO 9001:2015</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
+                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
+                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
+                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
+                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
+                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
+                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
+                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
+            </nav>
+        </aside>
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <div class="profile-container">
+                <div class="profile-avatar">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="Avatar" id="profileAvatar">
+                    <button class="btn btn-sm btn-primary" onclick="changeAvatar()"><i class="fas fa-camera"></i> تغییر</button>
+                </div>
+
+                <form id="profileForm" class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>نام کاربری</label>
+                            <input type="text" id="username" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>نام و نام خانوادگی</label>
+                            <input type="text" id="fullName">
+                        </div>
+                        <div class="form-group">
+                            <label>ایمیل</label>
+                            <input type="email" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label>دپارتمان</label>
+                            <select id="department">
+                                <option value="مدیریت">مدیریت</option>
+                                <option value="کنترل کیفیت">کنترل کیفیت</option>
+                                <option value="تولید">تولید</option>
+                                <option value="انبار">انبار</option>
+                                <option value="مهندسی">مهندسی</option>
+                                <option value="خرید">خرید</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>نقش</label>
+                            <select id="role">
+                                <option value="admin">مدیر</option>
+                                <option value="quality">کارشناس کیفیت</option>
+                                <option value="production">کارشناس تولید</option>
+                                <option value="purchasing">کارشناس خرید</option>
+                                <option value="warehouse">کارشناس انبار</option>
+                                <option value="engineering">کارشناس مهندسی</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>زبان</label>
+                            <select id="language">
+                                <option value="fa">فارسی</option>
+                                <option value="en">English</option>
+                                <option value="zh">中文</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره تغییرات</button>
+                        <button type="button" class="btn btn-warning" onclick="window.location.href='dashboard.html'"><i class="fas fa-arrow-right"></i> بازگشت</button>
+                    </div>
+                </form>
+
+                <div class="password-section">
+                    <h3>تغییر رمز عبور</h3>
+                    <form id="passwordForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>رمز عبور فعلی</label>
+                                <div class="password-input">
+                                    <input type="password" id="currentPassword" required>
+                                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('currentPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>رمز عبور جدید</label>
+                                <div class="password-input">
+                                    <input type="password" id="newPassword" required>
+                                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('newPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>تایید رمز عبور</label>
+                                <div class="password-input">
+                                    <input type="password" id="confirmPassword" required>
+                                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirmPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> تغییر رمز عبور</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="data/sample-data.js"></script>
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let allUsers = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
+            
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.full_name;
+                loadUserProfile(currentUser.username);
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        function loadUserProfile(username) {
+            allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = allUsers.find(u => u.username === username);
+            
+            if (user) {
+                document.getElementById('username').value = user.username;
+                document.getElementById('fullName').value = user.full_name || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('department').value = user.department || '';
+                document.getElementById('role').value = user.role || '';
+                document.getElementById('language').value = user.language || 'fa';
+            }
+        }
+
+        // ذخیره پروفایل
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const updatedUser = {
+                username: document.getElementById('username').value,
+                full_name: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                department: document.getElementById('department').value,
+                role: document.getElementById('role').value,
+                language: document.getElementById('language').value
+            };
+
+            const index = allUsers.findIndex(u => u.username === updatedUser.username);
+            if (index !== -1) {
+                allUsers[index] = { ...allUsers[index], ...updatedUser };
+                localStorage.setItem('users', JSON.stringify(allUsers));
+                
+                // بروزرسانی جلسه کاربر
+                const sessionUser = JSON.parse(localStorage.getItem('currentUser'));
+                sessionUser.full_name = updatedUser.full_name;
+                sessionUser.department = updatedUser.department;
+                sessionUser.role = updatedUser.role;
+                sessionUser.language = updatedUser.language;
+                localStorage.setItem('currentUser', JSON.stringify(sessionUser));
+                
+                document.getElementById('userName').textContent = updatedUser.full_name;
+                showNotification('پروفایل با موفقیت بروزرسانی شد!', 'success');
+            }
+        });
+
+        // تغییر رمز عبور
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // بررسی رمز فعلی
+            const user = allUsers.find(u => u.username === currentUser.username);
+            if (user.password !== currentPassword) {
+                showNotification('رمز عبور فعلی اشتباه است!', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showNotification('رمز عبور جدید و تایید آن مطابقت ندارند!', 'error');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showNotification('رمز عبور جدید باید حداقل 6 کاراکتر باشد!', 'error');
+                return;
+            }
+
+            // ذخیره رمز جدید
+            const index = allUsers.findIndex(u => u.username === currentUser.username);
+            allUsers[index].password = newPassword;
+            localStorage.setItem('users', JSON.stringify(allUsers));
+
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            showNotification('رمز عبور با موفقیت تغییر یافت!', 'success');
+        });
+
+        function changeAvatar() {
+            // در نسخه کامل، اینجا می‌توان آپلود عکس پیاده‌سازی کرد
+            showNotification('قابلیت تغییر عکس در نسخه بعدی اضافه خواهد شد!', 'info');
+        }
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentElement.querySelector('.toggle-password i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        function showNotification(message, type) {
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12',
+                info: '#3498db'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${colors[type] || '#3498db'};
+                color: white;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 9999;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: slideDown 0.5s ease;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
