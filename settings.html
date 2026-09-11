@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تنظیمات</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="dashboard.html">داشبورد</a>
+                    <span class="separator">/</span>
+                    <span class="current">تنظیمات</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h2 id="pageTitle">تنظیمات</h2>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+                    <span id="userName">کاربر</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
+                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- سایدبار -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📋 NCR System</h2>
+                <p>ISO 9001:2015</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
+                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
+                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
+                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
+                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
+                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
+                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
+                <a href="settings.html" class="active"><i class="fas fa-cog"></i> تنظیمات</a>
+            </nav>
+        </aside>
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <div class="settings-container">
+                <h3>⚙️ تنظیمات سیستم</h3>
+
+                <!-- تنظیمات عمومی -->
+                <div class="settings-section">
+                    <h4>تنظیمات عمومی</h4>
+                    <div class="settings-grid">
+                        <div class="settings-item">
+                            <label>زبان سیستم</label>
+                            <select id="systemLanguage" onchange="changeSystemLanguage(this.value)">
+                                <option value="fa">فارسی</option>
+                                <option value="en">English</option>
+                                <option value="zh">中文</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <label>منطقه زمانی</label>
+                            <select id="timezone">
+                                <option value="Asia/Tehran">Asia/Tehran (UTC+3:30)</option>
+                                <option value="UTC">UTC</option>
+                                <option value="America/New_York">America/New_York (UTC-5)</option>
+                                <option value="Europe/London">Europe/London (UTC+0)</option>
+                                <option value="Asia/Dubai">Asia/Dubai (UTC+4)</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <label>فرمت تاریخ</label>
+                            <select id="dateFormat">
+                                <option value="fa">YYYY/MM/DD (فارسی)</option>
+                                <option value="en">YYYY-MM-DD</option>
+                                <option value="us">MM/DD/YYYY</option>
+                                <option value="eu">DD/MM/YYYY</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <label>تم</label>
+                            <select id="theme">
+                                <option value="light">روشن</option>
+                                <option value="dark">تاریک</option>
+                                <option value="auto">خودکار</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تنظیمات اعلان‌ها -->
+                <div class="settings-section">
+                    <h4>تنظیمات اعلان‌ها</h4>
+                    <div class="settings-grid">
+                        <div class="settings-item">
+                            <label class="switch-label">
+                                <input type="checkbox" id="notificationEmail" checked>
+                                <span class="switch"></span>
+                                اعلان از طریق ایمیل
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <label class="switch-label">
+                                <input type="checkbox" id="notificationSMS">
+                                <span class="switch"></span>
+                                اعلان از طریق پیامک
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <label class="switch-label">
+                                <input type="checkbox" id="notificationBrowser" checked>
+                                <span class="switch"></span>
+                                اعلان در مرورگر
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <label class="switch-label">
+                                <input type="checkbox" id="notificationSound">
+                                <span class="switch"></span>
+                                صدای اعلان
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تنظیمات NCR -->
+                <div class="settings-section">
+                    <h4>تنظیمات NCR</h4>
+                    <div class="settings-grid">
+                        <div class="settings-item">
+                            <label>شماره‌گذاری خودکار NCR</label>
+                            <select id="ncrAutoNumbering">
+                                <option value="yearly">سالانه (NCR-YYYY-###)</option>
+                                <option value="monthly">ماهانه (NCR-YYYYMM-###)</option>
+                                <option value="sequential">پیوسته (NCR-####)</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <label>اولویت پیش‌فرض</label>
+                            <select id="defaultPriority">
+                                <option value="low">کم</option>
+                                <option value="medium" selected>متوسط</option>
+                                <option value="high">بالا</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <label>مهلت پیش‌فرض (روز)</label>
+                            <input type="number" id="defaultDueDate" value="30" min="1" max="365">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تنظیمات سیستم -->
+                <div class="settings-section">
+                    <h4>تنظیمات سیستم</h4>
+                    <div class="settings-grid">
+                        <div class="settings-item">
+                            <label>پاک کردن داده‌های آزمایشی</label>
+                            <button class="btn btn-danger" onclick="clearSampleData()"><i class="fas fa-trash"></i> پاک کردن داده‌های نمونه</button>
+                        </div>
+                        <div class="settings-item">
+                            <label>خروجی گرفتن از کل داده‌ها</label>
+                            <button class="btn btn-success" onclick="exportAllData()"><i class="fas fa-download"></i> دریافت خروجی</button>
+                        </div>
+                        <div class="settings-item">
+                            <label>بارگذاری داده‌ها</label>
+                            <input type="file" id="importDataFile" accept=".json" style="display:none;">
+                            <button class="btn btn-primary" onclick="document.getElementById('importDataFile').click()"><i class="fas fa-upload"></i> بارگذاری داده</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> ذخیره تنظیمات</button>
+                    <button class="btn btn-secondary" onclick="resetSettings()"><i class="fas fa-undo"></i> بازنشانی به پیش‌فرض</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="data/sample-data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                document.getElementById('userName').textContent = user.full_name;
+            }
+
+            loadSettings();
+        });
+
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('systemSettings') || '{}');
+            
+            document.getElementById('systemLanguage').value = settings.language || 'fa';
+            document.getElementById('timezone').value = settings.timezone || 'Asia/Tehran';
+            document.getElementById('dateFormat').value = settings.dateFormat || 'fa';
+            document.getElementById('theme').value = settings.theme || 'light';
+            
+            document.getElementById('notificationEmail').checked = settings.notificationEmail !== false;
+            document.getElementById('notificationSMS').checked = settings.notificationSMS || false;
+            document.getElementById('notificationBrowser').checked = settings.notificationBrowser !== false;
+            document.getElementById('notificationSound').checked = settings.notificationSound || false;
+            
+            document.getElementById('ncrAutoNumbering').value = settings.ncrAutoNumbering || 'yearly';
+            document.getElementById('defaultPriority').value = settings.defaultPriority || 'medium';
+            document.getElementById('defaultDueDate').value = settings.defaultDueDate || 30;
+        }
+
+        function saveSettings() {
+            const settings = {
+                language: document.getElementById('systemLanguage').value,
+                timezone: document.getElementById('timezone').value,
+                dateFormat: document.getElementById('dateFormat').value,
+                theme: document.getElementById('theme').value,
+                notificationEmail: document.getElementById('notificationEmail').checked,
+                notificationSMS: document.getElementById('notificationSMS').checked,
+                notificationBrowser: document.getElementById('notificationBrowser').checked,
+                notificationSound: document.getElementById('notificationSound').checked,
+                ncrAutoNumbering: document.getElementById('ncrAutoNumbering').value,
+                defaultPriority: document.getElementById('defaultPriority').value,
+                defaultDueDate: parseInt(document.getElementById('defaultDueDate').value) || 30
+            };
+
+            localStorage.setItem('systemSettings', JSON.stringify(settings));
+            
+            // اعمال تغییر زبان
+            changeSystemLanguage(settings.language);
+            
+            showNotification('تنظیمات با موفقیت ذخیره شد!', 'success');
+        }
+
+        function resetSettings() {
+            if (confirm('آیا از بازنشانی تنظیمات به حالت پیش‌فرض مطمئن هستید؟')) {
+                localStorage.removeItem('systemSettings');
+                loadSettings();
+                showNotification('تنظیمات به حالت پیش‌فرض بازنشانی شد!', 'info');
+            }
+        }
+
+        function changeSystemLanguage(lang) {
+            if (window.setLanguage) {
+                window.setLanguage(lang);
+            }
+        }
+
+        function clearSampleData() {
+            if (confirm('آیا از پاک کردن تمام داده‌های نمونه مطمئن هستید؟ این عمل غیرقابل بازگشت است!')) {
+                localStorage.removeItem('ncrs');
+                localStorage.removeItem('claims');
+                localStorage.removeItem('shortages');
+                localStorage.removeItem('purchase_requests');
+                localStorage.removeItem('notifications');
+                showNotification('همه داده‌های نمونه پاک شدند!', 'success');
+            }
+        }
+
+        function exportAllData() {
+            const data = {
+                users: JSON.parse(localStorage.getItem('users') || '[]'),
+                ncrs: JSON.parse(localStorage.getItem('ncrs') || '[]'),
+                claims: JSON.parse(localStorage.getItem('claims') || '[]'),
+                shortages: JSON.parse(localStorage.getItem('shortages') || '[]'),
+                purchase_requests: JSON.parse(localStorage.getItem('purchase_requests') || '[]'),
+                notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
+                settings: JSON.parse(localStorage.getItem('systemSettings') || '{}'),
+                exported_at: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `NCR_System_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // بارگذاری داده‌ها
+        document.getElementById('importDataFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    
+                    if (data.users) localStorage.setItem('users', JSON.stringify(data.users));
+                    if (data.ncrs) localStorage.setItem('ncrs', JSON.stringify(data.ncrs));
+                    if (data.claims) localStorage.setItem('claims', JSON.stringify(data.claims));
+                    if (data.shortages) localStorage.setItem('shortages', JSON.stringify(data.shortages));
+                    if (data.purchase_requests) localStorage.setItem('purchase_requests', JSON.stringify(data.purchase_requests));
+                    if (data.notifications) localStorage.setItem('notifications', JSON.stringify(data.notifications));
+                    if (data.settings) localStorage.setItem('systemSettings', JSON.stringify(data.settings));
+                    
+                    showNotification('داده‌ها با موفقیت بارگذاری شدند!', 'success');
+                } catch (error) {
+                    showNotification('خطا در بارگذاری داده‌ها! فایل معتبر نیست.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            this.value = '';
+        });
+
+        function showNotification(message, type) {
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12',
+                info: '#3498db'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${colors[type] || '#3498db'};
+                color: white;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 9999;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: slideDown 0.5s ease;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        function changePassword() {
+            window.location.href = 'profile.html?action=change-password';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

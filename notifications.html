@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اعلان‌ها</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="dashboard.html">داشبورد</a>
+                    <span class="separator">/</span>
+                    <span class="current">اعلان‌ها</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h2 id="pageTitle">اعلان‌ها</h2>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="header-settings">
+                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+                </div>
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+                    <span id="userName">کاربر</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
+                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- سایدبار -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📋 NCR System</h2>
+                <p>ISO 9001:2015</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
+                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
+                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
+                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
+                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
+                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
+                <a href="notifications.html" class="active"><i class="fas fa-bell"></i> اعلان‌ها</a>
+                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
+            </nav>
+        </aside>
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <div class="notifications-container">
+                <div class="notifications-header">
+                    <h3>🔔 همه اعلان‌ها</h3>
+                    <div class="notifications-actions">
+                        <button class="btn btn-primary" onclick="markAllRead()"><i class="fas fa-check-double"></i> علامت‌گذاری همه به عنوان خوانده شده</button>
+                        <button class="btn btn-danger" onclick="clearAllNotifications()"><i class="fas fa-trash"></i> پاک کردن همه</button>
+                    </div>
+                </div>
+
+                <div class="notifications-filters">
+                    <button class="filter-btn active" data-filter="all" onclick="filterNotifications('all')">همه</button>
+                    <button class="filter-btn" data-filter="unread" onclick="filterNotifications('unread')">خوانده نشده</button>
+                    <button class="filter-btn" data-filter="read" onclick="filterNotifications('read')">خوانده شده</button>
+                    <button class="filter-btn" data-filter="info" onclick="filterNotifications('info')">اطلاعاتی</button>
+                    <button class="filter-btn" data-filter="success" onclick="filterNotifications('success')">موفقیت</button>
+                    <button class="filter-btn" data-filter="warning" onclick="filterNotifications('warning')">اخطار</button>
+                    <button class="filter-btn" data-filter="danger" onclick="filterNotifications('danger')">خطا</button>
+                </div>
+
+                <div class="notifications-list" id="notificationsList">
+                    <div class="loading">در حال بارگذاری...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="data/sample-data.js"></script>
+    <script>
+        let allNotifications = [];
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                document.getElementById('userName').textContent = user.full_name;
+            }
+
+            loadNotifications();
+        });
+
+        function loadNotifications() {
+            allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            renderNotifications('all');
+        }
+
+        function renderNotifications(filter) {
+            const container = document.getElementById('notificationsList');
+            
+            let filtered = allNotifications;
+            if (filter === 'unread') {
+                filtered = allNotifications.filter(n => !n.is_read);
+            } else if (filter === 'read') {
+                filtered = allNotifications.filter(n => n.is_read);
+            } else if (['info', 'success', 'warning', 'danger'].includes(filter)) {
+                filtered = allNotifications.filter(n => n.type === filter);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="no-notifications">
+                        <i class="fas fa-bell-slash" style="font-size: 48px; color: #ddd;"></i>
+                        <p>هیچ اعلانی وجود ندارد</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const iconMap = {
+                info: 'fa-info-circle',
+                success: 'fa-check-circle',
+                warning: 'fa-exclamation-triangle',
+                danger: 'fa-times-circle'
+            };
+
+            container.innerHTML = filtered.map(notification => `
+                <div class="notification-item ${notification.is_read ? 'read' : 'unread'}" onclick="markAsRead(${notification.id})">
+                    <div class="notification-icon ${notification.type}">
+                        <i class="fas ${iconMap[notification.type] || 'fa-info-circle'}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-message">${notification.message}</div>
+                        <div class="notification-time">${notification.created_at}</div>
+                    </div>
+                    ${!notification.is_read ? '<span class="unread-badge">جدید</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function filterNotifications(filter) {
+            currentFilter = filter;
+            // بروزرسانی دکمه‌های فعال
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderNotifications(filter);
+        }
+
+        function markAsRead(id) {
+            const notification = allNotifications.find(n => n.id === id);
+            if (notification && !notification.is_read) {
+                notification.is_read = true;
+                localStorage.setItem('notifications', JSON.stringify(allNotifications));
+                renderNotifications(currentFilter);
+                // بروزرسانی شمارنده
+                updateNotificationBadge();
+            }
+        }
+
+        function markAllRead() {
+            allNotifications.forEach(n => n.is_read = true);
+            localStorage.setItem('notifications', JSON.stringify(allNotifications));
+            renderNotifications(currentFilter);
+            updateNotificationBadge();
+            showNotification('همه اعلان‌ها به عنوان خوانده شده علامت‌گذاری شدند!', 'success');
+        }
+
+        function clearAllNotifications() {
+            if (confirm('آیا از پاک کردن همه اعلان‌ها مطمئن هستید؟')) {
+                allNotifications = [];
+                localStorage.setItem('notifications', JSON.stringify(allNotifications));
+                renderNotifications(currentFilter);
+                updateNotificationBadge();
+                showNotification('همه اعلان‌ها پاک شدند!', 'info');
+            }
+        }
+
+        function updateNotificationBadge() {
+            const unread = allNotifications.filter(n => !n.is_read);
+            document.getElementById('notificationBadge').textContent = unread.length;
+        }
+
+        function showNotification(message, type) {
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12',
+                info: '#3498db'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${colors[type] || '#3498db'};
+                color: white;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 9999;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: slideDown 0.5s ease;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        function changePassword() {
+            window.location.href = 'profile.html?action=change-password';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

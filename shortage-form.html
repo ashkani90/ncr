@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش عدم ارسال قطعه</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="dashboard.html">داشبورد</a>
+                    <span class="separator">/</span>
+                    <span class="current">گزارش عدم ارسال قطعه</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h2 id="pageTitle">گزارش عدم ارسال قطعه</h2>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="header-notifications" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationBadge">0</span>
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="dropdown-header">
+                            <span>اعلان‌ها</span>
+                            <a href="notifications.html">مشاهده همه</a>
+                        </div>
+                        <div class="dropdown-body" id="notificationList">
+                            <div class="no-notifications">هیچ اعلان جدیدی وجود ندارد</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-settings">
+                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+                </div>
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+                    <span id="userName">کاربر</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
+                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- سایدبار -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📋 NCR System</h2>
+                <p>ISO 9001:2015</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
+                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
+                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
+                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
+                <a href="shortage-form.html" class="active"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
+                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
+                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
+                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
+            </nav>
+        </aside>
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <form id="shortageForm" class="form-section">
+                <!-- مرحله 1: اطلاعات اولیه -->
+                <div class="form-step" data-step="1">
+                    <h3>مرحله 1: اطلاعات گزارش (انبار)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>شماره گزارش</label>
+                            <input type="text" id="shortageNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ گزارش</label>
+                            <input type="date" id="reportDate">
+                        </div>
+                        <div class="form-group">
+                            <label>گزارش دهنده</label>
+                            <input type="text" id="reporterName">
+                        </div>
+                        <div class="form-group">
+                            <label>دپارتمان</label>
+                            <select id="reporterDepartment">
+                                <option value="تولید">تولید</option>
+                                <option value="کنترل کیفیت">کنترل کیفیت</option>
+                                <option value="انبار" selected>انبار</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>موضوع گزارش</label>
+                            <select id="subject">
+                                <option value="عدم دریافت قطعه">عدم دریافت قطعه</option>
+                                <option value="دریافت قطعه معیوب">دریافت قطعه معیوب</option>
+                                <option value="درخواست قطعه جدید">درخواست قطعه جدید</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>کد قطعه</label>
+                            <input type="text" id="partCode">
+                        </div>
+                        <div class="form-group">
+                            <label>نام قطعه</label>
+                            <input type="text" id="partName">
+                        </div>
+                        <div class="form-group">
+                            <label>بچ نامبر/بارنامه</label>
+                            <input type="text" id="batchNumber">
+                        </div>
+                        <div class="form-group">
+                            <label>تعداد درخواستی</label>
+                            <input type="number" id="requestedQty">
+                        </div>
+                        <div class="form-group">
+                            <label>تعداد ارسالی</label>
+                            <input type="number" id="sentQty">
+                        </div>
+                        <div class="form-group">
+                            <label>تعداد کسری</label>
+                            <input type="number" id="shortageQty" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>واحد سنجش</label>
+                            <input type="text" id="unit" value="عدد">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>توضیحات</label>
+                            <textarea id="description" rows="2"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>مستندات</label>
+                            <input type="text" id="documents" placeholder="نام فایل مستند">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 2: تایید مدیرعامل -->
+                <div class="form-step" data-step="2">
+                    <h3>مرحله 2: تایید مدیرعامل</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>وضعیت تایید</label>
+                            <select id="ceoStatus">
+                                <option value="pending">در انتظار</option>
+                                <option value="approved">تایید شده</option>
+                                <option value="rejected">رد شده</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ تایید</label>
+                            <input type="date" id="ceoApprovedDate">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>نکات مدیرعامل</label>
+                            <textarea id="ceoNotes" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 3: پاسخ تامین‌کننده -->
+                <div class="form-step" data-step="3">
+                    <h3>مرحله 3: پاسخ تامین‌کننده</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>وضعیت تامین‌کننده</label>
+                            <select id="supplierStatus">
+                                <option value="pending">در انتظار</option>
+                                <option value="approved">تایید شده</option>
+                                <option value="rejected">رد شده</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>گزارش مورد تأیید است</label>
+                            <select id="supplierApproved">
+                                <option value="">انتخاب کنید</option>
+                                <option value="yes">بله - قطعه جایگزین ارسال می‌شود</option>
+                                <option value="no">خیر - هزینه عودت داده می‌شود</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>زمان ارسال قطعه/هزینه</label>
+                            <input type="text" id="supplierReplacementDate">
+                        </div>
+                        <div class="form-group">
+                            <label>شماره اقدام اصلاحی</label>
+                            <input type="text" id="correctiveActionNumber">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>نتیجه اقدام تعریف شده</label>
+                            <textarea id="actionResult" rows="2"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>نکات تامین‌کننده</label>
+                            <textarea id="supplierNotes" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 4: دریافت توسط انبار -->
+                <div class="form-step" data-step="4">
+                    <h3>مرحله 4: دریافت قطعه جایگزین (انبار)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>وضعیت انبار</label>
+                            <select id="warehouseStatus">
+                                <option value="pending">در انتظار</option>
+                                <option value="received">قطعه جایگزین دریافت شد</option>
+                                <option value="rejected">قطعه جایگزین دریافت نشد</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ دریافت</label>
+                            <input type="date" id="replacementReceivedDate">
+                        </div>
+                        <div class="form-group">
+                            <label>تعداد دریافت شده</label>
+                            <input type="number" id="replacementQuantity">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>نکات انبار</label>
+                            <textarea id="warehouseNotes" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره گزارش</button>
+                    <button type="button" class="btn btn-success" onclick="printShortage()"><i class="fas fa-print"></i> چاپ</button>
+                    <button type="button" class="btn btn-warning" onclick="window.location.href='dashboard.html'"><i class="fas fa-arrow-right"></i> بازگشت</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="print.js"></script>
+    <script src="data/sample-data.js"></script>
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
+            
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.full_name;
+                document.getElementById('reporterName').value = currentUser.full_name;
+            }
+
+            document.getElementById('shortageNumber').value = generateShortageNumber();
+            document.getElementById('reportDate').value = now.toISOString().split('T')[0];
+
+            updateNotifications();
+        });
+
+        function generateShortageNumber() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const count = JSON.parse(localStorage.getItem('shortages') || '[]').length + 1;
+            return `SH-${year}-${String(count).padStart(3, '0')}`;
+        }
+
+        // محاسبه خودکار کسری
+        document.getElementById('requestedQty').addEventListener('input', calculateShortage);
+        document.getElementById('sentQty').addEventListener('input', calculateShortage);
+
+        function calculateShortage() {
+            const requested = parseInt(document.getElementById('requestedQty').value) || 0;
+            const sent = parseInt(document.getElementById('sentQty').value) || 0;
+            document.getElementById('shortageQty').value = requested - sent > 0 ? requested - sent : 0;
+        }
+
+        // ذخیره گزارش
+        document.getElementById('shortageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const shortage = {
+                shortage_number: document.getElementById('shortageNumber').value,
+                report_date: document.getElementById('reportDate').value,
+                reporter_name: document.getElementById('reporterName').value,
+                reporter_department: document.getElementById('reporterDepartment').value,
+                subject: document.getElementById('subject').value,
+                part_code: document.getElementById('partCode').value,
+                part_name: document.getElementById('partName').value,
+                batch_number: document.getElementById('batchNumber').value,
+                requested_qty: parseInt(document.getElementById('requestedQty').value) || 0,
+                sent_qty: parseInt(document.getElementById('sentQty').value) || 0,
+                shortage_qty: parseInt(document.getElementById('shortageQty').value) || 0,
+                unit: document.getElementById('unit').value,
+                documents: document.getElementById('documents').value,
+                description: document.getElementById('description').value,
+
+                ceo_status: document.getElementById('ceoStatus').value,
+                ceo_approved_date: document.getElementById('ceoApprovedDate').value,
+                ceo_notes: document.getElementById('ceoNotes').value,
+
+                supplier_status: document.getElementById('supplierStatus').value,
+                supplier_approved: document.getElementById('supplierApproved').value,
+                supplier_replacement_date: document.getElementById('supplierReplacementDate').value,
+                corrective_action_number: document.getElementById('correctiveActionNumber').value,
+                action_result: document.getElementById('actionResult').value,
+                supplier_notes: document.getElementById('supplierNotes').value,
+
+                warehouse_status: document.getElementById('warehouseStatus').value,
+                replacement_received_date: document.getElementById('replacementReceivedDate').value,
+                replacement_quantity: parseInt(document.getElementById('replacementQuantity').value) || 0,
+                warehouse_notes: document.getElementById('warehouseNotes').value,
+
+                final_status: document.getElementById('warehouseStatus').value === 'received' ? 'closed' : 'in_progress',
+                created_at: new Date().toISOString(),
+                created_by: currentUser ? currentUser.full_name : ''
+            };
+
+            let shortages = JSON.parse(localStorage.getItem('shortages') || '[]');
+            shortages.push(shortage);
+            localStorage.setItem('shortages', JSON.stringify(shortages));
+
+            showNotification('گزارش عدم ارسال قطعه با موفقیت ثبت شد!', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        });
+
+        function showNotification(message, type) {
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12',
+                info: '#3498db'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${colors[type] || '#3498db'};
+                color: white;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 9999;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: slideDown 0.5s ease;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function printShortage() {
+            window.print();
+        }
+
+        // توابع عمومی
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notificationsDropdown').classList.toggle('show');
+        }
+
+        function updateNotifications() {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const unread = notifications.filter(n => !n.is_read);
+            document.getElementById('notificationBadge').textContent = unread.length;
+        }
+
+        function changePassword() {
+            window.location.href = 'profile.html?action=change-password';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+            if (!e.target.closest('.header-notifications')) {
+                document.getElementById('notificationsDropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

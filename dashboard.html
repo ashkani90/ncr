@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد مدیریت NCR</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- بارگذاری i18n.js با نسخه برای جلوگیری از کش -->
+    <script src="i18n.js?v=2"></script>
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- کامپوننت هدر -->
+        <div id="headerContainer"></div>
+        
+        <!-- کامپوننت سایدبار -->
+        <div id="sidebarContainer"></div>
+        
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <!-- کارت‌های آمار -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card blue" onclick="showDetail('total')">
+                    <div class="stat-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="stat-number" id="totalNCR">0</div>
+                    <div class="stat-label" data-i18n="stat_total_ncr">کل NCRها</div>
+                    <div class="stat-trend"><i class="fas fa-arrow-up"></i> +12%</div>
+                </div>
+                <div class="stat-card red" onclick="showDetail('open')">
+                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-number" id="openNCR">0</div>
+                    <div class="stat-label" data-i18n="stat_open">باز</div>
+                    <div class="stat-trend"><i class="fas fa-arrow-up"></i> +5%</div>
+                </div>
+                <div class="stat-card orange" onclick="showDetail('inprogress')">
+                    <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+                    <div class="stat-number" id="inProgressNCR">0</div>
+                    <div class="stat-label" data-i18n="stat_in_progress">در حال بررسی</div>
+                    <div class="stat-trend"><i class="fas fa-arrow-down"></i> -3%</div>
+                </div>
+                <div class="stat-card green" onclick="showDetail('closed')">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-number" id="closedNCR">0</div>
+                    <div class="stat-label" data-i18n="stat_closed">بسته شده</div>
+                    <div class="stat-trend"><i class="fas fa-arrow-up"></i> +8%</div>
+                </div>
+                <div class="stat-card purple" onclick="showDetail('claims')">
+                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                    <div class="stat-number" id="totalClaims">0</div>
+                    <div class="stat-label" data-i18n="stat_claims">کلیم‌ها</div>
+                    <div class="stat-trend"><i class="fas fa-arrow-up"></i> +15%</div>
+                </div>
+                <div class="stat-card teal" onclick="showDetail('purchases')">
+                    <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="stat-number" id="totalPurchases">0</div>
+                    <div class="stat-label" data-i18n="stat_purchases">درخواست‌های خرید</div>
+                    <div class="stat-trend"><i class="fas fa-arrow-up"></i> +7%</div>
+                </div>
+            </div>
+
+            <!-- نمودارها -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h4 data-i18n="chart_status">وضعیت NCRها</h4>
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4 data-i18n="chart_trend">روند ماهانه</h4>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- جدول آخرین NCRها -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 data-i18n="table_latest">📋 آخرین NCRهای ثبت شده</h3>
+                    <div class="table-actions">
+                        <input type="text" id="searchInput" oninput="searchNCR(this.value)" data-i18n-placeholder="table_search" placeholder="جستجو...">
+                        <select id="statusFilter" onchange="filterNCR(this.value)">
+                            <option value="" data-i18n="table_all_status">همه وضعیت‌ها</option>
+                            <option value="open" data-i18n="status_open">باز</option>
+                            <option value="in_progress" data-i18n="status_in_progress">در حال بررسی</option>
+                            <option value="closed" data-i18n="status_closed">بسته</option>
+                            <option value="rejected" data-i18n="status_rejected">رد شده</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="exportData()"><i class="fas fa-file-excel"></i> <span data-i18n="export">خروجی</span></button>
+                        <button class="btn btn-success" onclick="printPage()"><i class="fas fa-print"></i> <span data-i18n="print">چاپ</span></button>
+                    </div>
+                </div>
+                <table id="ncrTable">
+                    <thead>
+                        <tr>
+                            <th data-i18n="table_number">شماره</th>
+                            <th data-i18n="table_part">قطعه</th>
+                            <th data-i18n="table_subject">موضوع</th>
+                            <th data-i18n="table_date">تاریخ</th>
+                            <th data-i18n="table_priority">اولویت</th>
+                            <th data-i18n="table_step">مرحله</th>
+                            <th data-i18n="table_status">وضعیت</th>
+                            <th data-i18n="table_actions">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ncrTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center;" data-i18n="table_no_data">در حال بارگذاری...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- گردش کار فرآیند -->
+            <div class="process-flow">
+                <h4 data-i18n="workflow_title">🔄 گردش کار فرآیند قطعه نامنطبق</h4>
+                <div class="process-steps" id="processSteps">
+                    <div class="step completed" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-label" data-i18n="step_1">ثبت NCR</span>
+                    </div>
+                    <div class="step active" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-label" data-i18n="step_2">ریشه‌یابی</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-label" data-i18n="step_3">FMEA</span>
+                    </div>
+                    <div class="step" data-step="4">
+                        <span class="step-number">4</span>
+                        <span class="step-label" data-i18n="step_4">CFT</span>
+                    </div>
+                    <div class="step" data-step="5">
+                        <span class="step-number">5</span>
+                        <span class="step-label" data-i18n="step_5">بررسی نهایی</span>
+                    </div>
+                    <div class="step" data-step="6">
+                        <span class="step-number">6</span>
+                        <span class="step-label" data-i18n="step_6">بسته شدن</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کامپوننت فوتر -->
+            <div id="footerContainer"></div>
+
+        </main>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="print.js"></script>
+    <script src="data/sample-data.js"></script>
+    <script src="components/loader.js"></script>
+    <script>
+        // ============================================
+        // بارگذاری اولیه داشبورد
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // بارگذاری کامپوننت‌ها
+            loadAllComponents();
+                        
+            var now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
+            
+            var user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                document.getElementById('userName').textContent = user.full_name;
+            }
+            
+            loadDashboardData();
+            initCharts();
+            updateNotifications();
+        });
+
+        function loadDashboardData() {
+            var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            var claims = JSON.parse(localStorage.getItem('claims') || '[]');
+            var purchases = JSON.parse(localStorage.getItem('purchase_requests') || '[]');
+            
+            document.getElementById('totalNCR').textContent = ncrs.length;
+            document.getElementById('openNCR').textContent = ncrs.filter(function(n) { return n.final_status === 'open'; }).length;
+            document.getElementById('inProgressNCR').textContent = ncrs.filter(function(n) { return n.final_status === 'in_progress'; }).length;
+            document.getElementById('closedNCR').textContent = ncrs.filter(function(n) { return n.final_status === 'closed'; }).length;
+            document.getElementById('totalClaims').textContent = claims.length;
+            document.getElementById('totalPurchases').textContent = purchases.length;
+            
+            renderNCRTable(ncrs);
+        }
+
+        function renderNCRTable(ncrs) {
+            var tbody = document.getElementById('ncrTableBody');
+            if (ncrs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;" data-i18n="table_no_data">هیچ NCR ثبت نشده است</td></tr>';
+                return;
+            }
+            
+            var recentNCRs = ncrs.slice(-10).reverse();
+            var html = '';
+            for (var i = 0; i < recentNCRs.length; i++) {
+                var ncr = recentNCRs[i];
+                var priorityClass = ncr.priority === 'high' ? 'badge-danger' : (ncr.priority === 'medium' ? 'badge-warning' : 'badge-info');
+                var priorityLabel = ncr.priority === 'high' ? 'بالا' : (ncr.priority === 'medium' ? 'متوسط' : 'کم');
+                var statusClass = ncr.final_status === 'closed' ? 'badge-success' : (ncr.final_status === 'in_progress' ? 'badge-warning' : 'badge-danger');
+                var statusLabel = ncr.final_status === 'closed' ? 'بسته' : (ncr.final_status === 'in_progress' ? 'در حال بررسی' : 'باز');
+                var stepNum = getStepNumber(ncr);
+                
+                html += '<tr>' +
+                    '<td><strong><a href="ncr-detail.html?number=' + ncr.ncr_number + '" class="link-primary">' + ncr.ncr_number + '</a></strong></td>' +
+                    '<td>' + ncr.part_name + '</td>' +
+                    '<td>' + ncr.subject + '</td>' +
+                    '<td>' + ncr.report_date + '</td>' +
+                    '<td><span class="badge ' + priorityClass + '">' + priorityLabel + '</span></td>' +
+                    '<td>مرحله ' + stepNum + '</td>' +
+                    '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>' +
+                    '<td>' +
+                        '<button class="btn btn-sm btn-primary" onclick="viewNCR(\'' + ncr.ncr_number + '\')"><i class="fas fa-eye"></i></button> ' +
+                        '<button class="btn btn-sm btn-success" onclick="editNCR(\'' + ncr.ncr_number + '\')"><i class="fas fa-edit"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            }
+            tbody.innerHTML = html;
+        }
+
+        function getStepNumber(ncr) {
+            if (ncr.final_status === 'closed') return 6;
+            if (ncr.final_quality_status === 'approved') return 5;
+            if (ncr.cft_status === 'approved') return 4;
+            if (ncr.fmea_status === 'completed') return 3;
+            if (ncr.quality_status === 'approved') return 2;
+            return 1;
+        }
+
+        function initCharts() {
+            var ctx1 = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['باز', 'در حال بررسی', 'بسته', 'رد شده'],
+                    datasets: [{
+                        data: [12, 19, 8, 3],
+                        backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#95a5a6'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+            
+            var ctx2 = document.getElementById('trendChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
+                    datasets: [{
+                        label: 'NCR ثبت شده',
+                        data: [5, 8, 12, 7, 15, 10],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function updateNotifications() {
+            var notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            var unread = notifications.filter(function(n) { return !n.is_read; });
+            document.getElementById('notificationBadge').textContent = unread.length;
+            
+            var list = document.getElementById('notificationList');
+            if (unread.length === 0) {
+                list.innerHTML = '<div class="no-notifications" data-i18n="no_notifications">هیچ اعلان جدیدی وجود ندارد</div>';
+            } else {
+                var html = '';
+                for (var i = 0; i < Math.min(unread.length, 5); i++) {
+                    var n = unread[i];
+                    var iconMap = { info: 'fa-info-circle', success: 'fa-check-circle', warning: 'fa-exclamation-triangle', danger: 'fa-times-circle' };
+                    html += '<div class="notification-item">' +
+                        '<div class="notification-icon ' + n.type + '"><i class="fas ' + (iconMap[n.type] || 'fa-info-circle') + '"></i></div>' +
+                        '<div class="notification-content">' +
+                            '<div class="notification-title">' + n.title + '</div>' +
+                            '<div class="notification-message">' + n.message + '</div>' +
+                            '<div class="notification-time">' + n.created_at + '</div>' +
+                        '</div>' +
+                    '</div>';
+                }
+                list.innerHTML = html;
+            }
+        }
+
+        // ============================================
+        // توابع عمومی
+        // ============================================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notificationsDropdown').classList.toggle('show');
+        }
+
+        function showDetail(type) {
+            alert('نمایش جزئیات شاخص: ' + type);
+        }
+
+        function searchNCR(value) {
+            console.log('جستجو:', value);
+        }
+
+        function filterNCR(value) {
+            console.log('فیلتر:', value);
+        }
+
+        function viewNCR(number) {
+            window.location.href = 'ncr-detail.html?number=' + number;
+        }
+
+        function editNCR(number) {
+            window.location.href = 'ncr-detail.html?number=' + number + '&edit=true';
+        }
+
+        function exportData() {
+            if (window.exportToExcel) {
+                window.exportToExcel();
+            } else {
+                alert('قابلیت خروجی در حال آماده‌سازی است...');
+            }
+        }
+
+        function printPage() {
+            if (window.printPage) {
+                window.printPage();
+            } else {
+                window.print();
+            }
+        }
+
+        function changePassword() {
+            window.location.href = 'profile.html?action=change-password';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.php';
+        }
+
+        // بستن dropdownها با کلیک خارج
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+            if (!e.target.closest('.header-notifications')) {
+                document.getElementById('notificationsDropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

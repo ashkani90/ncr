@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جزئیات NCR</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="dashboard.html">داشبورد</a>
+                    <span class="separator">/</span>
+                    <a href="ncr-list.html">لیست NCRها</a>
+                    <span class="separator">/</span>
+                    <span class="current" id="pageTitle">جزئیات NCR</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h2 id="headerTitle">جزئیات NCR</h2>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="header-notifications" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationBadge">0</span>
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="dropdown-header">
+                            <span>اعلان‌ها</span>
+                            <a href="notifications.html">مشاهده همه</a>
+                        </div>
+                        <div class="dropdown-body" id="notificationList">
+                            <div class="no-notifications">هیچ اعلان جدیدی وجود ندارد</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-settings">
+                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+                </div>
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
+                    <span id="userName">کاربر</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
+                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- سایدبار -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📋 NCR System</h2>
+                <p>ISO 9001:2015</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
+                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
+                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
+                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
+                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
+                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
+                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
+                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
+            </nav>
+        </aside>
+
+        <!-- محتوای اصلی -->
+        <main class="main-content" id="mainContent">
+            <!-- وضعیت کلی -->
+            <div class="status-summary" id="statusSummary">
+                <div class="status-item">
+                    <span class="status-label">شماره NCR:</span>
+                    <span class="status-value" id="detailNumber">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">وضعیت:</span>
+                    <span class="status-value" id="detailStatus">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">اولویت:</span>
+                    <span class="status-value" id="detailPriority">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">مرحله:</span>
+                    <span class="status-value" id="detailStep">-</span>
+                </div>
+            </div>
+
+            <!-- فرم جزئیات -->
+            <form id="ncrDetailForm" class="form-section">
+                <!-- مرحله 1: اطلاعات اولیه -->
+                <div class="form-step" data-step="1">
+                    <h3>مرحله 1: اطلاعات اولیه NCR</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>شماره NCR</label>
+                            <input type="text" id="ncrNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ گزارش</label>
+                            <input type="date" id="reportDate">
+                        </div>
+                        <div class="form-group">
+                            <label>گزارش‌دهنده</label>
+                            <input type="text" id="reporterName">
+                        </div>
+                        <div class="form-group">
+                            <label>دپارتمان</label>
+                            <input type="text" id="reporterDepartment">
+                        </div>
+                        <div class="form-group">
+                            <label>موضوع گزارش</label>
+                            <input type="text" id="subject">
+                        </div>
+                        <div class="form-group">
+                            <label>کد قطعه</label>
+                            <input type="text" id="partCode">
+                        </div>
+                        <div class="form-group">
+                            <label>نام قطعه</label>
+                            <input type="text" id="partName">
+                        </div>
+                        <div class="form-group">
+                            <label>تعداد درخواستی</label>
+                            <input type="number" id="requestedQty">
+                        </div>
+                        <div class="form-group">
+                            <label>تعداد ارسالی</label>
+                            <input type="number" id="sentQty">
+                        </div>
+                        <div class="form-group">
+                            <label>تعداد کسری</label>
+                            <input type="number" id="shortageQty" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>واحد سنجش</label>
+                            <input type="text" id="unit">
+                        </div>
+                        <div class="form-group">
+                            <label>بچ نامبر/بارنامه</label>
+                            <input type="text" id="batchNumber">
+                        </div>
+                        <div class="form-group">
+                            <label>محل شناسایی</label>
+                            <select id="locationFound">
+                                <option value="">انتخاب کنید</option>
+                                <option value="ورودی">ورودی</option>
+                                <option value="حین تولید">حین تولید</option>
+                                <option value="انبار">انبار</option>
+                                <option value="خروجی">خروجی</option>
+                                <option value="مشتری">مشتری</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>شرح عدم انطباق</label>
+                            <textarea id="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>تشخیص اولیه</label>
+                            <textarea id="initialDiagnosis" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 2: ریشه‌یابی -->
+                <div class="form-step" data-step="2">
+                    <h3>مرحله 2: ریشه‌یابی (کنترل کیفیت)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>وضعیت بررسی کیفیت</label>
+                            <select id="qualityStatus">
+                                <option value="pending">در انتظار</option>
+                                <option value="approved">تایید شده</option>
+                                <option value="rejected">رد شده</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ بررسی</label>
+                            <input type="date" id="qualityCheckDate">
+                        </div>
+                        <div class="form-group">
+                            <label>بررسی‌کننده</label>
+                            <input type="text" id="qualityChecker">
+                        </div>
+                        <div class="form-group">
+                            <label>دسته‌بندی ریشه</label>
+                            <select id="rootCauseCategory">
+                                <option value="">انتخاب کنید</option>
+                                <option value="Man">نیروی کار (Man)</option>
+                                <option value="Machines">ماشین‌آلات (Machines)</option>
+                                <option value="Method">روش کار (Method)</option>
+                                <option value="Material">مواد (Material)</option>
+                                <option value="Medium">محیط (Medium)</option>
+                                <option value="Money">پول (Money)</option>
+                                <option value="Management">مدیریت (Management)</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>ریشه‌یابی</label>
+                            <textarea id="rootCause" rows="3"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>نکات بررسی</label>
+                            <textarea id="qualityNotes" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 3: FMEA -->
+                <div class="form-step" data-step="3">
+                    <h3>مرحله 3: FMEA (مهندسی)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>وضعیت FMEA</label>
+                            <select id="fmeaStatus">
+                                <option value="pending">در انتظار</option>
+                                <option value="completed">تکمیل شده</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ FMEA</label>
+                            <input type="date" id="fmeaDate">
+                        </div>
+                        <div class="form-group">
+                            <label>مهندس FMEA</label>
+                            <input type="text" id="fmeaEngineer">
+                        </div>
+                        <div class="form-group">
+                            <label>RPN (شماره اولویت ریسک)</label>
+                            <input type="number" id="fmeaRPN">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>نکات FMEA</label>
+                            <textarea id="fmeaNotes" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 4: CFT -->
+                <div class="form-step" data-step="4">
+                    <h3>مرحله 4: CFT (کمیته فنی)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>وضعیت CFT</label>
+                            <select id="cftStatus">
+                                <option value="pending">در انتظار</option>
+                                <option value="approved">تایید شده</option>
+                                <option value="rejected">رد شده</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ CFT</label>
+                            <input type="date" id="cftDate">
+                        </div>
+                        <div class="form-group">
+                            <label>کمیته</label>
+                            <input type="text" id="cftCommittee">
+                        </div>
+                        <div class="form-group">
+                            <label>تعیین تکلیف</label>
+                            <select id="disposition">
+                                <option value="">انتخاب کنید</option>
+                                <option value="rework">رفع عدم انطباق با دوباره کاری</option>
+                                <option value="concession">مجوز ارفاقی</option>
+                                <option value="hold">نگهداری تا اطلاع ثانوی</option>
+                                <option value="scrap">ضایعات</option>
+                                <option value="claim">کلیم</option>
+                                <option value="purchase">سفارش خرید</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>جزئیات تعیین تکلیف</label>
+                            <textarea id="dispositionDetails" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>مسئول اجرا</label>
+                            <input type="text" id="responsiblePerson">
+                        </div>
+                        <div class="form-group">
+                            <label>مهلت اجرا</label>
+                            <input type="date" id="dueDate">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 5: بررسی نهایی -->
+                <div class="form-step" data-step="5">
+                    <h3>مرحله 5: بررسی نهایی (کنترل کیفیت)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>وضعیت نهایی کیفیت</label>
+                            <select id="finalQualityStatus">
+                                <option value="pending">در انتظار</option>
+                                <option value="approved">تایید شده</option>
+                                <option value="rejected">رد شده</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاریخ بررسی نهایی</label>
+                            <input type="date" id="finalQualityDate">
+                        </div>
+                        <div class="form-group">
+                            <label>بررسی‌کننده نهایی</label>
+                            <input type="text" id="finalQualityChecker">
+                        </div>
+                        <div class="form-group">
+                            <label>نتیجه اقدام تعریف شده</label>
+                            <input type="text" id="actionResult">
+                        </div>
+                        <div class="form-group">
+                            <label>کفایت دارد</label>
+                            <select id="effectiveness">
+                                <option value="">انتخاب کنید</option>
+                                <option value="yes">بله</option>
+                                <option value="no">خیر</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>نیاز به اقدام اصلاحی</label>
+                            <select id="correctiveActionNeeded">
+                                <option value="pending">در انتظار</option>
+                                <option value="yes">بله</option>
+                                <option value="no">خیر</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>شماره اقدام اصلاحی</label>
+                            <input type="text" id="correctiveActionNumber">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مرحله 6: بسته شدن -->
+                <div class="form-step" data-step="6">
+                    <h3>مرحله 6: بسته شدن NCR</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>تاریخ بسته شدن</label>
+                            <input type="date" id="closureDate">
+                        </div>
+                        <div class="form-group">
+                            <label>بستن‌دهنده</label>
+                            <input type="text" id="closureBy">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>نکات بسته شدن</label>
+                            <textarea id="closureNotes" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>وضعیت نهایی</label>
+                            <select id="finalStatus">
+                                <option value="open">باز</option>
+                                <option value="in_progress">در حال بررسی</option>
+                                <option value="closed">بسته</option>
+                                <option value="rejected">رد شده</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره تغییرات</button>
+                    <button type="button" class="btn btn-success" onclick="printNCR()"><i class="fas fa-print"></i> چاپ</button>
+                    <button type="button" class="btn btn-warning" onclick="window.location.href='ncr-list.html'"><i class="fas fa-arrow-right"></i> بازگشت به لیست</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+    <script src="print.js"></script>
+    <script src="data/sample-data.js"></script>
+    <script>
+        let currentNCR = null;
+        let isEditMode = false;
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
+            
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.full_name;
+            }
+
+            // دریافت شماره NCR از URL
+            const params = new URLSearchParams(window.location.search);
+            const number = params.get('number');
+            isEditMode = params.get('edit') === 'true';
+
+            if (number) {
+                loadNCR(number);
+            } else {
+                // حالت جدید
+                document.getElementById('headerTitle').textContent = 'ثبت NCR جدید';
+                document.getElementById('pageTitle').textContent = 'ثبت NCR جدید';
+                document.getElementById('ncrNumber').value = generateNCRNumber();
+                document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('reporterName').value = currentUser ? currentUser.full_name : '';
+                document.getElementById('reporterDepartment').value = currentUser ? currentUser.department : '';
+            }
+
+            updateNotifications();
+            checkPermissions();
+        });
+
+        function loadNCR(number) {
+            const ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            currentNCR = ncrs.find(n => n.ncr_number === number);
+
+            if (!currentNCR) {
+                alert('NCR مورد نظر یافت نشد!');
+                window.location.href = 'ncr-list.html';
+                return;
+            }
+
+            document.getElementById('headerTitle').textContent = `جزئیات NCR: ${number}`;
+            document.getElementById('pageTitle').textContent = `جزئیات NCR: ${number}`;
+
+            // پر کردن فرم
+            fillForm(currentNCR);
+            updateStatusSummary(currentNCR);
+        }
+
+        function fillForm(ncr) {
+            // مرحله 1
+            document.getElementById('ncrNumber').value = ncr.ncr_number || '';
+            document.getElementById('reportDate').value = ncr.report_date || '';
+            document.getElementById('reporterName').value = ncr.reporter_name || '';
+            document.getElementById('reporterDepartment').value = ncr.reporter_department || '';
+            document.getElementById('subject').value = ncr.subject || '';
+            document.getElementById('partCode').value = ncr.part_code || '';
+            document.getElementById('partName').value = ncr.part_name || '';
+            document.getElementById('requestedQty').value = ncr.requested_qty || 0;
+            document.getElementById('sentQty').value = ncr.sent_qty || 0;
+            document.getElementById('shortageQty').value = ncr.shortage_qty || 0;
+            document.getElementById('unit').value = ncr.unit || '';
+            document.getElementById('batchNumber').value = ncr.batch_number || '';
+            document.getElementById('locationFound').value = ncr.location_found || '';
+            document.getElementById('description').value = ncr.description || '';
+            document.getElementById('initialDiagnosis').value = ncr.initial_diagnosis || '';
+
+            // مرحله 2
+            document.getElementById('qualityStatus').value = ncr.quality_status || 'pending';
+            document.getElementById('qualityCheckDate').value = ncr.quality_check_date || '';
+            document.getElementById('qualityChecker').value = ncr.quality_checker || '';
+            document.getElementById('rootCauseCategory').value = ncr.root_cause_category || '';
+            document.getElementById('rootCause').value = ncr.root_cause || '';
+            document.getElementById('qualityNotes').value = ncr.quality_notes || '';
+
+            // مرحله 3
+            document.getElementById('fmeaStatus').value = ncr.fmea_status || 'pending';
+            document.getElementById('fmeaDate').value = ncr.fmea_date || '';
+            document.getElementById('fmeaEngineer').value = ncr.fmea_engineer || '';
+            document.getElementById('fmeaRPN').value = ncr.fmea_risk_priority_number || '';
+            document.getElementById('fmeaNotes').value = ncr.fmea_notes || '';
+
+            // مرحله 4
+            document.getElementById('cftStatus').value = ncr.cft_status || 'pending';
+            document.getElementById('cftDate').value = ncr.cft_date || '';
+            document.getElementById('cftCommittee').value = ncr.cft_committee || '';
+            document.getElementById('disposition').value = ncr.disposition || '';
+            document.getElementById('dispositionDetails').value = ncr.disposition_details || '';
+            document.getElementById('responsiblePerson').value = ncr.responsible_person || '';
+            document.getElementById('dueDate').value = ncr.due_date || '';
+
+            // مرحله 5
+            document.getElementById('finalQualityStatus').value = ncr.final_quality_status || 'pending';
+            document.getElementById('finalQualityDate').value = ncr.final_quality_date || '';
+            document.getElementById('finalQualityChecker').value = ncr.final_quality_checker || '';
+            document.getElementById('actionResult').value = ncr.action_result || '';
+            document.getElementById('effectiveness').value = ncr.effectiveness || '';
+            document.getElementById('correctiveActionNeeded').value = ncr.corrective_action_needed || 'pending';
+            document.getElementById('correctiveActionNumber').value = ncr.corrective_action_number || '';
+
+            // مرحله 6
+            document.getElementById('closureDate').value = ncr.closure_date || '';
+            document.getElementById('closureBy').value = ncr.closure_by || '';
+            document.getElementById('closureNotes').value = ncr.closure_notes || '';
+            document.getElementById('finalStatus').value = ncr.final_status || 'open';
+        }
+
+        function updateStatusSummary(ncr) {
+            document.getElementById('detailNumber').textContent = ncr.ncr_number;
+            
+            const statusMap = {
+                'open': '<span class="badge badge-danger">باز</span>',
+                'in_progress': '<span class="badge badge-warning">در حال بررسی</span>',
+                'closed': '<span class="badge badge-success">بسته</span>',
+                'rejected': '<span class="badge badge-secondary">رد شده</span>'
+            };
+            document.getElementById('detailStatus').innerHTML = statusMap[ncr.final_status] || ncr.final_status;
+
+            const priorityMap = {
+                'high': '<span class="badge badge-danger">بالا</span>',
+                'medium': '<span class="badge badge-warning">متوسط</span>',
+                'low': '<span class="badge badge-info">کم</span>'
+            };
+            document.getElementById('detailPriority').innerHTML = priorityMap[ncr.priority] || ncr.priority;
+
+            document.getElementById('detailStep').textContent = getStepLabel(ncr);
+        }
+
+        function getStepLabel(ncr) {
+            if (ncr.final_status === 'closed') return 'مرحله 6: بسته';
+            if (ncr.final_quality_status === 'approved') return 'مرحله 5: بررسی نهایی';
+            if (ncr.cft_status === 'approved') return 'مرحله 4: CFT';
+            if (ncr.fmea_status === 'completed') return 'مرحله 3: FMEA';
+            if (ncr.quality_status === 'approved') return 'مرحله 2: ریشه‌یابی';
+            return 'مرحله 1: ثبت';
+        }
+
+        function checkPermissions() {
+            if (!currentUser) return;
+
+            // تعیین مراحل قابل ویرایش بر اساس نقش
+            const rolePermissions = {
+                'admin': [1, 2, 3, 4, 5, 6],
+                'quality': [2, 5],
+                'production': [1],
+                'engineering': [3],
+                'purchasing': [4],
+                'warehouse': [4, 6]
+            };
+
+            const allowedSteps = rolePermissions[currentUser.role] || [];
+            
+            // غیرفعال کردن مراحل غیرمجاز
+            document.querySelectorAll('.form-step').forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                const inputs = step.querySelectorAll('input, select, textarea');
+                if (isEditMode && !allowedSteps.includes(stepNum)) {
+                    inputs.forEach(input => input.disabled = true);
+                    step.style.opacity = '0.6';
+                } else {
+                    inputs.forEach(input => input.disabled = false);
+                    step.style.opacity = '1';
+                }
+            });
+        }
+
+        // ذخیره NCR
+        document.getElementById('ncrDetailForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const ncr = {
+                ncr_number: document.getElementById('ncrNumber').value,
+                report_date: document.getElementById('reportDate').value,
+                reporter_name: document.getElementById('reporterName').value,
+                reporter_department: document.getElementById('reporterDepartment').value,
+                subject: document.getElementById('subject').value,
+                part_code: document.getElementById('partCode').value,
+                part_name: document.getElementById('partName').value,
+                requested_qty: parseInt(document.getElementById('requestedQty').value) || 0,
+                sent_qty: parseInt(document.getElementById('sentQty').value) || 0,
+                shortage_qty: parseInt(document.getElementById('shortageQty').value) || 0,
+                unit: document.getElementById('unit').value,
+                batch_number: document.getElementById('batchNumber').value,
+                location_found: document.getElementById('locationFound').value,
+                description: document.getElementById('description').value,
+                initial_diagnosis: document.getElementById('initialDiagnosis').value,
+
+                quality_status: document.getElementById('qualityStatus').value,
+                quality_check_date: document.getElementById('qualityCheckDate').value,
+                quality_checker: document.getElementById('qualityChecker').value,
+                root_cause_category: document.getElementById('rootCauseCategory').value,
+                root_cause: document.getElementById('rootCause').value,
+                quality_notes: document.getElementById('qualityNotes').value,
+
+                fmea_status: document.getElementById('fmeaStatus').value,
+                fmea_date: document.getElementById('fmeaDate').value,
+                fmea_engineer: document.getElementById('fmeaEngineer').value,
+                fmea_risk_priority_number: parseInt(document.getElementById('fmeaRPN').value) || 0,
+                fmea_notes: document.getElementById('fmeaNotes').value,
+
+                cft_status: document.getElementById('cftStatus').value,
+                cft_date: document.getElementById('cftDate').value,
+                cft_committee: document.getElementById('cftCommittee').value,
+                disposition: document.getElementById('disposition').value,
+                disposition_details: document.getElementById('dispositionDetails').value,
+                responsible_person: document.getElementById('responsiblePerson').value,
+                due_date: document.getElementById('dueDate').value,
+
+                final_quality_status: document.getElementById('finalQualityStatus').value,
+                final_quality_date: document.getElementById('finalQualityDate').value,
+                final_quality_checker: document.getElementById('finalQualityChecker').value,
+                action_result: document.getElementById('actionResult').value,
+                effectiveness: document.getElementById('effectiveness').value,
+                corrective_action_needed: document.getElementById('correctiveActionNeeded').value,
+                corrective_action_number: document.getElementById('correctiveActionNumber').value,
+
+                closure_date: document.getElementById('closureDate').value,
+                closure_by: document.getElementById('closureBy').value,
+                closure_notes: document.getElementById('closureNotes').value,
+                final_status: document.getElementById('finalStatus').value,
+
+                updated_at: new Date().toISOString(),
+                updated_by: currentUser ? currentUser.full_name : ''
+            };
+
+            // ذخیره
+            let ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            const index = ncrs.findIndex(n => n.ncr_number === ncr.ncr_number);
+            
+            if (index !== -1) {
+                // بروزرسانی
+                ncrs[index] = { ...ncrs[index], ...ncr };
+                localStorage.setItem('ncrs', JSON.stringify(ncrs));
+                showNotification('NCR با موفقیت بروزرسانی شد!', 'success');
+            } else {
+                // جدید
+                ncr.created_at = new Date().toISOString();
+                ncr.created_by = currentUser ? currentUser.full_name : '';
+                ncrs.push(ncr);
+                localStorage.setItem('ncrs', JSON.stringify(ncrs));
+                showNotification('NCR جدید با موفقیت ثبت شد!', 'success');
+            }
+
+            setTimeout(() => {
+                window.location.href = 'ncr-list.html';
+            }, 1500);
+        });
+
+        function showNotification(message, type) {
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12',
+                info: '#3498db'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${colors[type] || '#3498db'};
+                color: white;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 9999;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: slideDown 0.5s ease;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function printNCR() {
+            window.print();
+        }
+
+        // توابع کمکی
+        function generateNCRNumber() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const count = JSON.parse(localStorage.getItem('ncrs') || '[]').length + 1;
+            return `NCR-${year}-${String(count).padStart(3, '0')}`;
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notificationsDropdown').classList.toggle('show');
+        }
+
+        function updateNotifications() {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const unread = notifications.filter(n => !n.is_read);
+            document.getElementById('notificationBadge').textContent = unread.length;
+        }
+
+        function changePassword() {
+            window.location.href = 'profile.html?action=change-password';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // محاسبه خودکار تعداد کسری
+        document.getElementById('requestedQty').addEventListener('input', calculateShortage);
+        document.getElementById('sentQty').addEventListener('input', calculateShortage);
+
+        function calculateShortage() {
+            const requested = parseInt(document.getElementById('requestedQty').value) || 0;
+            const sent = parseInt(document.getElementById('sentQty').value) || 0;
+            document.getElementById('shortageQty').value = requested - sent > 0 ? requested - sent : 0;
+        }
+
+        // بستن dropdownها با کلیک خارج
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+            if (!e.target.closest('.header-notifications')) {
+                document.getElementById('notificationsDropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
