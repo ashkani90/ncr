@@ -5,13 +5,12 @@
             <i class="fas fa-bars"></i>
         </button>
         <div class="breadcrumb" id="breadcrumb">
-            <a href="dashboard.html" data-i18n="menu_dashboard">داشبورد</a>
-            <span class="separator">/</span>
-            <span class="current" id="pageTitle" data-i18n="dashboard_title">داشبورد</span>
+            <!-- ⭐ Breadcrumb از JS پر می‌شود -->
+            <a href="dashboard.html">داشبورد</a>
         </div>
     </div>
     <div class="header-center">
-        <h2 id="headerTitle" data-i18n="dashboard_title">داشبورد مدیریت</h2>
+        <h2 id="headerTitle">داشبورد مدیریت</h2>
     </div>
     <div class="header-right">
         <div class="header-date">
@@ -47,7 +46,10 @@
         </div>
         <div class="user-profile" onclick="toggleUserMenu()">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
-            <span id="userName">کاربر</span>
+            <div class="user-info">
+                <span id="userName">کاربر</span>
+                <span id="userRole" class="user-role-badge">-</span>
+            </div>
             <i class="fas fa-chevron-down"></i>
             <div class="user-dropdown" id="userDropdown">
                 <a href="profile.html"><i class="fas fa-user-edit"></i> <span data-i18n="edit_profile">ویرایش پروفایل</span></a>
@@ -58,3 +60,68 @@
         </div>
     </div>
 </header>
+
+<!-- ⭐ اسکریپت نمایش نقش -->
+<script>
+(function() {
+    // این تابع بعد از لود header اجرا می‌شود
+    function displayRole() {
+        const roleEl = document.getElementById('userRole');
+        if (!roleEl) return;
+        
+        const userStr = localStorage.getItem('currentUser');
+        if (!userStr) return;
+        
+        const user = JSON.parse(userStr);
+        if (!user || !user.role) return;
+        
+        // اول از localStorage
+        let display = localStorage.getItem('userRoleDisplay');
+        
+        // اگر نبود از allRoles
+        if (!display) {
+            const allRolesStr = localStorage.getItem('allRoles');
+            if (allRolesStr) {
+                try {
+                    const allRoles = JSON.parse(allRolesStr);
+                    const role = allRoles.find(r => r.name === user.role);
+                    if (role && role.description) {
+                        display = role.description;
+                        localStorage.setItem('userRoleDisplay', display);
+                    }
+                } catch (e) {}
+            }
+        }
+        
+        // اگر باز هم نبود، از user.role_display
+        if (!display && user.role_display) {
+            display = user.role_display;
+        }
+        
+        // اگر باز هم نبود، از دیتابیس
+        if (!display) {
+            display = user.role; // موقت
+            fetch(window.NCR_API + '/get_user_permissions.php?user_id=' + user.id)
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success && result.user.role_display) {
+                        localStorage.setItem('userRoleDisplay', result.user.role_display);
+                        if (roleEl) roleEl.textContent = result.user.role_display;
+                    }
+                })
+                .catch(e => console.warn(e));
+        }
+        
+        if (display) {
+            roleEl.textContent = display;
+            roleEl.className = 'user-role-badge role-' + user.role;
+            console.log('✅ Role displayed via header script:', display);
+        }
+    }
+    
+    // اجرا با کمی تأخیر برای اطمینان
+    setTimeout(displayRole, 100);
+    setTimeout(displayRole, 500);
+    setTimeout(displayRole, 1500);
+})();
+</script>
