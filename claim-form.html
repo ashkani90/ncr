@@ -3,465 +3,2042 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فرم کلیم قطعات</title>
+    <title>فرم کلیم قطعه - Claim Form | ISO 9001 / IATF 16949</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <style>
+        .claim-container { margin: 0 auto; padding: 20px; }
+
+        .claim-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white; padding: 25px 30px; border-radius: 14px;
+            margin-bottom: 25px; box-shadow: 0 8px 30px rgba(231, 76, 60, 0.3);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 15px;
+        }
+        .claim-header h1 { font-size: 22px; margin: 0; display: flex; align-items: center; gap: 12px; }
+        .claim-header .claim-meta { display: flex; flex-direction: column; gap: 5px; font-size: 13px; text-align: left; }
+        .claim-header .claim-meta .code { font-weight: 700; font-size: 15px; }
+
+        .claim-section {
+            background: white; border-radius: 12px; padding: 22px 25px;
+            margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e9ecef;
+        }
+        .claim-section h3 {
+            color: #2c3e50; margin: 0 0 18px 0; padding-right: 12px;
+            border-right: 4px solid #e74c3c; font-size: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .claim-section h3 i { color: #e74c3c; }
+        .claim-section h3 .iso-ref {
+            font-size: 11px; color: #e74c3c; background: #fdedec;
+            padding: 3px 10px; border-radius: 10px; font-weight: 600;
+            margin-right: auto;
+        }
+
+        .claim-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px 20px; }
+        .claim-grid .full-width { grid-column: 1 / -1; }
+        .claim-grid .half-width { grid-column: span 2; }
+
+        .claim-field { display: flex; flex-direction: column; }
+        .claim-field label {
+            font-weight: 600; font-size: 13px; color: #2c3e50;
+            margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+        }
+        .claim-field label .required { color: #e74c3c; }
+        .claim-field input, .claim-field select, .claim-field textarea {
+            padding: 10px 14px; border: 2px solid #e9ecef; border-radius: 10px;
+            font-size: 14px; font-family: inherit; transition: all 0.3s;
+            background: #fafcff; width: 100%;
+        }
+        .claim-field input:focus, .claim-field select:focus, .claim-field textarea:focus {
+            border-color: #e74c3c; outline: none;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+            background: white;
+        }
+        .claim-field textarea { min-height: 80px; resize: vertical; }
+        .claim-field .hint { font-size: 11px; color: #95a5a6; font-weight: 400; }
+
+        .readonly-field {
+            background: #f0f2f7 !important; cursor: not-allowed;
+            color: #6c757d; font-weight: 600;
+        }
+
+        /* Radio & Checkbox Groups */
+        .radio-group, .checkbox-group {
+            display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 6px 0;
+        }
+        .radio-group label, .checkbox-group label {
+            display: flex; align-items: center; gap: 6px;
+            font-weight: 400; font-size: 13px; cursor: pointer;
+            padding: 6px 12px; border-radius: 8px;
+            border: 2px solid #e9ecef; background: #fafcff;
+            transition: all 0.2s;
+        }
+        .radio-group label:hover, .checkbox-group label:hover {
+            border-color: #e74c3c; background: #fdedec;
+        }
+        .radio-group input, .checkbox-group input {
+            width: 16px; height: 16px; cursor: pointer;
+        }
+
+        /* جدول قطعات کلیم‌شده */
+        .parts-table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .parts-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+        .parts-table thead {
+            background: linear-gradient(135deg, #fdedec 0%, #fadbd8 100%);
+        }
+        .parts-table th {
+            padding: 12px 10px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid #f5b7b1;
+            white-space: nowrap;
+        }
+        .parts-table th .required { color: #e74c3c; margin-right: 3px; }
+        .parts-table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s;
+        }
+        .parts-table tbody tr:hover { background: #fff5f5; }
+        .parts-table tbody tr:last-child { border-bottom: none; }
+        .parts-table td {
+            padding: 8px 6px;
+            vertical-align: middle;
+        }
+        .parts-table td input,
+        .parts-table td select,
+        .parts-table td textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-family: inherit;
+            background: white;
+            transition: all 0.2s;
+            min-width: 80px;
+        }
+        .parts-table td input:focus,
+        .parts-table td select:focus,
+        .parts-table td textarea:focus {
+            border-color: #e74c3c;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+        }
+        .parts-table td textarea {
+            min-height: 50px;
+            resize: vertical;
+            font-size: 12.5px;
+        }
+        .parts-table .part-num {
+            text-align: center;
+            font-weight: 800;
+            color: #e74c3c;
+            font-size: 14px;
+            background: #fdedec;
+            border-radius: 50%;
+            width: 28px; height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .parts-table .row-actions {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+        .parts-table .btn-row {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .parts-table .btn-row.btn-remove {
+            background: #fde8e8;
+            color: #e74c3c;
+        }
+        .parts-table .btn-row.btn-remove:hover {
+            background: #e74c3c;
+            color: white;
+            transform: scale(1.05);
+        }
+        .parts-table .btn-row.btn-duplicate {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+        .parts-table .btn-row.btn-duplicate:hover {
+            background: #0284c7;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .parts-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn-add-part {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.25);
+        }
+        .btn-add-part:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(231, 76, 60, 0.35);
+        }
+        .parts-count {
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        .parts-count strong { color: #e74c3c; font-size: 15px; }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block; padding: 5px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+        }
+        .status-badge.draft { background: #fff3cd; color: #856404; }
+        .status-badge.pending { background: #cce5ff; color: #004085; }
+        .status-badge.in-progress { background: #d1ecf1; color: #0c5460; }
+        .status-badge.done { background: #d4edda; color: #155724; }
+        .status-badge.rejected { background: #f8d7da; color: #721c24; }
+
+        /* Workflow Bar */
+        .workflow-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #f8f9fa; padding: 14px 20px; border-radius: 10px;
+            margin-bottom: 20px; border: 1px solid #e9ecef;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .workflow-bar .stage {
+            display: flex; align-items: center; gap: 8px; font-size: 13px;
+        }
+        .workflow-bar .stage .dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            background: #dee2e6;
+        }
+        .workflow-bar .stage.active .dot { background: #e74c3c; box-shadow: 0 0 0 4px rgba(231,76,60,0.2); }
+        .workflow-bar .stage.done .dot { background: #27ae60; }
+        .workflow-bar .stage .label { color: #6c757d; }
+        .workflow-bar .stage.active .label { color: #2c3e50; font-weight: 700; }
+        .workflow-bar .stage.done .label { color: #27ae60; }
+
+        /* Info & Warning Boxes */
+        .info-box {
+            background: #eef2ff; padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; color: #2c3e50; border-right: 4px solid #667eea;
+            margin-top: 10px;
+        }
+        .info-box i { color: #667eea; margin-left: 6px; }
+        .warning-box {
+            background: #fff3cd; padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; color: #856404; border: 1px solid #ffe69b;
+            margin-top: 10px;
+        }
+        .warning-box i { color: #f39c12; margin-left: 6px; }
+        .danger-box {
+            background: #fdedec; padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; color: #922b21; border: 1px solid #f5b7b1;
+            margin-top: 10px;
+        }
+        .danger-box i { color: #e74c3c; margin-left: 6px; }
+
+        /* Actions */
+        .claim-actions {
+            display: flex; gap: 12px; justify-content: flex-end;
+            flex-wrap: wrap; margin-top: 25px; padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        .claim-actions .btn {
+            padding: 11px 26px; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-primary { background: #e74c3c; color: white; }
+        .btn-primary:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(231,76,60,0.3); }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #219a52; transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-print { background: #8e44ad; color: white; }
+        .btn-print:hover { background: #7d3c98; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-warning:hover { background: #d68910; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Toast */
+        .toast-message {
+            position: fixed; bottom: 30px; left: 30px;
+            background: #2c3e50; color: white; padding: 16px 28px;
+            border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            font-size: 14px; display: none; align-items: center;
+            gap: 12px; z-index: 9999; max-width: 420px;
+        }
+        .toast-message.show { display: flex; animation: slideUp 0.3s ease; }
+        .toast-message.success { background: #27ae60; }
+        .toast-message.error { background: #e74c3c; }
+        .toast-message.info { background: #3498db; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* File Preview */
+        .file-preview-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px; background: #fdedec;
+            border: 1px solid #f5b7b1; border-radius: 8px;
+            font-size: 12px; max-width: 260px;
+        }
+        .file-preview-item .file-icon {
+            width: 32px; height: 32px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+        .file-preview-item .file-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+        .file-preview-item .file-name { font-weight: 600; color: #2c3e50; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-preview-item .file-size { font-size: 11px; color: #95a5a6; }
+        .file-preview-item .file-remove {
+            background: #e74c3c; color: white; border: none;
+            width: 22px; height: 22px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-size: 11px;
+        }
+
+        @media (max-width: 992px) {
+            .claim-grid { grid-template-columns: 1fr 1fr; }
+            .claim-grid .half-width { grid-column: span 1; }
+        }
+        @media (max-width: 768px) {
+            .claim-grid { grid-template-columns: 1fr; }
+            .claim-header { flex-direction: column; text-align: center; }
+            .claim-header .claim-meta { text-align: center; }
+            .claim-actions { flex-direction: column; }
+            .claim-actions .btn { width: 100%; justify-content: center; }
+            .parts-table { min-width: 800px; }
+        }
+    </style>
 </head>
 <body>
+
+    <div class="toast-message" id="toastMessage">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastText">پیام</span>
+    </div>
+
     <div class="app-container">
-        <!-- هدر -->
-        <header class="app-header">
-            <div class="header-left">
-                <button class="hamburger" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="breadcrumb">
-                    <a href="dashboard.html">داشبورد</a>
-                    <span class="separator">/</span>
-                    <span class="current">فرم کلیم قطعات</span>
-                </div>
-            </div>
-            <div class="header-center">
-                <h2 id="pageTitle">فرم کلیم قطعات</h2>
-            </div>
-            <div class="header-right">
-                <div class="header-date">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="header-notifications" onclick="toggleNotifications()">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge" id="notificationBadge">0</span>
-                    <div class="notifications-dropdown" id="notificationsDropdown">
-                        <div class="dropdown-header">
-                            <span>اعلان‌ها</span>
-                            <a href="notifications.html">مشاهده همه</a>
-                        </div>
-                        <div class="dropdown-body" id="notificationList">
-                            <div class="no-notifications">هیچ اعلان جدیدی وجود ندارد</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-settings">
-                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
-                </div>
-                <div class="user-profile" onclick="toggleUserMenu()">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
-                    <span id="userName">کاربر</span>
-                    <i class="fas fa-chevron-down"></i>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
-                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
-                        <hr>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
 
-        <!-- سایدبار -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>📋 NCR System</h2>
-                <p>ISO 9001:2015</p>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
-                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
-                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
-                <a href="claim-form.html" class="active"><i class="fas fa-file-signature"></i> فرم کلیم</a>
-                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
-                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
-                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
-                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
-            </nav>
-        </aside>
-
-        <!-- محتوای اصلی -->
         <main class="main-content" id="mainContent">
-            <form id="claimForm" class="form-section">
-                <!-- اطلاعات اولیه -->
-                <div class="form-step" data-step="1">
-                    <h3>مرحله 1: اطلاعات کلیم (انبار)</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>شماره کلیم</label>
-                            <input type="text" id="claimNumber" readonly>
+            <div class="claim-container">
+
+                <!-- هدر فرم -->
+                <div class="claim-header">
+                    <div>
+                        <h1><i class="fas fa-file-invoice"></i> فرم کلیم قطعه (Claim)</h1>
+                        <div style="font-size:13px;opacity:0.9;margin-top:6px;">
+                            Claim & Supplier Rejection Form
+                            <span style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:6px;margin-right:8px;">
+                                ISO 9001 - 8.4 / IATF 16949 - 8.4.2.4
+                            </span>
                         </div>
-                        <div class="form-group">
-                            <label>تاریخ کلیم</label>
+                    </div>
+                    <div class="claim-meta">
+                        <div class="code">شماره کلیم: <span id="claimNumber">CLM-2026-0001</span></div>
+                        <div class="date">تاریخ ایجاد: <span id="claimCreatedAt">-</span></div>
+                        <div class="date">کد فرم: <strong>FM-CLM01/00</strong></div>
+                    </div>
+                </div>
+
+                <!-- نوار workflow -->
+                <div class="workflow-bar" id="workflowBar">
+                    <div class="stage active" data-stage="draft"><span class="dot"></span><span class="label">ثبت انبار</span></div>
+                    <div class="stage" data-stage="ceo"><span class="dot"></span><span class="label">تأیید مدیرعامل</span></div>
+                    <div class="stage" data-stage="supplier"><span class="dot"></span><span class="label">بررسی تأمین‌کننده</span></div>
+                    <div class="stage" data-stage="corrective"><span class="dot"></span><span class="label">اقدام اصلاحی</span></div>
+                    <div class="stage" data-stage="receipt"><span class="dot"></span><span class="label">دریافت جایگزین</span></div>
+                    <div class="stage" data-stage="closed"><span class="dot"></span><span class="label">بسته</span></div>
+                    <div style="margin-right:auto;">
+                        وضعیت: <span id="claimStatusBadge" class="status-badge draft">پیش‌نویس</span>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۱: اطلاعات کلیم -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-info-circle"></i> ۱. اطلاعات کلیم
+                        <span class="iso-ref">ISO 9001 - 8.4</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>شماره کلیم <span class="required">*</span></label>
+                            <input type="text" id="claimNumberInput" class="readonly-field" readonly>
+                        </div>
+                        <div class="claim-field">
+                            <label>تاریخ کلیم <span class="required">*</span></label>
                             <input type="date" id="claimDate">
                         </div>
-                        <div class="form-group">
+                        <div class="claim-field">
                             <label>شماره NCR مرتبط</label>
                             <select id="ncrNumber">
                                 <option value="">انتخاب کنید</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>تأمین کننده</label>
-                            <select id="supplierName">
-                                <option value="">انتخاب کنید</option>
-                                <option value="تامین‌کننده قطعات صنعتی">تامین‌کننده قطعات صنعتی</option>
-                                <option value="تامین‌کننده قطعات پلاستیک">تامین‌کننده قطعات پلاستیک</option>
-                                <option value="تامین‌کننده قطعات فلزی">تامین‌کننده قطعات فلزی</option>
-                                <option value="تامین‌کننده الکترونیک">تامین‌کننده الکترونیک</option>
+
+                        <div class="claim-field">
+                            <label>منبع/مرجع کلیم</label>
+                            <select id="claimSource">
+                                <option value="warehouse">انبار (Incoming Inspection)</option>
+                                <option value="production">تولید (In-Process)</option>
+                                <option value="quality">کنترل کیفیت</option>
+                                <option value="customer">شکایت مشتری</option>
+                                <option value="warranty">گارانتی</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>موبایل/رابط</label>
-                            <input type="text" id="supplierContact" placeholder="شماره تماس">
-                        </div>
-                        <div class="form-group">
-                            <label>تاریخ ثبت سفارش</label>
-                            <input type="date" id="orderDate">
-                        </div>
-                        <div class="form-group">
-                            <label>شماره فاکتور/بارنامه</label>
-                            <input type="text" id="invoiceNumber">
-                        </div>
-                        <div class="form-group">
-                            <label>کد کالای مرجوعی</label>
-                            <input type="text" id="partCode">
-                        </div>
-                        <div class="form-group">
-                            <label>نام کالا</label>
-                            <input type="text" id="partName">
-                        </div>
-                        <div class="form-group">
-                            <label>تعداد</label>
-                            <input type="number" id="quantity">
-                        </div>
-                        <div class="form-group">
-                            <label>واحد سنجش</label>
-                            <input type="text" id="unit" value="عدد">
-                        </div>
-                        <div class="form-group">
-                            <label>دلیل مرجوعی</label>
-                            <select id="returnReason">
-                                <option value="">انتخاب کنید</option>
-                                <option value="خرابی">خرابی</option>
-                                <option value="عدم عملکرد">عدم عملکرد</option>
-                                <option value="عدم تطابق">عدم تطابق</option>
-                                <option value="کیفیت نامناسب">کیفیت نامناسب</option>
-                                <option value="مشکل ابعادی">مشکل ابعادی</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>توضیحات دلیل مرجوعی</label>
-                            <textarea id="returnReasonDescription" rows="2"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>نوع درخواست</label>
-                            <select id="requestType">
-                                <option value="مرجوعی کامل و برگشت هزینه">مرجوعی کامل و برگشت هزینه</option>
-                                <option value="تعویض با کالای دیگر">تعویض با کالای دیگر</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>تعداد کلیم</label>
-                            <input type="number" id="claimQuantity">
-                        </div>
-                        <div class="form-group">
-                            <label>اولویت</label>
+                        <div class="claim-field">
+                            <label>اولویت <span class="required">*</span></label>
                             <select id="priority">
                                 <option value="low">کم</option>
                                 <option value="medium" selected>متوسط</option>
                                 <option value="high">بالا</option>
+                                <option value="critical">بحرانی</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="claim-field">
                             <label>چندمین مرحله اعلام کلیم این قطعه</label>
                             <input type="number" id="claimStage" value="1" min="1">
                         </div>
+
+                        <div class="claim-field full-width">
+                            <label>موضوع کلیم <span class="required">*</span></label>
+                            <input type="text" id="claimSubject" placeholder="خلاصه موضوع کلیم...">
+                        </div>
                     </div>
                 </div>
 
-                <!-- مرحله 2: تایید مدیرعامل -->
-                <div class="form-step" data-step="2">
-                    <h3>مرحله 2: تایید مدیرعامل</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>وضعیت تایید</label>
+                <!-- ============================================ -->
+                <!-- بخش ۲: اطلاعات تأمین‌کننده -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-truck"></i> ۲. اطلاعات تأمین‌کننده
+                        <span class="iso-ref">ISO 9001 - 8.4.1 | IATF - 8.4.2</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>نام تأمین‌کننده <span class="required">*</span></label>
+                            <input type="text" id="supplierName" placeholder="نام کامل تأمین‌کننده">
+                        </div>
+                        <div class="claim-field">
+                            <label>کد تأمین‌کننده</label>
+                            <input type="text" id="supplierCode" placeholder="کد اختصاصی">
+                        </div>
+                        <div class="claim-field">
+                            <label>شماره تماس</label>
+                            <input type="text" id="supplierContact" placeholder="موبایل / تلفن">
+                        </div>
+
+                        <div class="claim-field">
+                            <label>نام رابط</label>
+                            <input type="text" id="supplierContactPerson" placeholder="نام شخص رابط">
+                        </div>
+                        <div class="claim-field">
+                            <label>ایمیل</label>
+                            <input type="email" id="supplierEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="claim-field">
+                            <label>درجه تأمین‌کننده</label>
+                            <select id="supplierRating">
+                                <option value="">انتخاب کنید</option>
+                                <option value="a">A - عالی</option>
+                                <option value="b">B - خوب</option>
+                                <option value="c">C - قابل قبول</option>
+                                <option value="d">D - نیاز به بهبود</option>
+                            </select>
+                        </div>
+
+                        <div class="claim-field full-width">
+                            <label>آدرس تأمین‌کننده</label>
+                            <textarea id="supplierAddress" rows="2" placeholder="آدرس کامل..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۳: اطلاعات سفارش -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-file-invoice"></i> ۳. اطلاعات سفارش و فاکتور
+                        <span class="iso-ref">ISO 9001 - 8.4.3 | IATF - 8.5.2</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>شماره سفارش (PO)</label>
+                            <input type="text" id="orderNumber" placeholder="PO-YYYY-XXXX">
+                        </div>
+                        <div class="claim-field">
+                            <label>تاریخ سفارش</label>
+                            <input type="date" id="orderDate">
+                        </div>
+                        <div class="claim-field">
+                            <label>شماره فاکتور</label>
+                            <input type="text" id="invoiceNumber" placeholder="INV-XXXX">
+                        </div>
+
+                        <div class="claim-field">
+                            <label>تاریخ فاکتور</label>
+                            <input type="date" id="invoiceDate">
+                        </div>
+                        <div class="claim-field">
+                            <label>شماره بارنامه / حمل</label>
+                            <input type="text" id="shipmentNumber" placeholder="شماره بارنامه">
+                        </div>
+                        <div class="claim-field">
+                            <label>تاریخ دریافت</label>
+                            <input type="date" id="receiptDate">
+                        </div>
+
+                        <div class="claim-field">
+                            <label>شماره Lot / Batch تأمین‌کننده</label>
+                            <input type="text" id="lotNumber" placeholder="شماره سری ساخت تأمین‌کننده">
+                        </div>
+                        <div class="claim-field">
+                            <label>شماره سری داخلی (Traceability)</label>
+                            <input type="text" id="internalSerial" placeholder="شماره سری داخلی">
+                        </div>
+                        <div class="claim-field">
+                            <label>شرایط تحویل (Incoterms)</label>
+                            <select id="deliveryTerms">
+                                <option value="">انتخاب کنید</option>
+                                <option value="EXW">EXW - تحویل در محل تأمین‌کننده</option>
+                                <option value="FOB">FOB - تحویل روی کشتی</option>
+                                <option value="CIF">CIF - هزینه و بیمه پرداخت شده</option>
+                                <option value="DDP">DDP - تحویل در مقصد با عوارض</option>
+                                <option value="internal">تحویل داخلی</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۴: جدول قطعات کلیم‌شده (چندگانه) -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-boxes"></i> 
+                        ۴. قطعات کلیم‌شده
+                        <span class="iso-ref">ISO 9001 - 8.7 | IATF - 8.5.2</span>
+                        <span style="font-size:12px;color:#6c757d;font-weight:400;margin-right:auto;">
+                            (می‌توانید چندین قطعه اضافه کنید)
+                        </span>
+                    </h3>
+
+                    <div class="parts-table-wrapper">
+                        <table class="parts-table" id="partsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:45px;text-align:center;">#</th>
+                                    <th style="min-width:120px;">کد قطعه <span class="required">*</span></th>
+                                    <th style="min-width:150px;">نام قطعه <span class="required">*</span></th>
+                                    <th style="min-width:90px;">تعداد کل <span class="required">*</span></th>
+                                    <th style="min-width:90px;">تعداد معیوب <span class="required">*</span></th>
+                                    <th style="min-width:80px;">واحد</th>
+                                    <th style="min-width:130px;">دلیل مرجوعی <span class="required">*</span></th>
+                                    <th style="min-width:180px;">شرح مشکل</th>
+                                    <th style="min-width:130px;">Lot/Batch</th>
+                                    <th style="width:80px;text-align:center;">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partsTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="parts-footer">
+                        <button type="button" class="btn-add-part" onclick="addPartRow()">
+                            <i class="fas fa-plus-circle"></i> افزودن قطعه جدید
+                        </button>
+                        <div class="parts-count">
+                            تعداد قطعات: <strong id="partsCount">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top:15px;">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>راهنما:</strong> برای هر قطعه، تعداد کل دریافتی، تعداد معیوب، دلیل و شرح مشکل را وارد کنید.
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۵: طبقه‌بندی و ارزیابی مشکل -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-exclamation-triangle"></i> ۵. طبقه‌بندی و ارزیابی مشکل
+                        <span class="iso-ref">ISO 9001 - 8.7 | IATF - 8.4.2.4</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>طبقه‌بندی مشکل <span class="required">*</span></label>
+                            <select id="problemSeverity">
+                                <option value="">انتخاب کنید</option>
+                                <option value="critical">بحرانی (Critical) - ایمنی/قانونی</option>
+                                <option value="major">عمده (Major) - کیفیت</option>
+                                <option value="minor">جزئی (Minor)</option>
+                            </select>
+                        </div>
+                        <div class="claim-field">
+                            <label>دسته‌بندی نقص</label>
+                            <select id="defectCategory">
+                                <option value="">انتخاب کنید</option>
+                                <option value="dimensional">ابعادی (Dimensional)</option>
+                                <option value="visual">ظاهری (Visual)</option>
+                                <option value="functional">عملکردی (Functional)</option>
+                                <option value="material">متریال (Material)</option>
+                                <option value="assembly">مونتاژ (Assembly)</option>
+                                <option value="packaging">بسته‌بندی (Packaging)</option>
+                                <option value="documentation">مستندات (Documentation)</option>
+                            </select>
+                        </div>
+                        <div class="claim-field">
+                            <label>نرخ نقص (%)</label>
+                            <input type="number" id="defectRate" placeholder="0" min="0" max="100" step="0.01">
+                        </div>
+
+                        <div class="claim-field">
+                            <label>نوع درخواست <span class="required">*</span></label>
+                            <select id="requestType">
+                                <option value="return_full">مرجوعی کامل + برگشت هزینه</option>
+                                <option value="replace">تعویض با کالای جدید</option>
+                                <option value="sorting">سورتینگ در محل</option>
+                                <option value="rework_supplier">دوباره‌کاری توسط تأمین‌کننده</option>
+                                <option value="rework_internal">دوباره‌کاری داخلی</option>
+                                <option value="scrap">ضایعات</option>
+                                <option value="concession">مجوز ارفاقی</option>
+                            </select>
+                        </div>
+                        <div class="claim-field">
+                            <label>هزینه تخمینی (ریال)</label>
+                            <input type="number" id="costEstimate" placeholder="0" min="0">
+                        </div>
+                        <div class="claim-field">
+                            <label>مدت توقف تولید (ساعت)</label>
+                            <input type="number" id="downtimeHours" placeholder="0" min="0">
+                        </div>
+
+                        <div class="claim-field full-width">
+                            <label>پیامدهای بالقوه</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" class="effect-checkbox" value="quality"> اثر بر کیفیت محصول</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="safety"> اثر بر ایمنی</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="customer"> اثر بر مشتری</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="cost"> اثر مالی / هزینه</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="delivery"> تأخیر در تحویل</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="production"> توقف تولید</label>
+                            </div>
+                        </div>
+
+                        <div class="claim-field full-width">
+                            <label>مرجع استاندارد / مشخصات فنی</label>
+                            <input type="text" id="standardRef" placeholder="مثال: ISO 9001 - بند 8.4 / مشخصات فنی X">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۶: تأیید مدیرعامل -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-user-tie"></i> ۶. تأیید مدیرعامل
+                        <span class="iso-ref">ISO 9001 - 5.1 | IATF - 5.1.1</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>وضعیت تأیید <span class="required">*</span></label>
                             <select id="ceoStatus">
                                 <option value="pending">در انتظار</option>
-                                <option value="approved">تایید شده</option>
+                                <option value="approved">تأیید شده</option>
                                 <option value="rejected">رد شده</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>تاریخ تایید</label>
+                        <div class="claim-field">
+                            <label>تاریخ تأیید</label>
                             <input type="date" id="ceoApprovedDate">
                         </div>
-                        <div class="form-group full-width">
-                            <label>نکات مدیرعامل</label>
-                            <textarea id="ceoNotes" rows="2"></textarea>
+                        <div class="claim-field">
+                            <label>مبلغ تأیید شده (ریال)</label>
+                            <input type="number" id="ceoApprovedAmount" placeholder="0" min="0">
+                        </div>
+                        <div class="claim-field full-width">
+                            <label>نظرات مدیرعامل</label>
+                            <textarea id="ceoNotes" rows="2" placeholder="نظرات و دستورات..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- مرحله 3: بررسی تامین‌کننده -->
-                <div class="form-step" data-step="3">
-                    <h3>مرحله 3: بررسی تامین‌کننده</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>وضعیت تامین‌کننده</label>
+                <!-- ============================================ -->
+                <!-- بخش ۷: بررسی و پاسخ تأمین‌کننده -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-reply-all"></i> ۷. بررسی و پاسخ تأمین‌کننده
+                        <span class="iso-ref">IATF 16949 - 8.4.2.4.1</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>وضعیت پاسخ تأمین‌کننده</label>
                             <select id="supplierStatus">
-                                <option value="pending">در انتظار</option>
-                                <option value="approved">تایید شده</option>
+                                <option value="pending">در انتظار پاسخ</option>
+                                <option value="accepted">پذیرفته</option>
                                 <option value="rejected">رد شده</option>
+                                <option value="partially">تا حدی پذیرفته</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>کلیم مورد تأیید است</label>
-                            <select id="supplierApproved">
+                        <div class="claim-field">
+                            <label>تاریخ پاسخ تأمین‌کننده</label>
+                            <input type="date" id="supplierResponseDate">
+                        </div>
+                        <div class="claim-field">
+                            <label>نوع پاسخ تأمین‌کننده</label>
+                            <select id="supplierResponseType">
                                 <option value="">انتخاب کنید</option>
-                                <option value="yes">بله - قطعه جایگزین ارسال می‌شود</option>
-                                <option value="no">خیر - هزینه عودت داده می‌شود</option>
+                                <option value="replace">ارسال قطعه جایگزین</option>
+                                <option value="refund">عودت هزینه</option>
+                                <option value="credit_note">اعتبار خرید</option>
+                                <option value="sorting">سورتینگ توسط تأمین‌کننده</option>
+                                <option value="8d">ارائه 8D Report</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>زمان ارسال قطعه/هزینه</label>
-                            <input type="text" id="supplierReplacementDate" placeholder="تاریخ یا مبلغ">
+
+                        <div class="claim-field">
+                            <label>شماره 8D / گزارش اقدام</label>
+                            <input type="text" id="supplier8DNumber" placeholder="8D-YYYY-XXX">
                         </div>
-                        <div class="form-group">
-                            <label>شماره اقدام اصلاحی</label>
-                            <input type="text" id="correctiveActionNumber">
+                        <div class="claim-field">
+                            <label>تاریخ ارسال جایگزین / پرداخت</label>
+                            <input type="date" id="supplierActionDate">
                         </div>
-                        <div class="form-group full-width">
-                            <label>نتیجه اقدام تعریف شده</label>
-                            <textarea id="actionResult" rows="2"></textarea>
+                        <div class="claim-field">
+                            <label>مبلغ بازگشت / اعتبار (ریال)</label>
+                            <input type="number" id="supplierRefundAmount" placeholder="0" min="0">
                         </div>
-                        <div class="form-group full-width">
-                            <label>نکات تامین‌کننده</label>
-                            <textarea id="supplierNotes" rows="2"></textarea>
+
+                        <div class="claim-field full-width">
+                            <label>ریشه‌یابی تأمین‌کننده (Root Cause)</label>
+                            <textarea id="supplierRootCause" rows="2" placeholder="ریشه اصلی مشکل اعلامی از طرف تأمین‌کننده..."></textarea>
+                        </div>
+                        <div class="claim-field full-width">
+                            <label>نکات تأمین‌کننده</label>
+                            <textarea id="supplierNotes" rows="2" placeholder="توضیحات تأمین‌کننده..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- مرحله 4: دریافت توسط انبار -->
-                <div class="form-step" data-step="4">
-                    <h3>مرحله 4: دریافت قطعه جایگزین (انبار)</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>وضعیت انبار</label>
+                <!-- ============================================ -->
+                <!-- بخش ۸: اقدام اصلاحی تأمین‌کننده (SCAR) -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-clipboard-check"></i> ۸. اقدام اصلاحی تأمین‌کننده (SCAR)
+                        <span class="iso-ref">IATF 16949 - 8.4.2.5</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field full-width">
+                            <label>آیا نیاز به SCAR (Supplier Corrective Action Request) است؟</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="needSCAR" value="yes" onchange="toggleSCARSubs()"> بله</label>
+                                <label><input type="radio" name="needSCAR" value="no" onchange="toggleSCARSubs()"> خیر</label>
+                            </div>
+                        </div>
+
+                        <div class="claim-field full-width" id="subSCAR" style="display:none;">
+                            <div class="claim-grid" style="padding:0;">
+                                <div class="claim-field">
+                                    <label>شماره SCAR صادرشده</label>
+                                    <input type="text" id="scarNumber" placeholder="SCAR-YYYY-XXX">
+                                </div>
+                                <div class="claim-field">
+                                    <label>تاریخ صدور SCAR</label>
+                                    <input type="date" id="scarIssueDate">
+                                </div>
+                                <div class="claim-field">
+                                    <label>مهلت پاسخ تأمین‌کننده</label>
+                                    <input type="date" id="scarDeadline">
+                                </div>
+
+                                <div class="claim-field full-width">
+                                    <label>شرح درخواست اقدام اصلاحی</label>
+                                    <textarea id="scarDescription" rows="2" placeholder="شرح درخواست از تأمین‌کننده..."></textarea>
+                                </div>
+
+                                <div class="claim-field">
+                                    <label>تاریخ دریافت پاسخ</label>
+                                    <input type="date" id="scarResponseDate">
+                                </div>
+                                <div class="claim-field">
+                                    <label>نتیجه ارزیابی SCAR</label>
+                                    <select id="scarResult">
+                                        <option value="">انتخاب کنید</option>
+                                        <option value="accepted">پذیرفته شده</option>
+                                        <option value="rejected">رد شده</option>
+                                        <option value="in_progress">در حال بررسی</option>
+                                    </select>
+                                </div>
+                                <div class="claim-field">
+                                    <label>شماره CA داخلی مرتبط</label>
+                                    <input type="text" id="linkedCANumber" placeholder="CA-YYYY-XXXX">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۹: دریافت قطعه جایگزین (انبار) -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-warehouse"></i> ۹. دریافت قطعه جایگزین (انبار)
+                        <span class="iso-ref">ISO 9001 - 8.5.4</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>وضعیت دریافت</label>
                             <select id="warehouseStatus">
                                 <option value="pending">در انتظار</option>
-                                <option value="received">قطعه جایگزین دریافت شد</option>
-                                <option value="rejected">قطعه جایگزین دریافت نشد</option>
+                                <option value="received">دریافت شد</option>
+                                <option value="partially_received">تا حدی دریافت شد</option>
+                                <option value="not_received">دریافت نشد</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="claim-field">
                             <label>تاریخ دریافت</label>
                             <input type="date" id="replacementReceivedDate">
                         </div>
-                        <div class="form-group">
+                        <div class="claim-field">
                             <label>تعداد دریافت شده</label>
-                            <input type="number" id="replacementQuantity">
+                            <input type="number" id="replacementQuantity" placeholder="0" min="0">
                         </div>
-                        <div class="form-group full-width">
+
+                        <div class="claim-field">
+                            <label>شماره رسید انبار</label>
+                            <input type="text" id="warehouseReceiptNumber" placeholder="WR-XXXX">
+                        </div>
+                        <div class="claim-field">
+                            <label>شماره Lot جدید</label>
+                            <input type="text" id="newLotNumber" placeholder="Lot جدید">
+                        </div>
+                        <div class="claim-field">
+                            <label>وضعیت کیفیت قطعه جایگزین</label>
+                            <select id="replacementQuality">
+                                <option value="">انتخاب کنید</option>
+                                <option value="approved">تأیید شده</option>
+                                <option value="rejected">رد شده</option>
+                                <option value="inspection">در حال بازرسی</option>
+                            </select>
+                        </div>
+
+                        <div class="claim-field full-width">
                             <label>نکات انبار</label>
-                            <textarea id="warehouseNotes" rows="2"></textarea>
+                            <textarea id="warehouseNotes" rows="2" placeholder="توضیحات انبار..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره کلیم</button>
-                    <button type="button" class="btn btn-success" onclick="printClaim()"><i class="fas fa-print"></i> چاپ</button>
-                    <button type="button" class="btn btn-warning" onclick="window.location.href='dashboard.html'"><i class="fas fa-arrow-right"></i> بازگشت</button>
+                <!-- ============================================ -->
+                <!-- بخش ۱۰: پایش و بستن -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-chart-line"></i> ۱۰. پایش و بستن کلیم
+                        <span class="iso-ref">ISO 9001 - 10.2.1.f</span>
+                    </h3>
+                    <div class="claim-grid">
+                        <div class="claim-field">
+                            <label>نتیجه نهایی <span class="required">*</span></label>
+                            <select id="finalResult">
+                                <option value="">انتخاب کنید</option>
+                                <option value="accepted">پذیرفته شده - قطعه جایگزین دریافت شد</option>
+                                <option value="partially">تا حدی پذیرفته</option>
+                                <option value="rejected">رد شده</option>
+                                <option value="cancelled">لغو شده</option>
+                            </select>
+                        </div>
+                        <div class="claim-field">
+                            <label>مسئول پایش</label>
+                            <input type="text" id="verifier" placeholder="نام مسئول پایش" readonly>
+                        </div>
+                        <div class="claim-field">
+                            <label>تاریخ بستن</label>
+                            <input type="date" id="closureDate">
+                        </div>
+
+                        <div class="claim-field full-width">
+                            <label>یادداشت نهایی</label>
+                            <textarea id="finalNotes" rows="2" placeholder="توضیحات نهایی..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top:12px;">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>ارزیابی تأمین‌کننده:</strong> پس از بستن کلیم، امتیاز تأمین‌کننده بر اساس تعداد کلیم‌ها و پاسخ‌دهی به‌روزرسانی می‌شود.
+                    </div>
                 </div>
-            </form>
+
+                <!-- ============================================ -->
+                <!-- بخش ۱۱: پیوست‌ها -->
+                <!-- ============================================ -->
+                <div class="claim-section">
+                    <h3>
+                        <i class="fas fa-paperclip"></i> ۱۱. پیوست‌ها
+                        <span class="iso-ref">ISO 9001 - 7.5.3</span>
+                    </h3>
+                    <div class="claim-field">
+                        <label>فایل‌های پیوست</label>
+                        <input type="file" id="attachments" multiple
+                               accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                               onchange="handleFileSelection(this)">
+                        <small class="hint">حداکثر 5 مگابایت برای هر فایل - فرمت‌های مجاز: jpg, png, pdf, doc, xlsx</small>
+                        <div id="selectedFilesPreview" style="margin-top:12px; display:none;">
+                            <div style="font-weight:700; color:#2c3e50; margin-bottom:8px; font-size:13px;">
+                                <i class="fas fa-paperclip"></i>
+                                فایل‌های انتخاب شده (<span id="selectedFilesCount">0</span>):
+                            </div>
+                            <div id="selectedFilesList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های عملیات -->
+                <div class="claim-actions">
+                    <button type="button" class="btn btn-secondary" onclick="goBack()">
+                        <i class="fas fa-arrow-right"></i> بازگشت
+                    </button>
+                    <button type="button" class="btn btn-print" onclick="printForm()">
+                        <i class="fas fa-print"></i> چاپ
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                        <i class="fas fa-save"></i> ذخیره پیش‌نویس
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnSubmit" onclick="submitForm()">
+                        <i class="fas fa-paper-plane"></i> ثبت نهایی
+                    </button>
+                </div>
+
+            </div>
+
+            <div id="footerContainer"></div>
         </main>
     </div>
 
-    <script src="i18n.js"></script>
-    <script src="database.js"></script>
+    <script src="database.js?v=20261101"></script>
     <script src="app.js"></script>
-    <script src="print.js"></script>
-    <script src="data/sample-data.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+
     <script>
-        let currentClaim = null;
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        // ============================================
+        // CONFIG
+        // ============================================
+        const API_BASE = window.NCR_API + '';
+        const STORAGE_KEY = 'claims';
+        const DRAFT_KEY = 'claim_drafts';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
-            
-            if (currentUser) {
-                document.getElementById('userName').textContent = currentUser.full_name;
-            }
+        let currentUser = { id: 2, full_name: 'مدیر کیفیت', username: 'quality_user', role: 'quality' };
+        let claimData = {};
+        let selectedFiles = [];
+        let linkedNCR = null;
+        let partRowCounter = 0;
 
-            // تنظیم شماره کلیم
-            document.getElementById('claimNumber').value = generateClaimNumber();
-            document.getElementById('claimDate').value = now.toISOString().split('T')[0];
+        // ============================================
+        // UTILITY
+        // ============================================
+        function showToast(message, type) {
+            var toast = document.getElementById('toastMessage');
+            var text = document.getElementById('toastText');
+            var icon = document.getElementById('toastIcon');
+            text.textContent = message;
+            toast.className = 'toast-message show';
+            if (type === 'success') { toast.classList.add('success'); icon.className = 'fas fa-check-circle'; }
+            else if (type === 'error') { toast.classList.add('error'); icon.className = 'fas fa-exclamation-circle'; }
+            else { toast.classList.add('info'); icon.className = 'fas fa-info-circle'; }
+            setTimeout(function() { toast.classList.remove('show'); }, 4000);
+        }
 
-            // بارگذاری NCRها برای انتخاب
-            loadNCRsForSelect();
+        function getToday() {
+            var d = new Date();
+            return d.getFullYear() + '-' +
+                   String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(d.getDate()).padStart(2, '0');
+        }
 
-            updateNotifications();
-        });
+        function formatPersianDate(dateStr) {
+            if (!dateStr) return '-';
+            var parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            var months = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+            var m = parseInt(parts[1]) - 1;
+            return parseInt(parts[2]) + ' ' + months[m] + ' ' + parts[0];
+        }
 
-        function loadNCRsForSelect() {
-            const ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
-            const select = document.getElementById('ncrNumber');
-            select.innerHTML = '<option value="">انتخاب کنید</option>';
-            ncrs.forEach(ncr => {
-                const option = document.createElement('option');
-                option.value = ncr.ncr_number;
-                option.textContent = `${ncr.ncr_number} - ${ncr.part_name}`;
-                select.appendChild(option);
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function getCheckedValues(className) {
+            var arr = [];
+            document.querySelectorAll('.' + className + ':checked').forEach(function(el) {
+                arr.push(el.value);
+            });
+            return arr;
+        }
+
+        function setCheckedValues(className, values) {
+            if (!Array.isArray(values)) values = [];
+            document.querySelectorAll('.' + className).forEach(function(el) {
+                el.checked = (values.indexOf(el.value) !== -1);
             });
         }
 
-        function generateClaimNumber() {
-            const date = new Date();
-            const year = date.getFullYear();
-            const count = JSON.parse(localStorage.getItem('claims') || '[]').length + 1;
-            return `CLM-${year}-${String(count).padStart(3, '0')}`;
+        async function generateClaimNumber() {
+            try {
+                const res = await fetch(API_BASE + '/get_next_claim_number.php');
+                const result = await res.json();
+                if (result.success && result.claim_number) return result.claim_number;
+            } catch (e) { console.warn('⚠️ API failed, using local fallback'); }
+            var year = new Date().getFullYear();
+            var claims = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            var maxNum = 0;
+            claims.forEach(function(c) {
+                if (c.claimNumber) {
+                    var parts = c.claimNumber.split('-');
+                    var num = parseInt(parts[parts.length - 1]) || 0;
+                    if (num > maxNum) maxNum = num;
+                }
+            });
+            return 'CLM-' + year + '-' + String(maxNum + 1).padStart(4, '0');
         }
 
-        // ذخیره کلیم
-        document.getElementById('claimForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // ============================================
+        // CONDITIONAL TOGGLES
+        // ============================================
+        function toggleSCARSubs() {
+            var el = document.querySelector('input[name="needSCAR"]:checked');
+            var sub = document.getElementById('subSCAR');
+            if (el && el.value === 'yes') {
+                sub.style.display = 'block';
+            } else {
+                sub.style.display = 'none';
+            }
+        }
 
-            const claim = {
-                claim_number: document.getElementById('claimNumber').value,
-                claim_date: document.getElementById('claimDate').value,
-                ncr_number: document.getElementById('ncrNumber').value,
-                supplier_name: document.getElementById('supplierName').value,
-                supplier_contact: document.getElementById('supplierContact').value,
-                order_date: document.getElementById('orderDate').value,
-                invoice_number: document.getElementById('invoiceNumber').value,
-                part_code: document.getElementById('partCode').value,
-                part_name: document.getElementById('partName').value,
-                quantity: parseInt(document.getElementById('quantity').value) || 0,
-                unit: document.getElementById('unit').value,
-                return_reason: document.getElementById('returnReason').value,
-                return_reason_description: document.getElementById('returnReasonDescription').value,
-                request_type: document.getElementById('requestType').value,
-                claim_quantity: parseInt(document.getElementById('claimQuantity').value) || 0,
-                priority: document.getElementById('priority').value,
-                claim_stage: parseInt(document.getElementById('claimStage').value) || 1,
+        // ============================================
+        // مدیریت ردیف‌های قطعات
+        // ============================================
+        function addPartRow(data) {
+            data = data || {};
+            partRowCounter++;
+            var rowId = 'part-row-' + partRowCounter;
+            var tbody = document.getElementById('partsTableBody');
 
-                ceo_status: document.getElementById('ceoStatus').value,
-                ceo_approved_date: document.getElementById('ceoApprovedDate').value,
-                ceo_notes: document.getElementById('ceoNotes').value,
+            var row = document.createElement('tr');
+            row.id = rowId;
+            row.dataset.rowId = partRowCounter;
+            row.innerHTML = `
+                <td style="text-align:center;">
+                    <span class="part-num">${partRowCounter}</span>
+                </td>
+                <td>
+                    <input type="text" class="part-code" placeholder="کد قطعه" value="${escapeHtml(data.partCode || '')}">
+                </td>
+                <td>
+                    <input type="text" class="part-name" placeholder="نام قطعه" value="${escapeHtml(data.partName || '')}">
+                </td>
+                <td>
+                    <input type="number" class="part-total-qty" placeholder="0" min="0" value="${data.totalQuantity || ''}">
+                </td>
+                <td>
+                    <input type="number" class="part-defect-qty" placeholder="0" min="0" value="${data.defectQuantity || ''}">
+                </td>
+                <td>
+                    <select class="part-unit">
+                        <option value="عدد" ${data.unit === 'عدد' || !data.unit ? 'selected' : ''}>عدد</option>
+                        <option value="کیلوگرم" ${data.unit === 'کیلوگرم' ? 'selected' : ''}>کیلوگرم</option>
+                        <option value="متر" ${data.unit === 'متر' ? 'selected' : ''}>متر</option>
+                        <option value="لیتر" ${data.unit === 'لیتر' ? 'selected' : ''}>لیتر</option>
+                        <option value="تن" ${data.unit === 'تن' ? 'selected' : ''}>تن</option>
+                        <option value="ست" ${data.unit === 'ست' ? 'selected' : ''}>ست</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="part-reason">
+                        <option value="">انتخاب کنید</option>
+                        <option value="خرابی" ${data.reason === 'خرابی' ? 'selected' : ''}>خرابی</option>
+                        <option value="عدم تطابق ابعادی" ${data.reason === 'عدم تطابق ابعادی' ? 'selected' : ''}>عدم تطابق ابعادی</option>
+                        <option value="کیفیت نامناسب" ${data.reason === 'کیفیت نامناسب' ? 'selected' : ''}>کیفیت نامناسب</option>
+                        <option value="آسیب در حین حمل" ${data.reason === 'آسیب در حین حمل' ? 'selected' : ''}>آسیب در حین حمل</option>
+                        <option value="متریال نامناسب" ${data.reason === 'متریال نامناسب' ? 'selected' : ''}>متریال نامناسب</option>
+                        <option value="مستندات ناقص" ${data.reason === 'مستندات ناقص' ? 'selected' : ''}>مستندات ناقص</option>
+                        <option value="سایر" ${data.reason === 'سایر' ? 'selected' : ''}>سایر</option>
+                    </select>
+                </td>
+                <td>
+                    <textarea class="part-description" rows="2" placeholder="شرح مشکل...">${escapeHtml(data.description || '')}</textarea>
+                </td>
+                <td>
+                    <input type="text" class="part-lot" placeholder="Lot/Batch" value="${escapeHtml(data.lotNumber || '')}">
+                </td>
+                <td>
+                    <div class="row-actions">
+                        <button type="button" class="btn-row btn-duplicate" onclick="duplicatePartRow('${rowId}')" title="کپی">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button type="button" class="btn-row btn-remove" onclick="removePartRow('${rowId}')" title="حذف">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+            updatePartsCount();
+            updatePartRowNumbers();
+        }
 
-                supplier_status: document.getElementById('supplierStatus').value,
-                supplier_approved: document.getElementById('supplierApproved').value,
-                supplier_replacement_date: document.getElementById('supplierReplacementDate').value,
-                corrective_action_number: document.getElementById('correctiveActionNumber').value,
-                action_result: document.getElementById('actionResult').value,
-                supplier_notes: document.getElementById('supplierNotes').value,
+        function removePartRow(rowId) {
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            var count = document.querySelectorAll('#partsTableBody tr').length;
+            if (count <= 1) {
+                showToast('حداقل یک قطعه باید وجود داشته باشد.', 'error');
+                return;
+            }
+            if (!confirm('آیا از حذف این قطعه مطمئن هستید؟')) return;
+            row.remove();
+            updatePartsCount();
+            updatePartRowNumbers();
+            showToast('قطعه حذف شد', 'info');
+        }
 
-                warehouse_status: document.getElementById('warehouseStatus').value,
-                replacement_received_date: document.getElementById('replacementReceivedDate').value,
-                replacement_quantity: parseInt(document.getElementById('replacementQuantity').value) || 0,
-                warehouse_notes: document.getElementById('warehouseNotes').value,
-
-                final_status: document.getElementById('warehouseStatus').value === 'received' ? 'closed' : 'in_progress',
-                created_at: new Date().toISOString(),
-                created_by: currentUser ? currentUser.full_name : ''
+        function duplicatePartRow(rowId) {
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            var data = {
+                partCode: row.querySelector('.part-code').value,
+                partName: row.querySelector('.part-name').value,
+                totalQuantity: row.querySelector('.part-total-qty').value,
+                defectQuantity: row.querySelector('.part-defect-qty').value,
+                unit: row.querySelector('.part-unit').value,
+                reason: row.querySelector('.part-reason').value,
+                description: row.querySelector('.part-description').value,
+                lotNumber: row.querySelector('.part-lot').value
             };
+            addPartRow(data);
+            showToast('ردیف کپی شد', 'success');
+        }
 
-            // ذخیره در localStorage
-            let claims = JSON.parse(localStorage.getItem('claims') || '[]');
-            claims.push(claim);
-            localStorage.setItem('claims', JSON.stringify(claims));
+        function updatePartRowNumbers() {
+            var rows = document.querySelectorAll('#partsTableBody tr');
+            rows.forEach(function(row, idx) {
+                var numEl = row.querySelector('.part-num');
+                if (numEl) numEl.textContent = idx + 1;
+            });
+        }
 
-            // بروزرسانی NCR مرتبط
-            if (claim.ncr_number) {
-                let ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
-                const ncrIndex = ncrs.findIndex(n => n.ncr_number === claim.ncr_number);
-                if (ncrIndex !== -1) {
-                    ncrs[ncrIndex].claim_number = claim.claim_number;
-                    ncrs[ncrIndex].claim_status = 'approved';
-                    localStorage.setItem('ncrs', JSON.stringify(ncrs));
+        function updatePartsCount() {
+            var count = document.querySelectorAll('#partsTableBody tr').length;
+            var el = document.getElementById('partsCount');
+            if (el) el.textContent = count;
+        }
+
+        function getPartsData() {
+            var parts = [];
+            document.querySelectorAll('#partsTableBody tr').forEach(function(row) {
+                var partCode = row.querySelector('.part-code').value.trim();
+                var partName = row.querySelector('.part-name').value.trim();
+                var totalQty = row.querySelector('.part-total-qty').value;
+                var defectQty = row.querySelector('.part-defect-qty').value;
+                var unit = row.querySelector('.part-unit').value;
+                var reason = row.querySelector('.part-reason').value;
+                var description = row.querySelector('.part-description').value.trim();
+                var lotNumber = row.querySelector('.part-lot').value.trim();
+
+                if (partCode || partName || totalQty || defectQty) {
+                    parts.push({
+                        partCode: partCode,
+                        partName: partName,
+                        totalQuantity: parseInt(totalQty) || 0,
+                        defectQuantity: parseInt(defectQty) || 0,
+                        unit: unit,
+                        reason: reason,
+                        description: description,
+                        lotNumber: lotNumber
+                    });
+                }
+            });
+            return parts;
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            var user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) currentUser = user;
+
+            document.getElementById('claimDate').value = getToday();
+            document.getElementById('verifier').value = currentUser.full_name || currentUser.username;
+
+            addPartRow();
+
+            var urlParams = new URLSearchParams(window.location.search);
+            var claimNumber = urlParams.get('claim');
+            var ncrNumber = urlParams.get('ncr');
+
+            if (claimNumber) {
+                await loadClaim(claimNumber);
+            } else {
+                var newNum = await generateClaimNumber();
+                document.getElementById('claimNumber').textContent = newNum;
+                document.getElementById('claimNumberInput').value = newNum;
+                document.getElementById('claimCreatedAt').textContent = formatPersianDate(getToday());
+
+                if (ncrNumber) {
+                    document.getElementById('ncrNumber').innerHTML = '<option value="' + ncrNumber + '">' + ncrNumber + '</option>';
+                    await loadNCRInfo(ncrNumber);
+                } else {
+                    await loadNCRsList();
                 }
             }
 
-            showNotification('کلیم با موفقیت ثبت شد!', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
+            if (claimNumber) {
+                document.getElementById('claimCreatedAt').textContent = formatPersianDate(claimData.claimDate || getToday());
+            }
         });
 
-        function showNotification(message, type) {
-            const colors = {
-                success: '#27ae60',
-                error: '#e74c3c',
-                warning: '#f39c12',
-                info: '#3498db'
+        // ============================================
+        // LOAD NCRs
+        // ============================================
+        async function loadNCRsList() {
+            try {
+                const res = await fetch(API_BASE + '/get_ncrs.php');
+                const result = await res.json();
+                if (result.success && result.data) {
+                    var select = document.getElementById('ncrNumber');
+                    select.innerHTML = '<option value="">انتخاب کنید</option>';
+                    result.data.forEach(function(ncr) {
+                        var option = document.createElement('option');
+                        option.value = ncr.ncr_number;
+                        option.textContent = ncr.ncr_number + ' - ' + (ncr.part_name || '');
+                        select.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.warn('⚠️ Could not load NCRs:', e);
+                var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+                var select = document.getElementById('ncrNumber');
+                select.innerHTML = '<option value="">انتخاب کنید</option>';
+                ncrs.forEach(function(ncr) {
+                    var option = document.createElement('option');
+                    option.value = ncr.ncr_number;
+                    option.textContent = ncr.ncr_number + ' - ' + (ncr.part_name || '');
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        async function loadNCRInfo(ncrNumber) {
+            try {
+                const res = await fetch(API_BASE + '/get_ncr.php?number=' + encodeURIComponent(ncrNumber));
+                const result = await res.json();
+                if (result.success && result.data) {
+                    linkedNCR = result.data;
+                    displayNCRInfo(linkedNCR);
+                }
+            } catch (e) {
+                var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+                var ncr = ncrs.find(function(n) { return n.ncr_number === ncrNumber; });
+                if (ncr) { linkedNCR = ncr; displayNCRInfo(ncr); }
+            }
+        }
+
+        function displayNCRInfo(ncr) {
+            document.getElementById('claimSubject').value = 'کلیم برای ' + (ncr.part_name || 'NCR ' + ncr.ncr_number);
+            if (ncr.part_code) {
+                var firstRow = document.querySelector('#partsTableBody tr');
+                if (firstRow) {
+                    firstRow.querySelector('.part-code').value = ncr.part_code || '';
+                    firstRow.querySelector('.part-name').value = ncr.part_name || '';
+                    firstRow.querySelector('.part-total-qty').value = ncr.quantity || '';
+                    firstRow.querySelector('.part-defect-qty').value = ncr.quantity || '';
+                    firstRow.querySelector('.part-description').value = ncr.description || '';
+                    firstRow.querySelector('.part-lot').value = ncr.batch_number || '';
+                    firstRow.querySelector('.part-reason').value = ncr.severity === 'بحرانی' ? 'خرابی' : 'کیفیت نامناسب';
+                }
+            }
+            if (ncr.standard_ref) document.getElementById('standardRef').value = ncr.standard_ref;
+        }
+
+        // ============================================
+        // SUBMIT
+        // ============================================
+        function validateForm() {
+            var required = ['claimNumberInput', 'claimDate', 'claimSubject', 'supplierName', 'priority', 'problemSeverity', 'requestType', 'finalResult'];
+            var invalid = null;
+            required.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el.value || !el.value.trim()) {
+                    el.style.borderColor = '#e74c3c';
+                    if (!invalid) invalid = el;
+                } else {
+                    el.style.borderColor = '';
+                }
+            });
+
+            // بررسی قطعات
+            var parts = getPartsData();
+            if (parts.length === 0) {
+                showToast('حداقل یک قطعه باید ثبت شود', 'error');
+                return false;
+            }
+
+            var missingInRows = false;
+            document.querySelectorAll('#partsTableBody tr').forEach(function(row) {
+                var partCode = row.querySelector('.part-code');
+                var partName = row.querySelector('.part-name');
+                var totalQty = row.querySelector('.part-total-qty');
+                var defectQty = row.querySelector('.part-defect-qty');
+                var reason = row.querySelector('.part-reason');
+
+                var hasData = partCode.value.trim() || partName.value.trim() || totalQty.value || defectQty.value;
+                if (hasData) {
+                    if (!partCode.value.trim()) { partCode.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { partCode.style.borderColor = ''; }
+                    if (!partName.value.trim()) { partName.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { partName.style.borderColor = ''; }
+                    if (!totalQty.value) { totalQty.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { totalQty.style.borderColor = ''; }
+                    if (!defectQty.value) { defectQty.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { defectQty.style.borderColor = ''; }
+                    if (!reason.value) { reason.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { reason.style.borderColor = ''; }
+                }
+            });
+
+            if (missingInRows) {
+                showToast('لطفاً فیلدهای الزامی هر قطعه (کد، نام، تعداد، تعداد معیوب، دلیل) را تکمیل کنید', 'error');
+                return false;
+            }
+
+            if (invalid) {
+                invalid.focus();
+                invalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast('لطفاً فیلدهای الزامی را تکمیل کنید', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function collectData() {
+            var needSCAR = document.querySelector('input[name="needSCAR"]:checked');
+            return {
+                claimNumber: document.getElementById('claimNumberInput').value.trim(),
+                claimDate: document.getElementById('claimDate').value,
+                ncrNumber: document.getElementById('ncrNumber').value.trim(),
+                claimSource: document.getElementById('claimSource').value,
+                priority: document.getElementById('priority').value,
+                claimStage: document.getElementById('claimStage').value || 1,
+                claimSubject: document.getElementById('claimSubject').value.trim(),
+
+                supplierName: document.getElementById('supplierName').value.trim(),
+                supplierCode: document.getElementById('supplierCode').value.trim(),
+                supplierContact: document.getElementById('supplierContact').value.trim(),
+                supplierContactPerson: document.getElementById('supplierContactPerson').value.trim(),
+                supplierEmail: document.getElementById('supplierEmail').value.trim(),
+                supplierRating: document.getElementById('supplierRating').value,
+                supplierAddress: document.getElementById('supplierAddress').value.trim(),
+
+                orderNumber: document.getElementById('orderNumber').value.trim(),
+                orderDate: document.getElementById('orderDate').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value.trim(),
+                invoiceDate: document.getElementById('invoiceDate').value,
+                shipmentNumber: document.getElementById('shipmentNumber').value.trim(),
+                receiptDate: document.getElementById('receiptDate').value,
+                lotNumber: document.getElementById('lotNumber').value.trim(),
+                internalSerial: document.getElementById('internalSerial').value.trim(),
+                deliveryTerms: document.getElementById('deliveryTerms').value,
+
+                parts: getPartsData(),                problemSeverity: document.getElementById('problemSeverity').value,
+                defectCategory: document.getElementById('defectCategory').value,
+                defectRate: document.getElementById('defectRate').value,
+                requestType: document.getElementById('requestType').value,
+                costEstimate: document.getElementById('costEstimate').value || 0,
+                downtimeHours: document.getElementById('downtimeHours').value || 0,
+                effects: getCheckedValues('effect-checkbox'),
+                standardRef: document.getElementById('standardRef').value.trim(),
+
+                ceoStatus: document.getElementById('ceoStatus').value,
+                ceoApprovedDate: document.getElementById('ceoApprovedDate').value,
+                ceoApprovedAmount: document.getElementById('ceoApprovedAmount').value || 0,
+                ceoNotes: document.getElementById('ceoNotes').value.trim(),
+
+                supplierStatus: document.getElementById('supplierStatus').value,
+                supplierResponseDate: document.getElementById('supplierResponseDate').value,
+                supplierResponseType: document.getElementById('supplierResponseType').value,
+                supplier8DNumber: document.getElementById('supplier8DNumber').value.trim(),
+                supplierActionDate: document.getElementById('supplierActionDate').value,
+                supplierRefundAmount: document.getElementById('supplierRefundAmount').value || 0,
+                supplierRootCause: document.getElementById('supplierRootCause').value.trim(),
+                supplierNotes: document.getElementById('supplierNotes').value.trim(),
+
+                needSCAR: needSCAR ? needSCAR.value : '',
+                scarNumber: document.getElementById('scarNumber').value.trim(),
+                scarIssueDate: document.getElementById('scarIssueDate').value,
+                scarDeadline: document.getElementById('scarDeadline').value,
+                scarDescription: document.getElementById('scarDescription').value.trim(),
+                scarResponseDate: document.getElementById('scarResponseDate').value,
+                scarResult: document.getElementById('scarResult').value,
+                linkedCANumber: document.getElementById('linkedCANumber').value.trim(),
+
+                warehouseStatus: document.getElementById('warehouseStatus').value,
+                replacementReceivedDate: document.getElementById('replacementReceivedDate').value,
+                replacementQuantity: document.getElementById('replacementQuantity').value || 0,
+                warehouseReceiptNumber: document.getElementById('warehouseReceiptNumber').value.trim(),
+                newLotNumber: document.getElementById('newLotNumber').value.trim(),
+                replacementQuality: document.getElementById('replacementQuality').value,
+                warehouseNotes: document.getElementById('warehouseNotes').value.trim(),
+
+                finalResult: document.getElementById('finalResult').value,
+                verifier: document.getElementById('verifier').value,
+                closureDate: document.getElementById('closureDate').value,
+                finalNotes: document.getElementById('finalNotes').value.trim(),
+
+                status: 'draft',
+                createdAt: new Date().toISOString()
             };
-            
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                padding: 15px 25px;
-                background: ${colors[type] || '#3498db'};
-                color: white;
-                border-radius: 10px;
-                font-weight: bold;
-                z-index: 9999;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                animation: slideDown 0.5s ease;
-                max-width: 400px;
+        }
+
+        async function submitForm() {
+            if (!validateForm()) return;
+
+            claimData = collectData();
+            claimData.status = 'pending';
+            claimData.submittedAt = new Date().toISOString();
+
+            var btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ثبت...';
+
+            try {
+                var payload = {
+                    claim_number: claimData.claimNumber,
+                    claim_date: claimData.claimDate,
+                    ncr_number: claimData.ncrNumber,
+                    claim_source: claimData.claimSource,
+                    priority: claimData.priority,
+                    claim_stage: claimData.claimStage,
+                    claim_subject: claimData.claimSubject,
+                    supplier_name: claimData.supplierName,
+                    supplier_code: claimData.supplierCode,
+                    supplier_contact: claimData.supplierContact,
+                    supplier_contact_person: claimData.supplierContactPerson,
+                    supplier_email: claimData.supplierEmail,
+                    supplier_rating: claimData.supplierRating,
+                    supplier_address: claimData.supplierAddress,
+                    order_number: claimData.orderNumber,
+                    order_date: claimData.orderDate,
+                    invoice_number: claimData.invoiceNumber,
+                    invoice_date: claimData.invoiceDate,
+                    shipment_number: claimData.shipmentNumber,
+                    receipt_date: claimData.receiptDate,
+                    lot_number: claimData.lotNumber,
+                    internal_serial: claimData.internalSerial,
+                    delivery_terms: claimData.deliveryTerms,
+                    parts: JSON.stringify(claimData.parts || []),
+                    problem_severity: claimData.problemSeverity,
+                    defect_category: claimData.defectCategory,
+                    defect_rate: claimData.defectRate,
+                    request_type: claimData.requestType,
+                    cost_estimate: claimData.costEstimate,
+                    downtime_hours: claimData.downtimeHours,
+                    effects: JSON.stringify(claimData.effects || []),
+                    standard_ref: claimData.standardRef,
+                    ceo_status: claimData.ceoStatus,
+                    ceo_approved_date: claimData.ceoApprovedDate,
+                    ceo_approved_amount: claimData.ceoApprovedAmount,
+                    ceo_notes: claimData.ceoNotes,
+                    supplier_status: claimData.supplierStatus,
+                    supplier_response_date: claimData.supplierResponseDate,
+                    supplier_response_type: claimData.supplierResponseType,
+                    supplier_8d_number: claimData.supplier8DNumber,
+                    supplier_action_date: claimData.supplierActionDate,
+                    supplier_refund_amount: claimData.supplierRefundAmount,
+                    supplier_root_cause: claimData.supplierRootCause,
+                    supplier_notes: claimData.supplierNotes,
+                    need_scar: claimData.needSCAR,
+                    scar_number: claimData.scarNumber,
+                    scar_issue_date: claimData.scarIssueDate,
+                    scar_deadline: claimData.scarDeadline,
+                    scar_description: claimData.scarDescription,
+                    scar_response_date: claimData.scarResponseDate,
+                    scar_result: claimData.scarResult,
+                    linked_ca_number: claimData.linkedCANumber,
+                    warehouse_status: claimData.warehouseStatus,
+                    replacement_received_date: claimData.replacementReceivedDate,
+                    replacement_quantity: claimData.replacementQuantity,
+                    warehouse_receipt_number: claimData.warehouseReceiptNumber,
+                    new_lot_number: claimData.newLotNumber,
+                    replacement_quality: claimData.replacementQuality,
+                    warehouse_notes: claimData.warehouseNotes,
+                    final_result: claimData.finalResult,
+                    verifier: claimData.verifier,
+                    closure_date: claimData.closureDate,
+                    final_notes: claimData.finalNotes,
+                    status: claimData.status,
+                    created_by: currentUser.full_name || currentUser.username
+                };
+
+                try {
+                    await fetch(API_BASE + '/save_claim.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (e) { console.warn('⚠️ Server save failed, using localStorage'); }
+
+                // بروزرسانی NCR مرتبط
+                if (claimData.ncrNumber) {
+                    var ncrUpdate = {
+                        ncr_number: claimData.ncrNumber,
+                        claim_number: claimData.claimNumber,
+                        claim_status: 'registered'
+                    };
+                    try {
+                        await fetch(API_BASE + '/update_ncr.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(ncrUpdate)
+                        });
+                    } catch (e) { console.warn('⚠️ NCR update failed'); }
+                }
+
+                var claims = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var existingIdx = claims.findIndex(function(c) { return c.claimNumber === claimData.claimNumber; });
+                if (existingIdx !== -1) claims[existingIdx] = claimData;
+                else claims.push(claimData);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(claims));
+
+                if (selectedFiles.length > 0) {
+                    var fd = new FormData();
+                    fd.append('claim_number', claimData.claimNumber);
+                    for (var i = 0; i < selectedFiles.length; i++) {
+                        fd.append('attachments[]', selectedFiles[i]);
+                    }
+                    try {
+                        await fetch(API_BASE + '/upload_claim_documents.php', { method: 'POST', body: fd });
+                    } catch (e) { console.warn('⚠️ Attachment upload failed'); }
+                }
+
+                try {
+                    await fetch(API_BASE + '/save_notification.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: null,
+                            title: '🚨 کلیم جدید ثبت شد',
+                            message: 'کلیم ' + claimData.claimNumber + ' برای تأمین‌کننده ' + claimData.supplierName + ' با ' + claimData.parts.length + ' قطعه ثبت شد.',
+                            type: 'warning',
+                            link: 'claim-form.html?claim=' + claimData.claimNumber
+                        })
+                    });
+                } catch (e) { console.warn('⚠️ Notification failed'); }
+
+                showToast('✅ کلیم با موفقیت ثبت شد!', 'success');
+
+                document.getElementById('claimStatusBadge').textContent = 'در انتظار';
+                document.getElementById('claimStatusBadge').className = 'status-badge pending';
+
+                setTimeout(function() {
+                    window.location.href = 'ncr-list.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Submit error:', error);
+                showToast('خطا در ثبت فرم!', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> ثبت نهایی';
+            }
+        }
+
+        function saveDraft() {
+            claimData = collectData();
+            claimData.status = 'draft';
+            var drafts = JSON.parse(localStorage.getItem(DRAFT_KEY) || '[]');
+            var idx = drafts.findIndex(function(d) { return d.claimNumber === claimData.claimNumber; });
+            if (idx !== -1) drafts[idx] = claimData;
+            else drafts.push(claimData);
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+            showToast('پیش‌نویس ذخیره شد (' + claimData.parts.length + ' قطعه)', 'success');
+        }
+
+        // تبدیل کلیدهای snake_case دیتابیس به camelCase فرم
+        function normalizeApiRecord(obj) {
+            if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+            var out = {};
+            Object.keys(obj).forEach(function (key) {
+                var camel = key.replace(/_([a-z0-9])/g, function (m, c) { return c.toUpperCase(); });
+                out[camel] = obj[key];
+            });
+            return out;
+        }
+
+        async function loadClaim(claimNumber) {
+            try {
+                var claims = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var claim = claims.find(function(c) { return c.claimNumber === claimNumber; });
+                if (claim) { populateForm(claim); return; }
+                var res = await fetch(API_BASE + '/get_claim.php?claim_number=' + encodeURIComponent(claimNumber));
+                var result = await res.json();
+                if (result.success && result.data) { populateForm(normalizeApiRecord(result.data)); }
+            } catch (e) { console.warn('⚠️ Load claim failed:', e); }
+        }
+
+        function populateForm(claim) {
+            claimData = claim;
+            document.getElementById('claimNumber').textContent = claim.claimNumber || '-';
+            document.getElementById('claimNumberInput').value = claim.claimNumber || '';
+            document.getElementById('claimDate').value = claim.claimDate || '';
+            document.getElementById('ncrNumber').value = claim.ncrNumber || '';
+            document.getElementById('claimSource').value = claim.claimSource || 'warehouse';
+            document.getElementById('priority').value = claim.priority || 'medium';
+            document.getElementById('claimStage').value = claim.claimStage || 1;
+            document.getElementById('claimSubject').value = claim.claimSubject || '';
+
+            document.getElementById('supplierName').value = claim.supplierName || '';
+            document.getElementById('supplierCode').value = claim.supplierCode || '';
+            document.getElementById('supplierContact').value = claim.supplierContact || '';
+            document.getElementById('supplierContactPerson').value = claim.supplierContactPerson || '';
+            document.getElementById('supplierEmail').value = claim.supplierEmail || '';
+            document.getElementById('supplierRating').value = claim.supplierRating || '';
+            document.getElementById('supplierAddress').value = claim.supplierAddress || '';
+
+            document.getElementById('orderNumber').value = claim.orderNumber || '';
+            document.getElementById('orderDate').value = claim.orderDate || '';
+            document.getElementById('invoiceNumber').value = claim.invoiceNumber || '';
+            document.getElementById('invoiceDate').value = claim.invoiceDate || '';
+            document.getElementById('shipmentNumber').value = claim.shipmentNumber || '';
+            document.getElementById('receiptDate').value = claim.receiptDate || '';
+            document.getElementById('lotNumber').value = claim.lotNumber || '';
+            document.getElementById('internalSerial').value = claim.internalSerial || '';
+            document.getElementById('deliveryTerms').value = claim.deliveryTerms || '';
+
+            document.getElementById('problemSeverity').value = claim.problemSeverity || '';
+            document.getElementById('defectCategory').value = claim.defectCategory || '';
+            document.getElementById('defectRate').value = claim.defectRate || '';
+            document.getElementById('requestType').value = claim.requestType || 'return_full';
+            document.getElementById('costEstimate').value = claim.costEstimate || '';
+            document.getElementById('downtimeHours').value = claim.downtimeHours || '';
+            setCheckedValues('effect-checkbox', claim.effects);
+            document.getElementById('standardRef').value = claim.standardRef || '';
+
+            document.getElementById('ceoStatus').value = claim.ceoStatus || 'pending';
+            document.getElementById('ceoApprovedDate').value = claim.ceoApprovedDate || '';
+            document.getElementById('ceoApprovedAmount').value = claim.ceoApprovedAmount || '';
+            document.getElementById('ceoNotes').value = claim.ceoNotes || '';
+
+            document.getElementById('supplierStatus').value = claim.supplierStatus || 'pending';
+            document.getElementById('supplierResponseDate').value = claim.supplierResponseDate || '';
+            document.getElementById('supplierResponseType').value = claim.supplierResponseType || '';
+            document.getElementById('supplier8DNumber').value = claim.supplier8DNumber || '';
+            document.getElementById('supplierActionDate').value = claim.supplierActionDate || '';
+            document.getElementById('supplierRefundAmount').value = claim.supplierRefundAmount || '';
+            document.getElementById('supplierRootCause').value = claim.supplierRootCause || '';
+            document.getElementById('supplierNotes').value = claim.supplierNotes || '';
+
+            if (claim.needSCAR) {
+                var el = document.querySelector('input[name="needSCAR"][value="' + claim.needSCAR + '"]');
+                if (el) el.checked = true;
+            }
+            document.getElementById('scarNumber').value = claim.scarNumber || '';
+            document.getElementById('scarIssueDate').value = claim.scarIssueDate || '';
+            document.getElementById('scarDeadline').value = claim.scarDeadline || '';
+            document.getElementById('scarDescription').value = claim.scarDescription || '';
+            document.getElementById('scarResponseDate').value = claim.scarResponseDate || '';
+            document.getElementById('scarResult').value = claim.scarResult || '';
+            document.getElementById('linkedCANumber').value = claim.linkedCANumber || '';
+            toggleSCARSubs();
+
+            document.getElementById('warehouseStatus').value = claim.warehouseStatus || 'pending';
+            document.getElementById('replacementReceivedDate').value = claim.replacementReceivedDate || '';
+            document.getElementById('replacementQuantity').value = claim.replacementQuantity || '';
+            document.getElementById('warehouseReceiptNumber').value = claim.warehouseReceiptNumber || '';
+            document.getElementById('newLotNumber').value = claim.newLotNumber || '';
+            document.getElementById('replacementQuality').value = claim.replacementQuality || '';
+            document.getElementById('warehouseNotes').value = claim.warehouseNotes || '';
+
+            document.getElementById('finalResult').value = claim.finalResult || '';
+            document.getElementById('verifier').value = claim.verifier || '';
+            document.getElementById('closureDate').value = claim.closureDate || '';
+            document.getElementById('finalNotes').value = claim.finalNotes || '';
+
+            // قطعات
+            var tbody = document.getElementById('partsTableBody');
+            tbody.innerHTML = '';
+            partRowCounter = 0;
+            var parts = claim.parts || [];
+            if (typeof parts === 'string') {
+                try { parts = JSON.parse(parts); } catch (e) { parts = []; }
+            }
+            if (!Array.isArray(parts) || parts.length === 0) {
+                addPartRow();
+            } else {
+                parts.forEach(function(p) { addPartRow(p); });
+            }
+
+            if (claim.ncrNumber) loadNCRInfo(claim.ncrNumber);
+
+            var statusMap = {
+                'draft': { text: 'پیش‌نویس', cls: 'draft' },
+                'pending': { text: 'در انتظار', cls: 'pending' },
+                'in_progress': { text: 'در حال بررسی', cls: 'in-progress' },
+                'done': { text: 'تکمیل شده', cls: 'done' },
+                'rejected': { text: 'رد شده', cls: 'rejected' }
+            };
+            var s = statusMap[claim.status] || statusMap['draft'];
+            var badge = document.getElementById('claimStatusBadge');
+            badge.textContent = s.text;
+            badge.className = 'status-badge ' + s.cls;
+        }
+
+        // ============================================
+        // FILE HANDLING
+        // ============================================
+        function handleFileSelection(input) {
+            if (!input.files || input.files.length === 0) return;
+            var maxSize = 5 * 1024 * 1024;
+            var allowed = ['jpg','jpeg','png','gif','pdf','doc','docx','xls','xlsx'];
+
+            for (var i = 0; i < input.files.length; i++) {
+                var file = input.files[i];
+                if (file.size > maxSize) {
+                    showToast('❌ فایل "' + file.name + '" بزرگتر از 5 مگابایت است', 'error');
+                    continue;
+                }
+                var ext = file.name.split('.').pop().toLowerCase();
+                if (allowed.indexOf(ext) === -1) {
+                    showToast('❌ پسوند فایل "' + file.name + '" مجاز نیست', 'error');
+                    continue;
+                }
+                if (selectedFiles.some(function(f) { return f.name === file.name && f.size === file.size; })) continue;
+                selectedFiles.push(file);
+            }
+            input.value = '';
+            renderSelectedFiles();
+        }
+
+        function renderSelectedFiles() {
+            var container = document.getElementById('selectedFilesPreview');
+            var list = document.getElementById('selectedFilesList');
+            var countEl = document.getElementById('selectedFilesCount');
+            if (!container || !list) return;
+            if (selectedFiles.length === 0) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            if (countEl) countEl.textContent = selectedFiles.length;
+
+            var html = '';
+            selectedFiles.forEach(function(file, idx) {
+                var ext = file.name.split('.').pop().toLowerCase();
+                var iconClass = 'fa-file', iconType = 'other';
+                if (['jpg','jpeg','png','gif'].indexOf(ext) !== -1) { iconClass = 'fa-file-image'; iconType = 'image'; }
+                else if (ext === 'pdf') { iconClass = 'fa-file-pdf'; iconType = 'pdf'; }
+                else if (['doc','docx'].indexOf(ext) !== -1) { iconClass = 'fa-file-word'; iconType = 'word'; }
+                else if (['xls','xlsx'].indexOf(ext) !== -1) { iconClass = 'fa-file-excel'; iconType = 'excel'; }
+
+                html += '<div class="file-preview-item">';
+                html += '<div class="file-icon ' + iconType + '"><i class="fas ' + iconClass + '"></i></div>';
+                html += '<div class="file-info"><div class="file-name" title="' + file.name + '">' + file.name + '</div>';
+                html += '<div class="file-size">' + formatFileSize(file.size) + '</div></div>';
+                html += '<button type="button" class="file-remove" onclick="removeSelectedFile(' + idx + ')"><i class="fas fa-times"></i></button>';
+                html += '</div>';
+            });
+            list.innerHTML = html;
+        }
+
+        function removeSelectedFile(idx) {
+            if (idx < 0 || idx >= selectedFiles.length) return;
+            var removed = selectedFiles.splice(idx, 1);
+            renderSelectedFiles();
+            showToast('فایل "' + removed[0].name + '" حذف شد', 'info');
+        }
+
+        // ============================================
+        // PRINT
+        // ============================================
+        function printForm() {
+            var claim = collectData();
+            var partsHtml = '';
+            if (claim.parts && claim.parts.length > 0) {
+                partsHtml = '<table style="width:100%;border-collapse:collapse;font-size:9.5px;"><thead><tr style="background:#e0e0e0;"><th style="border:1px solid #000;padding:3px;">#</th><th style="border:1px solid #000;padding:3px;">کد قطعه</th><th style="border:1px solid #000;padding:3px;">نام قطعه</th><th style="border:1px solid #000;padding:3px;">تعداد کل</th><th style="border:1px solid #000;padding:3px;">تعداد معیوب</th><th style="border:1px solid #000;padding:3px;">واحد</th><th style="border:1px solid #000;padding:3px;">دلیل</th><th style="border:1px solid #000;padding:3px;">شرح</th><th style="border:1px solid #000;padding:3px;">Lot</th></tr></thead><tbody>';
+                claim.parts.forEach(function(p, i) {
+                    partsHtml += '<tr><td style="border:1px solid #000;padding:3px;text-align:center;">' + (i+1) + '</td><td style="border:1px solid #000;padding:3px;">' + (p.partCode || '-') + '</td><td style="border:1px solid #000;padding:3px;">' + (p.partName || '-') + '</td><td style="border:1px solid #000;padding:3px;text-align:center;">' + (p.totalQuantity || '-') + '</td><td style="border:1px solid #000;padding:3px;text-align:center;">' + (p.defectQuantity || '-') + '</td><td style="border:1px solid #000;padding:3px;text-align:center;">' + (p.unit || '-') + '</td><td style="border:1px solid #000;padding:3px;">' + (p.reason || '-') + '</td><td style="border:1px solid #000;padding:3px;">' + (p.description || '-') + '</td><td style="border:1px solid #000;padding:3px;">' + (p.lotNumber || '-') + '</td></tr>';
+                });
+                partsHtml += '</tbody></table>';
+            } else { partsHtml = '<div style="padding:8px;color:#999;">قطعه‌ای ثبت نشده است</div>'; }
+
+            var html = `
+                <!DOCTYPE html>
+                <html lang="fa" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>فرم کلیم - ${claim.claimNumber}</title>
+                    <style>
+                        @page { size: A4 portrait; margin: 8mm; }
+                        * { box-sizing: border-box; }
+                        body { font-family: 'Vazirmatn', Tahoma, Arial, sans-serif; font-size: 9.5px; color: #000; margin: 0; }
+                        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; }
+                        .header h1 { margin: 0 0 3px 0; font-size: 14px; }
+                        .section { border: 1.2px solid #000; margin-bottom: 6px; }
+                        .section-title { background: #e0e0e0; padding: 3px 8px; font-weight: 700; font-size: 10px; border-bottom: 1px solid #000; }
+                        .section-body { padding: 5px 8px; }
+                        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 4px; }
+                        .field { display: flex; gap: 4px; padding: 2px 0; border-bottom: 1px dotted #999; }
+                        .field .label { font-weight: 700; min-width: 80px; }
+                        .field .value { flex: 1; }
+                        .full { grid-column: 1 / -1; }
+                        .signatures { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 8px; border-top: 1px solid #000; }
+                        .sig-box { border: 1px solid #000; padding: 6px; text-align: center; min-height: 55px; }
+                        .sig-box .title { font-weight: 700; margin-bottom: 20px; font-size: 9px; }
+                        .sig-box .line { border-top: 1px solid #000; padding-top: 2px; font-size: 8.5px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>فرم کلیم قطعه (Claim Form)</h1>
+                        <div>کد فرم: FM-CLM01/00 | ISO 9001:2015 بند 8.4 | IATF 16949 بند 8.4.2.4</div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۱. اطلاعات کلیم</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">شماره کلیم:</span><span class="value">${claim.claimNumber}</span></div>
+                                <div class="field"><span class="label">تاریخ:</span><span class="value">${formatPersianDate(claim.claimDate)}</span></div>
+                                <div class="field"><span class="label">NCR مرتبط:</span><span class="value">${claim.ncrNumber || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">منبع:</span><span class="value">${claim.claimSource}</span></div>
+                                <div class="field"><span class="label">اولویت:</span><span class="value">${claim.priority}</span></div>
+                                <div class="field"><span class="label">مرحله:</span><span class="value">${claim.claimStage}</span></div>
+                            </div>
+                            <div class="field full"><span class="label">موضوع:</span><span class="value">${claim.claimSubject}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۲. اطلاعات تأمین‌کننده</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">نام:</span><span class="value">${claim.supplierName}</span></div>
+                                <div class="field"><span class="label">کد:</span><span class="value">${claim.supplierCode || '-'}</span></div>
+                                <div class="field"><span class="label">درجه:</span><span class="value">${claim.supplierRating || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">رابط:</span><span class="value">${claim.supplierContactPerson || '-'}</span></div>
+                                <div class="field"><span class="label">تماس:</span><span class="value">${claim.supplierContact || '-'}</span></div>
+                                <div class="field"><span class="label">ایمیل:</span><span class="value">${claim.supplierEmail || '-'}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۳. اطلاعات سفارش</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">شماره PO:</span><span class="value">${claim.orderNumber || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ سفارش:</span><span class="value">${formatPersianDate(claim.orderDate)}</span></div>
+                                <div class="field"><span class="label">شماره فاکتور:</span><span class="value">${claim.invoiceNumber || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">بارنامه:</span><span class="value">${claim.shipmentNumber || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ دریافت:</span><span class="value">${formatPersianDate(claim.receiptDate)}</span></div>
+                                <div class="field"><span class="label">Lot:</span><span class="value">${claim.lotNumber || '-'}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۴. قطعات کلیم‌شده (${claim.parts.length} مورد)</div>
+                        <div class="section-body">${partsHtml}</div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۵. طبقه‌بندی و ارزیابی</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">طبقه‌بندی:</span><span class="value">${claim.problemSeverity}</span></div>
+                                <div class="field"><span class="label">دسته نقص:</span><span class="value">${claim.defectCategory || '-'}</span></div>
+                                <div class="field"><span class="label">نرخ نقص:</span><span class="value">${claim.defectRate || '-'}%</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">نوع درخواست:</span><span class="value">${claim.requestType}</span></div>
+                                <div class="field"><span class="label">هزینه تخمینی:</span><span class="value">${claim.costEstimate ? Number(claim.costEstimate).toLocaleString() : '-'} ریال</span></div>
+                                <div class="field"><span class="label">توقف تولید:</span><span class="value">${claim.downtimeHours || '-'} ساعت</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۶. تأیید مدیرعامل</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">وضعیت:</span><span class="value">${claim.ceoStatus}</span></div>
+                                <div class="field"><span class="label">تاریخ تأیید:</span><span class="value">${formatPersianDate(claim.ceoApprovedDate)}</span></div>
+                                <div class="field"><span class="label">مبلغ تأیید:</span><span class="value">${claim.ceoApprovedAmount ? Number(claim.ceoApprovedAmount).toLocaleString() : '-'} ریال</span></div>
+                            </div>
+                            <div class="field full"><span class="label">نظرات:</span><span class="value">${claim.ceoNotes || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۷. پاسخ تأمین‌کننده</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">وضعیت:</span><span class="value">${claim.supplierStatus}</span></div>
+                                <div class="field"><span class="label">تاریخ پاسخ:</span><span class="value">${formatPersianDate(claim.supplierResponseDate)}</span></div>
+                                <div class="field"><span class="label">نوع پاسخ:</span><span class="value">${claim.supplierResponseType || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">8D Number:</span><span class="value">${claim.supplier8DNumber || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ اقدام:</span><span class="value">${formatPersianDate(claim.supplierActionDate)}</span></div>
+                                <div class="field"><span class="label">مبلغ بازگشت:</span><span class="value">${claim.supplierRefundAmount ? Number(claim.supplierRefundAmount).toLocaleString() : '-'} ریال</span></div>
+                            </div>
+                            <div class="field full"><span class="label">ریشه اصلی:</span><span class="value">${claim.supplierRootCause || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۸. SCAR (اقدام اصلاحی تأمین‌کننده)</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">نیاز به SCAR:</span><span class="value">${claim.needSCAR === 'yes' ? 'بله' : 'خیر'}</span></div>
+                                <div class="field"><span class="label">شماره SCAR:</span><span class="value">${claim.scarNumber || '-'}</span></div>
+                                <div class="field"><span class="label">مهلت:</span><span class="value">${formatPersianDate(claim.scarDeadline)}</span></div>
+                            </div>
+                            <div class="field full"><span class="label">نتیجه:</span><span class="value">${claim.scarResult || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۹. دریافت جایگزین (انبار)</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">وضعیت:</span><span class="value">${claim.warehouseStatus}</span></div>
+                                <div class="field"><span class="label">تاریخ دریافت:</span><span class="value">${formatPersianDate(claim.replacementReceivedDate)}</span></div>
+                                <div class="field"><span class="label">تعداد:</span><span class="value">${claim.replacementQuantity || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">رسید انبار:</span><span class="value">${claim.warehouseReceiptNumber || '-'}</span></div>
+                                <div class="field"><span class="label">Lot جدید:</span><span class="value">${claim.newLotNumber || '-'}</span></div>
+                                <div class="field"><span class="label">کیفیت:</span><span class="value">${claim.replacementQuality || '-'}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۱۰. نتیجه نهایی</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">نتیجه:</span><span class="value">${claim.finalResult}</span></div>
+                                <div class="field"><span class="label">مسئول پایش:</span><span class="value">${claim.verifier || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ بستن:</span><span class="value">${formatPersianDate(claim.closureDate)}</span></div>
+                            </div>
+                            <div class="field full"><span class="label">یادداشت:</span><span class="value">${claim.finalNotes || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="signatures">
+                        <div class="sig-box"><div class="title">انبار</div><div class="line">نام و امضا</div></div>
+                        <div class="sig-box"><div class="title">مدیرعامل</div><div class="line">نام و امضا</div></div>
+                        <div class="sig-box"><div class="title">مدیریت کیفیت</div><div class="line">نام و امضا</div></div>
+                        <div class="sig-box"><div class="title">تأمین‌کننده</div><div class="line">نام و امضا</div></div>
+                    </div>
+
+                    <div style="text-align:center;margin-top:8px;font-size:8.5px;color:#666;">
+                        تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')}
+                    </div>
+
+                    <div style="text-align:center;margin-top:12px;" class="no-print">
+                        <button onclick="window.print()" style="padding:6px 16px;background:#e74c3c;color:white;border:none;border-radius:5px;cursor:pointer;font-size:12px;">🖨️ چاپ</button>
+                    </div>
+                    <style>@media print { .no-print { display: none !important; } }</style>
+                </body>
+                </html>
             `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.5s';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
+            var w = window.open('', '_blank', 'width=900,height=1000');
+            w.document.write(html);
+            w.document.close();
         }
 
-        function printClaim() {
-            window.print();
+        function goBack() {
+            window.history.back();
         }
 
-        // توابع عمومی
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('mainContent').classList.toggle('expanded');
-        }
-
-        function toggleUserMenu() {
-            document.getElementById('userDropdown').classList.toggle('show');
-        }
-
-        function toggleNotifications() {
-            document.getElementById('notificationsDropdown').classList.toggle('show');
-        }
-
-        function updateNotifications() {
-            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            const unread = notifications.filter(n => !n.is_read);
-            document.getElementById('notificationBadge').textContent = unread.length;
-        }
-
-        function changePassword() {
-            window.location.href = 'profile.html?action=change-password';
-        }
-
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
-
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.user-profile')) {
-                document.getElementById('userDropdown').classList.remove('show');
-            }
-            if (!e.target.closest('.header-notifications')) {
-                document.getElementById('notificationsDropdown').classList.remove('show');
-            }
-        });
+        // Expose for inline handlers
+        window.handleFileSelection = handleFileSelection;
+        window.removeSelectedFile = removeSelectedFile;
+        window.submitForm = submitForm;
+        window.saveDraft = saveDraft;
+        window.printForm = printForm;
+        window.goBack = goBack;
+        window.addPartRow = addPartRow;
+        window.removePartRow = removePartRow;
+        window.duplicatePartRow = duplicatePartRow;
+        window.toggleSCARSubs = toggleSCARSubs;
     </script>
+
 </body>
 </html>

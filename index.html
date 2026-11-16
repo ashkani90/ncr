@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستم مدیریت عدم انطباق - NCR</title>
+    <title data-i18n="login_title">سیستم مدیریت عدم انطباق - NCR</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,8 +12,8 @@
         <div class="login-box">
             <div class="login-header">
                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5'/%3E%3Cpath d='M2 12l10 5 10-5'/%3E%3C/svg%3E" alt="Logo">
-                <h1>سیستم مدیریت عدم انطباق</h1>
-                <p>مطابق با استاندارد ISO 9001:2015</p>
+                <h1 data-i18n="login_title">سیستم مدیریت عدم انطباق</h1>
+                <p data-i18n="login_subtitle">مطابق با استاندارد ISO 9001:2015</p>
             </div>
             
             <div class="language-selector">
@@ -24,13 +24,13 @@
 
             <form id="loginForm" class="login-form">
                 <div class="form-group">
-                    <label><i class="fas fa-user"></i> نام کاربری</label>
-                    <input type="text" id="username" placeholder="نام کاربری خود را وارد کنید" required>
+                    <label><i class="fas fa-user"></i> <span data-i18n="username_label">نام کاربری</span></label>
+                    <input type="text" id="username" placeholder="نام کاربری خود را وارد کنید" data-i18n-placeholder="username_placeholder" required>
                 </div>
                 <div class="form-group password-group">
-                    <label><i class="fas fa-lock"></i> رمز عبور</label>
+                    <label><i class="fas fa-lock"></i> <span data-i18n="password_label">رمز عبور</span></label>
                     <div class="password-input">
-                        <input type="password" id="password" placeholder="رمز عبور را وارد کنید" required>
+                        <input type="password" id="password" placeholder="رمز عبور را وارد کنید" data-i18n-placeholder="password_placeholder" required>
                         <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -40,12 +40,12 @@
                     <label class="checkbox-label">
                         <input type="checkbox" id="rememberMe">
                         <span class="checkmark"></span>
-                        مرا بخاطر بسپار
+                        <span data-i18n="remember_me">مرا بخاطر بسپار</span>
                     </label>
-                    <a href="#" class="forgot-password" onclick="openForgotModal(event)">آیا رمز عبور را فراموش کرده‌اید؟</a>
+                    <a href="#" class="forgot-password" onclick="openForgotModal(event)" data-i18n="forgot_password">آیا رمز عبور را فراموش کرده‌اید؟</a>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                    <i class="fas fa-sign-in-alt"></i> ورود به سیستم
+                    <i class="fas fa-sign-in-alt"></i> <span data-i18n="login_btn">ورود به سیستم</span>
                 </button>
             </form>
             
@@ -53,7 +53,7 @@
             <div id="loginError" class="error-message" style="display:none;"></div>
             
             <div class="login-footer">
-                <p>سیستم مدیریت یکپارچه عدم انطباق - نسخه 2.0</p>
+                <p data-i18n="login_footer">سیستم مدیریت یکپارچه عدم انطباق - نسخه 2.0</p>
             </div>
         </div>
     </div>
@@ -61,26 +61,28 @@
     <!-- مودال فراموشی رمز عبور -->
     <div class="modal-overlay" id="forgotModal">
         <div class="modal-box">
-            <h3 id="forgotTitle">فراموشی رمز عبور</h3>
-            <p id="forgotDesc">برای دریافت رمز موقت، ایمیل خود را وارد کنید.</p>
+            <h3 id="forgotTitle" data-i18n="forgot_title">فراموشی رمز عبور</h3>
+            <p id="forgotDesc" data-i18n="forgot_desc">برای دریافت رمز موقت، ایمیل خود را وارد کنید.</p>
             <div class="form-group">
-                <label id="forgotEmailLabel">ایمیل</label>
-                <input type="email" id="forgotEmail" placeholder="example@domain.com" dir="ltr">
+                <label id="forgotEmailLabel" data-i18n="forgot_email_label">ایمیل</label>
+                <input type="email" id="forgotEmail" placeholder="example@domain.com" data-i18n-placeholder="forgot_email_placeholder" dir="ltr">
             </div>
             <div class="forgot-message" id="forgotMessage"></div>
             <div class="modal-actions">
                 <button class="btn btn-primary" onclick="sendTemporaryPassword()">
-                    <i class="fas fa-paper-plane"></i> <span id="forgotSendBtn">ارسال رمز موقت</span>
+                    <i class="fas fa-paper-plane"></i> <span id="forgotSendBtn" data-i18n="forgot_send">ارسال رمز موقت</span>
                 </button>
-                <button class="btn btn-secondary" onclick="closeForgotModal()">
-                    <span id="forgotCloseBtn">بستن</span>
+                <button class="btn btn-secondary" onclick="closeForgotModal()"><i class="fas fa-times-circle"></i>
+                    <span id="forgotCloseBtn" data-i18n="forgot_close">بستن</span>
                 </button>
             </div>
         </div>
     </div>    
 
-    <script src="i18n.js"></script>
-    <script src="database.js"></script>
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
+    <script src="permissions.js?v=20261101"></script>
     <script src="app.js"></script>
     <script>
     // ============================================
@@ -124,11 +126,28 @@
             const result = await window.loginUser(username, password);
             console.log('🔑 Login result:', result);
             
-            if (result && result.success) {
-                // ذخیره اطلاعات کاربر
+             if (result && result.success) {
                 const user = result.user;
                 user.password = password;
                 localStorage.setItem('currentUser', JSON.stringify(user));
+
+                // ⭐ ذخیره نام نمایشی نقش
+                if (user.role_display) {
+                    localStorage.setItem('userRoleDisplay', user.role_display);
+                }
+
+                // ⭐ ذخیره همه نقش‌ها
+                if (result.roles) {
+                    localStorage.setItem('allRoles', JSON.stringify(result.roles));
+                }
+                 // ⭐ ذخیره دسترسی‌ها
+                if (result.permissions) {
+                    localStorage.setItem('userPermissions', JSON.stringify(result.permissions));
+                    localStorage.setItem('userRole', user.role);
+                }
+                if (result.roles) {
+                    localStorage.setItem('allRoles', JSON.stringify(result.roles));
+                }
                 if (rememberMe) {
                     localStorage.setItem('rememberMe', 'true');
                 } else {

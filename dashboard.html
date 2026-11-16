@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- بارگذاری i18n.js با نسخه برای جلوگیری از کش -->
-    <script src="i18n.js?v=2"></script>
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
 </head>
 <body>
     <div class="app-container">
@@ -119,28 +121,21 @@
                 <div class="process-steps" id="processSteps">
                     <div class="step completed" data-step="1">
                         <span class="step-number">1</span>
-                        <span class="step-label" data-i18n="step_1">ثبت NCR</span>
+                        <span class="step-label" data-i18n="step_1">شناسایی و ثبت NCR</span>
                     </div>
                     <div class="step active" data-step="2">
                         <span class="step-number">2</span>
-                        <span class="step-label" data-i18n="step_2">ریشه‌یابی</span>
+                        <span class="step-label" data-i18n="step_2">ارزیابی و تحلیل NCR</span>
                     </div>
-                    <div class="step" data-step="3">
+                    <div class="step cft" data-step="3">
                         <span class="step-number">3</span>
-                        <span class="step-label" data-i18n="step_3">FMEA</span>
+                        <span class="step-label" data-i18n="step_3">تعیین تکلیف NCR</span>
                     </div>
-                    <div class="step" data-step="4">
+                    <div class="step action" data-step="4">
                         <span class="step-number">4</span>
-                        <span class="step-label" data-i18n="step_4">CFT</span>
+                        <span class="step-label" data-i18n="step_4">پایش اقدامات تعریف شده</span>
                     </div>
-                    <div class="step" data-step="5">
-                        <span class="step-number">5</span>
-                        <span class="step-label" data-i18n="step_5">بررسی نهایی</span>
-                    </div>
-                    <div class="step" data-step="6">
-                        <span class="step-number">6</span>
-                        <span class="step-label" data-i18n="step_6">بسته شدن</span>
-                    </div>
+
                 </div>
             </div>
 
@@ -148,226 +143,261 @@
             <div id="footerContainer"></div>
 
         </main>
+        
     </div>
 
-    <script src="database.js"></script>
+    <script src="database.js?v=20261101"></script>
     <script src="app.js"></script>
     <script src="print.js"></script>
     <script src="data/sample-data.js"></script>
-    <script src="components/loader.js"></script>
-    <script>
-        // ============================================
-        // بارگذاری اولیه داشبورد
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // بارگذاری کامپوننت‌ها
-            loadAllComponents();
-                        
-            var now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
-            
-            var user = JSON.parse(localStorage.getItem('currentUser'));
-            if (user) {
-                document.getElementById('userName').textContent = user.full_name;
-            }
-            
-            loadDashboardData();
-            initCharts();
-            updateNotifications();
-        });
+    <script src="components/loader.js?v=20261101"></script>
+<script>
+    // ============================================
+    // بارگذاری اولیه داشبورد
+    // ============================================
 
-        function loadDashboardData() {
+    // ⭐ از یک تابع startDashboard استفاده می‌کنیم که پس از اتمام لود کامپوننت‌ها اجرا شود
+    async function startDashboard() {
+        // ⭐ منتظر بمان تا هدر و سایدبار لود شوند
+        try {
+            await loadAllComponents();
+        } catch (e) {
+            console.warn('⚠️ loadAllComponents error:', e);
+        }
+
+        // ⭐ حالا که هدر و سایدبار هستند، این‌ها را پر کن
+        var now = new Date();
+        var dateEl = document.getElementById('currentDate');
+        if (dateEl) dateEl.textContent = now.toLocaleDateString('fa-IR');
+
+        var user = JSON.parse(localStorage.getItem('currentUser'));
+        var nameEl = document.getElementById('userName');
+        if (user && nameEl) nameEl.textContent = user.full_name;
+
+        // ⭐ حالا داده‌ها را از API بارگذاری کن
+        await loadDashboardData();
+
+        // ⭐ نمودارها را بساز
+        initCharts();
+
+        // ⭐ اعلان‌ها را آپدیت کن
+        if (typeof updateNotifications === 'function') {
+            updateNotifications();
+        }
+    }
+
+    // ⭐ اجرای startDashboard پس از بارگذاری DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startDashboard);
+    } else {
+        startDashboard();
+    }
+
+    // ============================================
+    // ⭐ بارگذاری داده‌ها از API (نه localStorage)
+    // ============================================
+    async function loadDashboardData() {
+        try {
+            console.log('📡 Loading dashboard data from API...');
+
+            // ⭐ همه‌ی داده‌ها را از API به صورت موازی بخوان
+            var [ncrs, claims, purchases] = await Promise.all([
+                window.getAllNCRs(),
+                window.getAllClaims ? window.getAllClaims() : [],
+                window.getAllPurchaseRequests ? window.getAllPurchaseRequests() : []
+            ]);
+
+            console.log('📊 NCRs from API:', ncrs.length);
+            console.log('📊 Claims from API:', claims.length);
+            console.log('📊 Purchases from API:', purchases.length);
+
+            // ⭐ اگر API خطا داد یا خالی بود، از localStorage استفاده کن (fallback)
+            if (!ncrs || ncrs.length === 0) {
+                console.log('📦 Fallback to localStorage for NCRs');
+                ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+            }
+            if (!claims || claims.length === 0) {
+                claims = JSON.parse(localStorage.getItem('claims') || '[]');
+            }
+            if (!purchases || purchases.length === 0) {
+                purchases = JSON.parse(localStorage.getItem('purchase_requests') || '[]');
+            }
+
+            // ⭐ پر کردن کارت‌های آماری
+            var totalNcrEl = document.getElementById('totalNCR');
+            var openNcrEl = document.getElementById('openNCR');
+            var inProgressNcrEl = document.getElementById('inProgressNCR');
+            var closedNcrEl = document.getElementById('closedNCR');
+            var totalClaimsEl = document.getElementById('totalClaims');
+            var totalPurchasesEl = document.getElementById('totalPurchases');
+
+            if (totalNcrEl) totalNcrEl.textContent = ncrs.length;
+            if (openNcrEl) openNcrEl.textContent = ncrs.filter(function(n) {
+                return n.final_status === 'open' || n.status === 'draft';
+            }).length;
+            if (inProgressNcrEl) inProgressNcrEl.textContent = ncrs.filter(function(n) {
+                return n.final_status === 'in_progress' ||
+                       n.status === 'step1_submitted' ||
+                       n.status === 'step2_submitted' ||
+                       n.status === 'step3_submitted';
+            }).length;
+            if (closedNcrEl) closedNcrEl.textContent = ncrs.filter(function(n) {
+                return n.final_status === 'closed' || n.status === 'closed';
+            }).length;
+            if (totalClaimsEl) totalClaimsEl.textContent = claims.length;
+            if (totalPurchasesEl) totalPurchasesEl.textContent = purchases.length;
+
+            // ⭐ رندر جدول آخرین NCRها
+            renderNCRTable(ncrs);
+
+        } catch (error) {
+            console.error('❌ Error loading dashboard data:', error);
+
+            // ⭐ در صورت خطا، از localStorage استفاده کن
             var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
             var claims = JSON.parse(localStorage.getItem('claims') || '[]');
             var purchases = JSON.parse(localStorage.getItem('purchase_requests') || '[]');
-            
+
             document.getElementById('totalNCR').textContent = ncrs.length;
-            document.getElementById('openNCR').textContent = ncrs.filter(function(n) { return n.final_status === 'open'; }).length;
-            document.getElementById('inProgressNCR').textContent = ncrs.filter(function(n) { return n.final_status === 'in_progress'; }).length;
-            document.getElementById('closedNCR').textContent = ncrs.filter(function(n) { return n.final_status === 'closed'; }).length;
             document.getElementById('totalClaims').textContent = claims.length;
             document.getElementById('totalPurchases').textContent = purchases.length;
-            
+
             renderNCRTable(ncrs);
         }
+    }
 
-        function renderNCRTable(ncrs) {
-            var tbody = document.getElementById('ncrTableBody');
-            if (ncrs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;" data-i18n="table_no_data">هیچ NCR ثبت نشده است</td></tr>';
-                return;
-            }
-            
-            var recentNCRs = ncrs.slice(-10).reverse();
-            var html = '';
-            for (var i = 0; i < recentNCRs.length; i++) {
-                var ncr = recentNCRs[i];
-                var priorityClass = ncr.priority === 'high' ? 'badge-danger' : (ncr.priority === 'medium' ? 'badge-warning' : 'badge-info');
-                var priorityLabel = ncr.priority === 'high' ? 'بالا' : (ncr.priority === 'medium' ? 'متوسط' : 'کم');
-                var statusClass = ncr.final_status === 'closed' ? 'badge-success' : (ncr.final_status === 'in_progress' ? 'badge-warning' : 'badge-danger');
-                var statusLabel = ncr.final_status === 'closed' ? 'بسته' : (ncr.final_status === 'in_progress' ? 'در حال بررسی' : 'باز');
-                var stepNum = getStepNumber(ncr);
-                
-                html += '<tr>' +
-                    '<td><strong><a href="ncr-detail.html?number=' + ncr.ncr_number + '" class="link-primary">' + ncr.ncr_number + '</a></strong></td>' +
-                    '<td>' + ncr.part_name + '</td>' +
-                    '<td>' + ncr.subject + '</td>' +
-                    '<td>' + ncr.report_date + '</td>' +
-                    '<td><span class="badge ' + priorityClass + '">' + priorityLabel + '</span></td>' +
-                    '<td>مرحله ' + stepNum + '</td>' +
-                    '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>' +
-                    '<td>' +
-                        '<button class="btn btn-sm btn-primary" onclick="viewNCR(\'' + ncr.ncr_number + '\')"><i class="fas fa-eye"></i></button> ' +
-                        '<button class="btn btn-sm btn-success" onclick="editNCR(\'' + ncr.ncr_number + '\')"><i class="fas fa-edit"></i></button>' +
-                    '</td>' +
-                '</tr>';
-            }
-            tbody.innerHTML = html;
+    function renderNCRTable(ncrs) {
+        var tbody = document.getElementById('ncrTableBody');
+        if (!tbody) return;
+
+        if (ncrs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">هیچ NCR ثبت نشده است</td></tr>';
+            return;
         }
 
-        function getStepNumber(ncr) {
-            if (ncr.final_status === 'closed') return 6;
-            if (ncr.final_quality_status === 'approved') return 5;
-            if (ncr.cft_status === 'approved') return 4;
-            if (ncr.fmea_status === 'completed') return 3;
-            if (ncr.quality_status === 'approved') return 2;
-            return 1;
-        }
+        var recentNCRs = ncrs.slice(0, 10);  // ⭐ 10 مورد اول (نه slice(-10))
+        var html = '';
+        for (var i = 0; i < recentNCRs.length; i++) {
+            var ncr = recentNCRs[i];
+            var priorityClass = ncr.priority === 'high' ? 'badge-danger' : (ncr.priority === 'medium' ? 'badge-warning' : 'badge-info');
+            var priorityLabel = ncr.priority === 'high' ? 'بالا' : (ncr.priority === 'medium' ? 'متوسط' : 'کم');
 
-        function initCharts() {
-            var ctx1 = document.getElementById('statusChart').getContext('2d');
-            new Chart(ctx1, {
-                type: 'doughnut',
-                data: {
-                    labels: ['باز', 'در حال بررسی', 'بسته', 'رد شده'],
-                    datasets: [{
-                        data: [12, 19, 8, 3],
-                        backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#95a5a6'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
-            
-            var ctx2 = document.getElementById('trendChart').getContext('2d');
-            new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
-                    datasets: [{
-                        label: 'NCR ثبت شده',
-                        data: [5, 8, 12, 7, 15, 10],
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
+            // ⭐ تشخیص وضعیت از final_status یا status
+            var statusKey = ncr.final_status || ncr.status || 'open';
+            if (statusKey === 'draft' || statusKey === 'step1_submitted') statusKey = 'open';
+            else if (statusKey === 'step2_submitted' || statusKey === 'step3_submitted') statusKey = 'in_progress';
+            else if (statusKey === 'closed') statusKey = 'closed';
 
-        function updateNotifications() {
-            var notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            var unread = notifications.filter(function(n) { return !n.is_read; });
-            document.getElementById('notificationBadge').textContent = unread.length;
-            
-            var list = document.getElementById('notificationList');
-            if (unread.length === 0) {
-                list.innerHTML = '<div class="no-notifications" data-i18n="no_notifications">هیچ اعلان جدیدی وجود ندارد</div>';
-            } else {
-                var html = '';
-                for (var i = 0; i < Math.min(unread.length, 5); i++) {
-                    var n = unread[i];
-                    var iconMap = { info: 'fa-info-circle', success: 'fa-check-circle', warning: 'fa-exclamation-triangle', danger: 'fa-times-circle' };
-                    html += '<div class="notification-item">' +
-                        '<div class="notification-icon ' + n.type + '"><i class="fas ' + (iconMap[n.type] || 'fa-info-circle') + '"></i></div>' +
-                        '<div class="notification-content">' +
-                            '<div class="notification-title">' + n.title + '</div>' +
-                            '<div class="notification-message">' + n.message + '</div>' +
-                            '<div class="notification-time">' + n.created_at + '</div>' +
-                        '</div>' +
-                    '</div>';
-                }
-                list.innerHTML = html;
-            }
-        }
+            var statusClass = statusKey === 'closed' ? 'badge-success' : (statusKey === 'in_progress' ? 'badge-warning' : 'badge-danger');
+            var statusLabel = statusKey === 'closed' ? 'بسته' : (statusKey === 'in_progress' ? 'در حال بررسی' : 'باز');
+            var stepNum = getStepNumber(ncr);
 
-        // ============================================
-        // توابع عمومی
-        // ============================================
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('mainContent').classList.toggle('expanded');
-        }
+            // ⭐ اطمینان از وجود مقادیر پیش‌فرض
+            var ncrNumber = ncr.ncr_number || '-';
+            var partName = ncr.part_name || '-';
+            var subject = ncr.subject || ncr.description || '-';
+            var reportDate = ncr.report_date || '-';
 
-        function toggleUserMenu() {
-            document.getElementById('userDropdown').classList.toggle('show');
+            html += '<tr>' +
+                '<td><strong><a href="ncr-detail.html?number=' + ncrNumber + '" class="link-primary">' + ncrNumber + '</a></strong></td>' +
+                '<td>' + partName + '</td>' +
+                '<td>' + subject + '</td>' +
+                '<td>' + reportDate + '</td>' +
+                '<td><span class="badge ' + priorityClass + '">' + priorityLabel + '</span></td>' +
+                '<td>مرحله ' + stepNum + '</td>' +
+                '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>' +
+                '<td>' +
+                    '<button class="btn btn-sm btn-primary" onclick="viewNCR(\'' + ncrNumber + '\')"><i class="fas fa-eye"></i></button> ' +
+                    '<button class="btn btn-sm btn-success" onclick="editNCR(\'' + ncrNumber + '\')"><i class="fas fa-edit"></i></button>' +
+                '</td>' +
+            '</tr>';
         }
+        tbody.innerHTML = html;
+    }
 
-        function toggleNotifications() {
-            document.getElementById('notificationsDropdown').classList.toggle('show');
-        }
+    function getStepNumber(ncr) {
+        if (ncr.final_status === 'closed' || ncr.status === 'closed') return 6;
+        if (ncr.status === 'step3_submitted') return 4;
+        if (ncr.status === 'step2_submitted') return 3;
+        if (ncr.status === 'step1_submitted') return 2;
+        if (ncr.final_quality_status === 'approved') return 5;
+        if (ncr.cft_status === 'approved') return 4;
+        if (ncr.fmea_status === 'completed') return 3;
+        if (ncr.quality_status === 'approved') return 2;
+        return 1;
+    }
 
-        function showDetail(type) {
-            alert('نمایش جزئیات شاخص: ' + type);
-        }
+    function initCharts() {
+        var statusEl = document.getElementById('statusChart');
+        var trendEl = document.getElementById('trendChart');
+        if (!statusEl || !trendEl) return;
 
-        function searchNCR(value) {
-            console.log('جستجو:', value);
-        }
-
-        function filterNCR(value) {
-            console.log('فیلتر:', value);
-        }
-
-        function viewNCR(number) {
-            window.location.href = 'ncr-detail.html?number=' + number;
-        }
-
-        function editNCR(number) {
-            window.location.href = 'ncr-detail.html?number=' + number + '&edit=true';
-        }
-
-        function exportData() {
-            if (window.exportToExcel) {
-                window.exportToExcel();
-            } else {
-                alert('قابلیت خروجی در حال آماده‌سازی است...');
-            }
-        }
-
-        function printPage() {
-            if (window.printPage) {
-                window.printPage();
-            } else {
-                window.print();
-            }
-        }
-
-        function changePassword() {
-            window.location.href = 'profile.html?action=change-password';
-        }
-
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.php';
-        }
-
-        // بستن dropdownها با کلیک خارج
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.user-profile')) {
-                document.getElementById('userDropdown').classList.remove('show');
-            }
-            if (!e.target.closest('.header-notifications')) {
-                document.getElementById('notificationsDropdown').classList.remove('show');
-            }
+        var ctx1 = statusEl.getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['باز', 'در حال بررسی', 'بسته', 'رد شده'],
+                datasets: [{
+                    data: [12, 19, 8, 3],
+                    backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#95a5a6'],
+                    borderWidth: 2
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
-    </script>
+
+        var ctx2 = trendEl.getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
+                datasets: [{
+                    label: 'NCR ثبت شده',
+                    data: [5, 8, 12, 7, 15, 10],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+    }
+
+    // ============================================
+    // توابع مخصوص همین صفحه
+    // (toggleSidebar, toggleUserMenu, toggleNotifications,
+    //  changePassword, logout توسط loader.js تعریف می‌شوند)
+    // ============================================
+
+    function showDetail(type) {
+        alert('نمایش جزئیات شاخص: ' + type);
+    }
+
+    function searchNCR(value) {
+        console.log('جستجو:', value);
+    }
+
+    function filterNCR(value) {
+        console.log('فیلتر:', value);
+    }
+
+    function viewNCR(number) {
+        window.location.href = 'ncr-detail.html?number=' + number;
+    }
+
+    function editNCR(number) {
+        window.location.href = 'ncr-detail.html?number=' + number + '&edit=true';
+    }
+
+    function exportData() {
+        if (window.exportToExcel) window.exportToExcel();
+        else alert('قابلیت خروجی در حال آماده‌سازی است...');
+    }
+
+    function printPage() {
+        if (window.printPage) window.printPage();
+        else window.print();
+    }
+</script>
 </body>
 </html>

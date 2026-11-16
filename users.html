@@ -95,98 +95,76 @@
             justify-content: center;
         }
         @media (max-width: 768px) {
-            .user-table {
-                font-size: 13px;
-            }
-            .user-table th, .user-table td {
-                padding: 8px 10px;
-            }
-            .users-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
+            .user-table { font-size: 13px; }
+            .user-table th, .user-table td { padding: 8px 10px; }
+            .users-header { flex-direction: column; align-items: stretch; }
+        }
+        /* تصویر کاربر در جدول */
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e9ecef;
+            background: #f1f3f9;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            font-size: 14px;
+        }
+        .avatar-cell {
+            width: 56px;
+            text-align: center;
+        }
+        .user-table td {
+            vertical-align: middle;
+        }
+        .avatar-uploader {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .avatar-preview {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: #f1f3f9;
+            border: 2px dashed #d7dbe3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            font-size: 26px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- هدر -->
-        <header class="app-header">
-            <div class="header-left">
-                <button class="hamburger" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="breadcrumb">
-                    <a href="dashboard.html">داشبورد</a>
-                    <span class="separator">/</span>
-                    <span class="current">مدیریت کاربران</span>
-                </div>
-            </div>
-            <div class="header-center">
-                <h2 id="pageTitle">مدیریت کاربران</h2>
-            </div>
-            <div class="header-right">
-                <div class="header-date">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="header-notifications" onclick="toggleNotifications()">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge" id="notificationBadge">0</span>
-                    <div class="notifications-dropdown" id="notificationsDropdown">
-                        <div class="dropdown-header">
-                            <span>اعلان‌ها</span>
-                            <a href="notifications.html">مشاهده همه</a>
-                        </div>
-                        <div class="dropdown-body" id="notificationList">
-                            <div class="no-notifications">هیچ اعلان جدیدی وجود ندارد</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-settings">
-                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
-                </div>
-                <div class="user-profile" onclick="toggleUserMenu()">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
-                    <span id="userName">کاربر</span>
-                    <i class="fas fa-chevron-down"></i>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
-                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
-                        <hr>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
 
-        <!-- سایدبار -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>📋 NCR System</h2>
-                <p>ISO 9001:2015</p>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
-                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
-                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
-                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
-                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
-                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
-                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
-                <a href="users.html" class="active"><i class="fas fa-users"></i> مدیریت کاربران</a>
-                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
-            </nav>
-        </aside>
-
-        <!-- محتوای اصلی -->
         <main class="main-content" id="mainContent">
             <div class="users-container">
                 <div class="users-header">
                     <h3><i class="fas fa-users" style="color:#667eea;"></i> لیست کاربران</h3>
-                    <button class="btn btn-primary" onclick="openAddUserModal()">
-                        <i class="fas fa-user-plus"></i> افزودن کاربر جدید
-                    </button>
+                    <!-- ⭐ اضافه کردن type="button" برای جلوگیری از submit -->
+<a href="add-user.html" class="btn btn-primary">
+    <i class="fas fa-user-plus"></i> افزودن کاربر جدید
+</a>
                 </div>
 
                 <div class="table-responsive">
@@ -194,6 +172,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th data-i18n="user_photo">تصویر</th>
                                 <th>نام کاربری</th>
                                 <th>نام کامل</th>
                                 <th>ایمیل</th>
@@ -205,12 +184,13 @@
                         </thead>
                         <tbody id="userTableBody">
                             <tr>
-                                <td colspan="8" style="text-align:center;">در حال بارگذاری...</td>
+                                <td colspan="9" style="text-align:center;">در حال بارگذاری...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+            <div id="footerContainer"></div>
         </main>
     </div>
 
@@ -218,15 +198,35 @@
     <div class="modal-overlay" id="userModal">
         <div class="modal-box">
             <h3 id="modalTitle">افزودن کاربر جدید</h3>
-            <form id="userForm" onsubmit="saveUser(event)">
+            <form id="userForm" onsubmit="window.saveUser && window.saveUser(event)">
                 <input type="hidden" id="editUserId" value="0">
+
+                <div class="form-group">
+                    <label data-i18n="user_photo">تصویر کاربر</label>
+                    <div class="avatar-uploader">
+                        <div class="avatar-preview" id="modalAvatarPreview">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="avatar-actions">
+                            <label for="modalAvatarFile" class="btn-sm-outline" style="cursor:pointer;">
+                                <i class="fas fa-camera"></i> <span data-i18n="upload_photo">انتخاب تصویر</span>
+                            </label>
+                            <input type="file" id="modalAvatarFile" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
+                            <button type="button" id="modalRemoveAvatarBtn" class="btn-sm-outline" onclick="removeModalAvatar()" style="display:none;">
+                                <i class="fas fa-trash"></i> <span data-i18n="remove_photo">حذف تصویر</span>
+                            </button>
+                            <small class="hint" data-i18n="avatar_help">فرمت JPG/PNG - حداکثر ۲ مگابایت</small>
+                        </div>
+                    </div>
+                    <input type="hidden" id="modalAvatarPath" value="">
+                </div>
                 <div class="form-group">
                     <label>نام کاربری <span class="required">*</span></label>
-                    <input type="text" id="username" placeholder="نام کاربری" required>
+                    <input type="text" id="username" placeholder="نام کاربری" required autocomplete="off">
                 </div>
                 <div class="form-group" id="passwordGroup">
                     <label>رمز عبور <span class="required" id="passwordRequired">*</span></label>
-                    <input type="password" id="password" placeholder="رمز عبور" required>
+                    <input type="password" id="password" placeholder="رمز عبور" autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label>نام کامل <span class="required">*</span></label>
@@ -234,19 +234,12 @@
                 </div>
                 <div class="form-group">
                     <label>ایمیل</label>
-                    <input type="email" id="email" placeholder="example@domain.com">
+                    <input type="email" id="email" placeholder="example@domain.com" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label>نقش <span class="required">*</span></label>
                     <select id="role" required>
-                        <option value="admin">مدیر</option>
-                        <option value="quality">کارشناس کیفیت</option>
-                        <option value="production">کارشناس تولید</option>
-                        <option value="purchasing">کارشناس خرید</option>
-                        <option value="warehouse">کارشناس انبار</option>
-                        <option value="engineering">کارشناس مهندسی</option>
-                        <option value="ceo">مدیرعامل</option>
-                        <option value="user">کاربر عادی</option>
+                        <option value="">در حال بارگذاری...</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -272,151 +265,72 @@
                 </div>
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()"><i class="fas fa-times"></i> انصراف</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.closeUserModal && window.closeUserModal()"><i class="fas fa-times"></i> انصراف</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="i18n.js"></script>
-    <script src="database.js"></script>
+    <!-- ⭐ ترتیب مهم: i18n, database, app, loader -->
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
     <script src="app.js"></script>
-    <script>
-    // ============================================
-    // مدیریت کاربران - نسخه نهایی
-    // ============================================
-    // توجه: API_BASE_URL قبلاً در database.js تعریف شده است
-    // از window.API_BASE_URL استفاده می‌کنیم
+    <script src="components/loader.js?v=20261101"></script>
     
-    let users = [];
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    <script>
+    // ⭐⭐⭐ تعریف توابع در ابتدای اسکریپت برای دسترسی سریع
+    // این توابع باید قبل از هر چیز تعریف شوند تا onclick کار کند
+    
+    // متغیرهای سراسری
+    window.users = [];
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const now = new Date();
-        document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
-        
-        if (currentUser) {
-            document.getElementById('userName').textContent = currentUser.full_name;
-        }
-
-        loadUsers();
-        updateNotifications();
-    });
-
-    // ============================================
-    // بارگذاری کاربران از API یا localStorage
-    // ============================================
-    async function loadUsers() {
-        const tbody = document.getElementById('userTableBody');
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">در حال بارگذاری...</td></tr>';
-        
-        try {
-            // استفاده از آدرس کامل
-            const url = 'https://ncr.page.gd/api/get_users.php';
-            console.log('📡 Fetching users from:', url);
-            
-            const response = await fetch(url);
-            console.log('📡 Response status:', response.status);
-            
-            if (!response.ok) {
-                throw new Error('HTTP error! status: ' + response.status);
-            }
-            
-            const result = await response.json();
-            console.log('📡 Users result:', result);
-            
-            if (result.success) {
-                users = result.data;
-                renderUsers();
-                return;
-            } else {
-                console.error('❌ Error loading users:', result.error);
-            }
-        } catch (error) {
-            console.error('❌ Fetch error:', error);
-        }
-        
-        // اگر API کار نکرد، از localStorage استفاده کن
-        loadUsersFromLocalStorage();
+// آدرس کامل تصویر کاربر
+function avatarUrl(path) {
+    if (!path) return '';
+    if (/^(https?:|data:|\/)/.test(path)) return path;
+    return (window.NCR_ROOT || '') + path;
+}
+window.avatarUrl = avatarUrl;
+    window.availableRoles = [];
+    
+    // ⭐ تابع امن برای setTextContent
+    function safeSetText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
     }
-
-    function loadUsersFromLocalStorage() {
-        console.log('📦 Loading users from localStorage...');
-        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // ⭐⭐⭐ تابع باز کردن مودال - تعریف در سطح window
+    window.openAddUserModal = function() {
+        console.log('🔓 openAddUserModal called');
         
-        if (storedUsers.length === 0) {
-            // ایجاد کاربران پیش‌فرض
-            const defaultUsers = [
-                { id: 1, username: 'admin', full_name: 'مدیر سیستم', email: 'admin@ncr-system.com', role: 'admin', department: 'مدیریت', language: 'fa', created_at: new Date().toISOString() },
-                { id: 2, username: 'quality', full_name: 'علی حسینی', email: 'quality@ncr-system.com', role: 'quality', department: 'کنترل کیفیت', language: 'fa', created_at: new Date().toISOString() },
-                { id: 3, username: 'production', full_name: 'احمد رضایی', email: 'production@ncr-system.com', role: 'production', department: 'تولید', language: 'fa', created_at: new Date().toISOString() }
-            ];
-            localStorage.setItem('users', JSON.stringify(defaultUsers));
-            users = defaultUsers;
-        } else {
-            users = storedUsers;
-        }
-        
-        renderUsers();
-        showNotification('بارگذاری از حافظه محلی انجام شد.', 'info');
-    }
-
-    function renderUsers() {
-        const tbody = document.getElementById('userTableBody');
-        if (users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">هیچ کاربری ثبت نشده است</td></tr>';
+        const modal = document.getElementById('userModal');
+        if (!modal) {
+            console.error('❌ userModal not found');
             return;
         }
-
-        const roleLabels = {
-            admin: 'مدیر',
-            quality: 'کارشناس کیفیت',
-            production: 'کارشناس تولید',
-            purchasing: 'کارشناس خرید',
-            warehouse: 'کارشناس انبار',
-            engineering: 'کارشناس مهندسی',
-            ceo: 'مدیرعامل',
-            user: 'کاربر عادی'
-        };
-
-        tbody.innerHTML = users.map((user, index) => `
-            <tr>
-                <td>${index + 1}</td>
-                <td><strong>${user.username}</strong></td>
-                <td>${user.full_name}</td>
-                <td>${user.email || '-'}</td>
-                <td><span class="role-badge ${user.role}">${roleLabels[user.role] || user.role}</span></td>
-                <td>${user.department || '-'}</td>
-                <td>${user.created_at ? new Date(user.created_at).toLocaleDateString('fa-IR') : '-'}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" onclick="editUser(${user.id})"><i class="fas fa-edit"></i></button>
-                    ${user.username !== 'admin' ? `<button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id}, '${user.username}')"><i class="fas fa-trash"></i></button>` : ''}
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // ============================================
-    // توابع مدیریت کاربران
-    // ============================================
-    function openAddUserModal() {
+        
         document.getElementById('modalTitle').textContent = 'افزودن کاربر جدید';
         document.getElementById('editUserId').value = '0';
         document.getElementById('username').value = '';
         document.getElementById('username').disabled = false;
         document.getElementById('password').value = '';
+        document.getElementById('password').required = true;
         document.getElementById('passwordGroup').style.display = 'block';
         document.getElementById('passwordRequired').style.display = 'inline';
         document.getElementById('fullName').value = '';
         document.getElementById('email').value = '';
-        document.getElementById('role').value = 'user';
+        document.getElementById('role').value = '';
         document.getElementById('department').value = '';
         document.getElementById('language').value = 'fa';
-        document.getElementById('userModal').classList.add('show');
-    }
-
-    function editUser(id) {
-        const user = users.find(u => u.id === id);
+        setModalAvatar('');
+        modal.classList.add('show');
+    };
+    
+    // ⭐⭐⭐ تابع ویرایش کاربر
+    window.editUser = function(id) {
+        console.log('✏️ editUser called:', id);
+        const user = window.users.find(u => String(u.id) === String(id));
         if (!user) {
             showNotification('کاربر یافت نشد!', 'error');
             return;
@@ -427,23 +341,31 @@
         document.getElementById('username').value = user.username;
         document.getElementById('username').disabled = true;
         document.getElementById('password').value = '';
+        document.getElementById('password').required = false;
         document.getElementById('passwordGroup').style.display = 'none';
         document.getElementById('passwordRequired').style.display = 'none';
-        document.getElementById('fullName').value = user.full_name;
+        document.getElementById('fullName').value = user.full_name || '';
         document.getElementById('email').value = user.email || '';
-        document.getElementById('role').value = user.role;
+        document.getElementById('role').value = user.role || '';
         document.getElementById('department').value = user.department || '';
         document.getElementById('language').value = user.language || 'fa';
+        setModalAvatar(user.avatar || '');
         document.getElementById('userModal').classList.add('show');
-    }
-
-    function closeUserModal() {
-        document.getElementById('userModal').classList.remove('show');
-        document.getElementById('username').disabled = false;
-    }
-
-    async function saveUser(event) {
+    };
+    
+    // ⭐⭐⭐ تابع بستن مودال
+    window.closeUserModal = function() {
+        console.log('❌ closeUserModal called');
+        const modal = document.getElementById('userModal');
+        if (modal) modal.classList.remove('show');
+        const usernameEl = document.getElementById('username');
+        if (usernameEl) usernameEl.disabled = false;
+    };
+    
+    // ⭐⭐⭐ تابع ذخیره کاربر
+    window.saveUser = async function(event) {
         event.preventDefault();
+        console.log('💾 saveUser called');
         
         const id = parseInt(document.getElementById('editUserId').value);
         const username = document.getElementById('username').value.trim();
@@ -454,7 +376,7 @@
         const department = document.getElementById('department').value;
         const language = document.getElementById('language').value;
 
-        if (!username || !fullName) {
+        if (!username || !fullName || !role) {
             showNotification('لطفاً فیلدهای الزامی را تکمیل کنید.', 'error');
             return;
         }
@@ -465,10 +387,17 @@
         }
 
         try {
-            // ابتدا سعی می‌کنیم از API استفاده کنیم
-            const url = 'https://ncr.page.gd/api/get_users.php';
+            const url = window.NCR_API + '/get_users.php';
             let method = 'POST';
-            let data = { username, full_name: fullName, email, role, department, language };
+            let data = {
+                username,
+                full_name: fullName,
+                email,
+                role,
+                department,
+                language,
+                avatar: document.getElementById('modalAvatarPath').value || ''
+            };
 
             if (id > 0) {
                 method = 'PUT';
@@ -485,76 +414,39 @@
             const result = await response.json();
 
             if (result.success) {
-                closeUserModal();
+                // اگر کاربر جاری ویرایش شد، اطلاعات هدر هم به‌روزرسانی شود
+                try {
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+                    if (currentUser && (String(currentUser.id) === String(id) || currentUser.username === username)) {
+                        currentUser.avatar = data.avatar;
+                        currentUser.full_name = fullName;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        if (window.updateHeaderAvatar) window.updateHeaderAvatar(currentUser);
+                        const headerName = document.getElementById('userName');
+                        if (headerName) headerName.textContent = fullName;
+                    }
+                } catch (e) { /* ignore */ }
+
+                window.closeUserModal();
                 showNotification(result.message || 'عملیات با موفقیت انجام شد.', 'success');
-                loadUsers();
+                await loadUsers();
                 return;
             } else {
                 showNotification(result.error || 'خطا در انجام عملیات.', 'error');
                 return;
             }
         } catch (error) {
-            console.warn('⚠️ API save failed, using localStorage:', error);
+            console.error('❌ Save user error:', error);
+            showNotification('خطا در ارتباط با سرور!', 'error');
         }
-
-        // اگر API کار نکرد، از localStorage استفاده کن
-        saveUserToLocalStorage(id, username, password, fullName, email, role, department, language);
-    }
-
-    function saveUserToLocalStorage(id, username, password, fullName, email, role, department, language) {
-        let storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        
-        if (id === 0) {
-            // افزودن کاربر جدید
-            const newUser = {
-                id: Date.now(),
-                username: username,
-                password: password,
-                full_name: fullName,
-                email: email,
-                role: role,
-                department: department,
-                language: language,
-                created_at: new Date().toISOString()
-            };
-            
-            // بررسی تکراری نبودن نام کاربری
-            if (storedUsers.find(u => u.username === username)) {
-                showNotification('نام کاربری قبلاً ثبت شده است!', 'error');
-                return;
-            }
-            
-            storedUsers.push(newUser);
-            showNotification('کاربر با موفقیت ایجاد شد.', 'success');
-        } else {
-            // ویرایش کاربر
-            const index = storedUsers.findIndex(u => u.id === id);
-            if (index === -1) {
-                showNotification('کاربر یافت نشد!', 'error');
-                return;
-            }
-            storedUsers[index].full_name = fullName;
-            storedUsers[index].email = email;
-            storedUsers[index].role = role;
-            storedUsers[index].department = department;
-            storedUsers[index].language = language;
-            if (password) {
-                storedUsers[index].password = password;
-            }
-            showNotification('کاربر با موفقیت بروزرسانی شد.', 'success');
-        }
-        
-        localStorage.setItem('users', JSON.stringify(storedUsers));
-        closeUserModal();
-        loadUsers();
-    }
-
-    async function deleteUser(id, username) {
+    };
+    
+    // ⭐⭐⭐ تابع حذف کاربر
+    window.deleteUser = async function(id, username) {
         if (!confirm(`آیا از حذف کاربر "${username}" مطمئن هستید؟`)) return;
 
         try {
-            // ابتدا سعی می‌کنیم از API استفاده کنیم
-            const response = await fetch('https://ncr.page.gd/api/get_users.php', {
+            const response = await fetch(window.NCR_API + '/get_users.php', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id })
@@ -563,27 +455,19 @@
 
             if (result.success) {
                 showNotification('کاربر با موفقیت حذف شد.', 'success');
-                loadUsers();
+                await loadUsers();
                 return;
-            } else if (result.error) {
-                showNotification(result.error, 'error');
+            } else {
+                showNotification(result.error || 'خطا در حذف کاربر', 'error');
                 return;
             }
         } catch (error) {
-            console.warn('⚠️ API delete failed, using localStorage:', error);
+            console.error('❌ Delete user error:', error);
+            showNotification('خطا در ارتباط با سرور!', 'error');
         }
-
-        // اگر API کار نکرد، از localStorage استفاده کن
-        let storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        storedUsers = storedUsers.filter(u => u.id !== id);
-        localStorage.setItem('users', JSON.stringify(storedUsers));
-        showNotification('کاربر با موفقیت حذف شد.', 'success');
-        loadUsers();
-    }
-
-    // ============================================
-    // توابع عمومی
-    // ============================================
+    };
+    
+    // ⭐⭐⭐ تابع نمایش اعلان
     function showNotification(message, type) {
         const colors = {
             success: '#27ae60',
@@ -592,9 +476,7 @@
             info: '#3498db'
         };
         
-        // حذف اعلان‌های قبلی
-        const oldNotifications = document.querySelectorAll('.custom-notification');
-        oldNotifications.forEach(el => el.remove());
+        document.querySelectorAll('.custom-notification').forEach(el => el.remove());
         
         const notification = document.createElement('div');
         notification.className = 'custom-notification';
@@ -609,7 +491,6 @@
             font-weight: bold;
             z-index: 99999;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: slideDown 0.5s ease;
             max-width: 400px;
         `;
         notification.textContent = message;
@@ -623,51 +504,236 @@
             }, 500);
         }, 3000);
     }
+    window.showNotification = showNotification;
+    
+    // ============================================
+    // ⭐ پر کردن dropdown نقش‌ها
+    // ============================================
+    function populateRoleSelect() {
+        const select = document.getElementById('role');
+        if (!select) return;
+        
+        select.innerHTML = '<option value="">انتخاب کنید</option>' + 
+            window.availableRoles.map(role => 
+                `<option value="${role.name}">${role.description || role.name}</option>`
+            ).join('');
+    }
+    
+    // ============================================
+    // ⭐ رندر جدول کاربران
+    // ============================================
+    function renderUsers() {
+        const tbody = document.getElementById('userTableBody');
+        if (!tbody) return;
+        
+        if (window.users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">هیچ کاربری ثبت نشده است</td></tr>';
+            return;
+        }
 
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('collapsed');
-        document.getElementById('mainContent').classList.toggle('expanded');
+        const roleLabels = {};
+        window.availableRoles.forEach(r => {
+            roleLabels[r.name] = r.description || r.name;
+        });
+
+        tbody.innerHTML = window.users.map((user, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td class="avatar-cell">${user.avatar
+                    ? `<img class="user-avatar" src="${avatarUrl(user.avatar)}" alt="${user.full_name || ''}">`
+                    : `<span class="user-avatar avatar-placeholder"><i class="fas fa-user"></i></span>`}</td>
+                <td><strong>${user.username}</strong></td>
+                <td>${user.full_name || '-'}</td>
+                <td>${user.email || '-'}</td>
+                <td><span class="role-badge ${user.role}">${roleLabels[user.role] || user.role}</span></td>
+                <td>${user.department || '-'}</td>
+                <td>${user.created_at ? new Date(user.created_at).toLocaleDateString('fa-IR') : '-'}</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="window.location.href='add-user.html?id=${user.id}'" title="ویرایش">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    ${user.username !== 'admin' ? `
+                        <button type="button" class="btn btn-sm btn-danger" onclick="window.deleteUser(${user.id}, '${user.username}')" title="حذف">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    // ============================================
+    // ⭐ بارگذاری کاربران از API
+    // ============================================
+    async function loadUsers() {
+        const tbody = document.getElementById('userTableBody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">در حال بارگذاری...</td></tr>';
+        
+        try {
+            const url = window.NCR_API + '/get_users.php';
+            console.log('📡 Fetching users from:', url);
+            
+            const response = await fetch(url);
+            const text = await response.text();
+            console.log('📡 Users raw response:', text);
+            
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (e) {
+                console.error('❌ JSON parse error:', e);
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;">خطا: پاسخ سرور نامعتبر است</td></tr>';
+                return;
+            }
+            
+            if (result.success) {
+                window.users = result.data || [];
+                console.log('✅ Loaded users:', window.users.length);
+                
+                // ⭐ نقش‌های پویا
+                if (result.roles && result.roles.length > 0) {
+                    window.availableRoles = result.roles;
+                } else {
+                    window.availableRoles = [
+                        { name: 'admin', description: 'مدیر سیستم' },
+                        { name: 'quality', description: 'کارشناس کنترل کیفیت' },
+                        { name: 'production', description: 'کارشناس تولید' },
+                        { name: 'purchasing', description: 'کارشناس خرید' },
+                        { name: 'warehouse', description: 'کارشناس انبار' },
+                        { name: 'engineering', description: 'کارشناس مهندسی' },
+                        { name: 'ceo', description: 'مدیرعامل' },
+                        { name: 'user', description: 'کاربر عادی' }
+                    ];
+                }
+                populateRoleSelect();
+                renderUsers();
+            } else {
+                console.error('❌ Error loading users:', result.error);
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;">خطا: ' + (result.error || '') + '</td></tr>';
+            }
+        } catch (error) {
+            console.error('❌ Fetch error:', error);
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;">خطا در ارتباط با سرور: ' + error.message + '</td></tr>';
+        }
+    }
+    window.loadUsers = loadUsers;
+    
+    // ============================================
+    // ⭐ راه‌اندازی اولیه
+    // ============================================
+    async function initUsersPage() {
+        console.log('🚀 initUsersPage started');
+        
+        // ⭐ منتظر بمان تا کامپوننت‌ها لود شوند
+        if (typeof window.loadAllComponents === 'function') {
+            try {
+                await window.loadAllComponents();
+                console.log('✅ Components loaded');
+            } catch (e) {
+                console.warn('⚠️ loadAllComponents error:', e);
+            }
+        }
+        
+        // ⭐ حالا که هدر و سایدبار لود شده‌اند، اطلاعات را پر کن
+        const now = new Date();
+        safeSetText('currentDate', now.toLocaleDateString('fa-IR'));
+        
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser) {
+            safeSetText('userName', currentUser.full_name);
+        }
+        
+        // ⭐ حالا کاربران را لود کن
+        await loadUsers();
+        
+        // ⭐ اعلان‌ها
+        if (typeof window.updateNotifications === 'function') {
+            window.updateNotifications();
+        }
+    }
+    
+    // ⭐ تصویر کاربر در مودال
+    function setModalAvatar(path) {
+        const preview = document.getElementById('modalAvatarPreview');
+        const hidden = document.getElementById('modalAvatarPath');
+        const removeBtn = document.getElementById('modalRemoveAvatarBtn');
+        if (!preview || !hidden) return;
+
+        hidden.value = path || '';
+
+        if (path) {
+            preview.innerHTML = '<img src="' + avatarUrl(path) + '" alt="avatar">';
+            if (removeBtn) removeBtn.style.display = 'inline-flex';
+        } else {
+            preview.innerHTML = '<i class="fas fa-user"></i>';
+            if (removeBtn) removeBtn.style.display = 'none';
+        }
+    }
+    window.setModalAvatar = setModalAvatar;
+
+    window.removeModalAvatar = function () {
+        setModalAvatar('');
+        const input = document.getElementById('modalAvatarFile');
+        if (input) input.value = '';
+    };
+
+    async function uploadModalAvatar() {
+        const input = document.getElementById('modalAvatarFile');
+        if (!input || !input.files || !input.files[0]) return;
+
+        const file = input.files[0];
+        if (!/^image\//.test(file.type)) {
+            showNotification('فقط فایل تصویری مجاز است.', 'error');
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            showNotification('حجم تصویر نباید بیشتر از ۲ مگابایت باشد.', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await fetch(window.NCR_API + '/upload_avatar.php', { method: 'POST', body: formData });
+            const result = await response.json();
+            if (result.success) {
+                setModalAvatar(result.path);
+                showNotification('تصویر کاربر بارگذاری شد.', 'success');
+            } else {
+                showNotification(result.error || 'خطا در بارگذاری تصویر.', 'error');
+            }
+        } catch (e) {
+            console.error('❌ Avatar upload failed:', e);
+            showNotification('خطا در ارتباط با سرور.', 'error');
+        }
     }
 
-    function toggleUserMenu() {
-        document.getElementById('userDropdown').classList.toggle('show');
-    }
-
-    function toggleNotifications() {
-        document.getElementById('notificationsDropdown').classList.toggle('show');
-    }
-
-    function updateNotifications() {
-        const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-        const unread = notifications.filter(n => !n.is_read);
-        document.getElementById('notificationBadge').textContent = unread.length;
-    }
-
-    function changePassword() {
-        window.location.href = 'profile.html?action=change-password';
-    }
-
-    function logout() {
-        localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
-    }
-
-    // بستن مودال با کلیک خارج
-    document.getElementById('userModal').addEventListener('click', function(e) {
-        if (e.target === this) closeUserModal();
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('modalAvatarFile');
+        if (input) input.addEventListener('change', uploadModalAvatar);
     });
 
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.user-profile')) {
-            document.getElementById('userDropdown').classList.remove('show');
-        }
-        if (!e.target.closest('.header-notifications')) {
-            document.getElementById('notificationsDropdown').classList.remove('show');
+    // ⭐ اجرا بعد از بارگذاری DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initUsersPage);
+    } else {
+        initUsersPage();
+    }
+    
+    // ⭐ بستن مودال با کلیک خارج
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('userModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) window.closeUserModal();
+            });
         }
     });
-
+    
     console.log('✅ users.html loaded successfully');
-    console.log('📡 API_URL:', window.API_BASE_URL || 'https://ncr.page.gd/api/');
     </script>
 </body>
 </html>

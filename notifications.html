@@ -6,260 +6,412 @@
     <title>اعلان‌ها</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .notifications-container { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 25px; }
+        .notifications-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .notifications-header h3 { margin: 0; color: #2c3e50; }
+        .notifications-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .notifications-filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { padding: 8px 20px; border: 2px solid #e9ecef; background: white; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; color: #6c757d; transition: all 0.3s ease; font-family: inherit; }
+        .filter-btn:hover { border-color: #667eea; color: #667eea; }
+        .filter-btn.active { background: #667eea; color: white; border-color: #667eea; }
+        .notifications-list { display: flex; flex-direction: column; gap: 10px; }
+        .notification-item { display: flex; gap: 15px; padding: 15px 20px; border-radius: 12px; background: #f8f9fa; border: 2px solid transparent; transition: all 0.3s ease; position: relative; }
+        .notification-item:hover { background: #f0f4ff; border-color: #667eea; }
+        .notification-item.unread { background: #f0f4ff; border-right: 4px solid #667eea; }
+        .notification-item.read { opacity: 0.75; }
+        .notification-item .notification-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .notification-icon.info { background: #e3f2fd; color: #1976d2; }
+        .notification-icon.success { background: #e8f5e9; color: #388e3c; }
+        .notification-icon.warning { background: #fff3e0; color: #f57c00; }
+        .notification-icon.danger { background: #fce4ec; color: #c62828; }
+        .notification-content { flex: 1; min-width: 0; }
+        .notification-title { font-weight: 700; font-size: 15px; color: #2c3e50; margin-bottom: 4px; }
+        .notification-message { font-size: 13px; color: #6c757d; margin-bottom: 6px; line-height: 1.5; }
+        .notification-time { font-size: 11px; color: #adb5bd; }
+        .notification-actions { display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center; }
+        .toggle-read-btn { background: white; border: 2px solid #e9ecef; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 12px; color: #6c757d; transition: all 0.3s ease; white-space: nowrap; font-family: inherit; }
+        .toggle-read-btn:hover { border-color: #667eea; color: #667eea; background: #f0f4ff; }
+        .unread-badge { position: absolute; top: 10px; left: 10px; background: #667eea; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+        .no-notifications { text-align: center; padding: 60px 20px; color: #adb5bd; }
+        .no-notifications i { font-size: 60px; margin-bottom: 15px; display: block; }
+        .no-notifications p { font-size: 15px; margin: 0; }
+        .loading { text-align: center; padding: 40px; color: #6c757d; }
+    </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- هدر -->
-        <header class="app-header">
-            <div class="header-left">
-                <button class="hamburger" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="breadcrumb">
-                    <a href="dashboard.html">داشبورد</a>
-                    <span class="separator">/</span>
-                    <span class="current">اعلان‌ها</span>
-                </div>
-            </div>
-            <div class="header-center">
-                <h2 id="pageTitle">اعلان‌ها</h2>
-            </div>
-            <div class="header-right">
-                <div class="header-date">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="header-settings">
-                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
-                </div>
-                <div class="user-profile" onclick="toggleUserMenu()">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
-                    <span id="userName">کاربر</span>
-                    <i class="fas fa-chevron-down"></i>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
-                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
-                        <hr>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
 
-        <!-- سایدبار -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>📋 NCR System</h2>
-                <p>ISO 9001:2015</p>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
-                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
-                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
-                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
-                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
-                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
-                <a href="notifications.html" class="active"><i class="fas fa-bell"></i> اعلان‌ها</a>
-                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
-            </nav>
-        </aside>
-
-        <!-- محتوای اصلی -->
         <main class="main-content" id="mainContent">
             <div class="notifications-container">
                 <div class="notifications-header">
-                    <h3>🔔 همه اعلان‌ها</h3>
+                    <h3>🔔 همه اعلان‌ها (<span id="totalCount">0</span>)</h3>
                     <div class="notifications-actions">
-                        <button class="btn btn-primary" onclick="markAllRead()"><i class="fas fa-check-double"></i> علامت‌گذاری همه به عنوان خوانده شده</button>
-                        <button class="btn btn-danger" onclick="clearAllNotifications()"><i class="fas fa-trash"></i> پاک کردن همه</button>
+                        <button class="btn btn-primary" onclick="markAllRead()"><i class="fas fa-check-double"></i> خواندن همه</button>
+                        <button class="btn btn-secondary" onclick="markAllUnread()"><i class="fas fa-undo"></i> نخوانده کردن همه</button>
+                        <button class="btn btn-info" onclick="loadNotifications()"><i class="fas fa-sync-alt"></i> بازخوانی</button>
                     </div>
                 </div>
 
                 <div class="notifications-filters">
                     <button class="filter-btn active" data-filter="all" onclick="filterNotifications('all')">همه</button>
-                    <button class="filter-btn" data-filter="unread" onclick="filterNotifications('unread')">خوانده نشده</button>
+                    <button class="filter-btn" data-filter="unread" onclick="filterNotifications('unread')">خوانده نشده (<span id="unreadCount">0</span>)</button>
                     <button class="filter-btn" data-filter="read" onclick="filterNotifications('read')">خوانده شده</button>
-                    <button class="filter-btn" data-filter="info" onclick="filterNotifications('info')">اطلاعاتی</button>
-                    <button class="filter-btn" data-filter="success" onclick="filterNotifications('success')">موفقیت</button>
-                    <button class="filter-btn" data-filter="warning" onclick="filterNotifications('warning')">اخطار</button>
-                    <button class="filter-btn" data-filter="danger" onclick="filterNotifications('danger')">خطا</button>
                 </div>
 
                 <div class="notifications-list" id="notificationsList">
                     <div class="loading">در حال بارگذاری...</div>
                 </div>
             </div>
+
+            <div id="footerContainer"></div>
         </main>
     </div>
 
-    <script src="i18n.js"></script>
-    <script src="database.js"></script>
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
     <script src="app.js"></script>
-    <script src="data/sample-data.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+    
     <script>
-        let allNotifications = [];
-        let currentFilter = 'all';
+    // ============================================
+    // ⭐ تعریف مستقیم توابع در همین فایل (بدون وابستگی به component-utils.js)
+    // ============================================
+    const NOTIF_API = window.NCR_API + '/';
+    let allNotifications = [];
+    let currentFilter = 'all';
+    let currentUserId = 0;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
-            
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            if (user) {
-                document.getElementById('userName').textContent = user.full_name;
+    // گرفتن user_id با اولویت مطلق
+    function getUid() {
+        const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (!user) return 0;
+        const uid = parseInt(user.id || 0);
+        console.log('👤 getUid() =', uid, '| full user:', user);
+        return uid;
+    }
+
+    // ⭐ به‌روزرسانی بج‌ها - مستقل
+    window.updateNotifications = async function() {
+        const userId = getUid();
+        if (!userId) { console.warn('⚠️ no userId'); return; }
+        try {
+            const res = await fetch(NOTIF_API + 'get_notifications.php?user_id=' + userId);
+            const data = await res.json();
+            console.log('🔔 updateNotifications response:', data);
+            if (!data.success) return;
+            const notifs = data.data || [];
+            const unread = notifs.filter(n => !n.is_read || n.is_read == 0).length;
+            console.log('🔔 unread count:', unread);
+
+            // بج هدر
+            const headerBadge = document.getElementById('notificationBadge');
+            if (headerBadge) {
+                if (unread > 0) {
+                    headerBadge.textContent = unread > 99 ? '99+' : String(unread);
+                    headerBadge.style.display = 'flex';
+                } else {
+                    headerBadge.textContent = '0';
+                    headerBadge.style.display = 'none';
+                }
             }
-
-            loadNotifications();
-        });
-
-        function loadNotifications() {
-            allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            renderNotifications('all');
-        }
-
-        function renderNotifications(filter) {
-            const container = document.getElementById('notificationsList');
-            
-            let filtered = allNotifications;
-            if (filter === 'unread') {
-                filtered = allNotifications.filter(n => !n.is_read);
-            } else if (filter === 'read') {
-                filtered = allNotifications.filter(n => n.is_read);
-            } else if (['info', 'success', 'warning', 'danger'].includes(filter)) {
-                filtered = allNotifications.filter(n => n.type === filter);
+            // بج سایدبار
+            const sideBadge = document.getElementById('sidebarNotificationBadge');
+            if (sideBadge) {
+                if (unread > 0) {
+                    sideBadge.textContent = unread > 99 ? '99+' : String(unread);
+                    sideBadge.style.display = 'inline-flex';
+                } else {
+                    sideBadge.style.display = 'none';
+                }
             }
+        } catch (e) { console.error('❌ updateNotifications:', e); }
+    };
 
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="no-notifications">
-                        <i class="fas fa-bell-slash" style="font-size: 48px; color: #ddd;"></i>
-                        <p>هیچ اعلانی وجود ندارد</p>
-                    </div>
-                `;
-                return;
-            }
+    // ⭐ بارگذاری dropdown
+    window.loadNotifications = async function() {
+        const list = document.getElementById('notificationList');
+        if (!list) return;
+        const userId = getUid();
+        if (!userId) return;
+        try {
+            const res = await fetch(NOTIF_API + 'get_notifications.php?user_id=' + userId);
+            const data = await res.json();
+            if (!data.success) { list.innerHTML = '<div class="no-notifications">خطا</div>'; return; }
+            const notifs = data.data || [];
+            if (notifs.length === 0) { list.innerHTML = '<div class="no-notifications">هیچ اعلانی وجود ندارد</div>'; return; }
+            const icons = { info:'fa-info-circle', success:'fa-check-circle', warning:'fa-exclamation-triangle', danger:'fa-exclamation-circle' };
+            list.innerHTML = notifs.slice(0,5).map(n => 
+                '<div class="notification-item ' + (n.is_read?'':'unread') + '" onclick="handleNotificationClick(' + n.id + ',\'' + (n.link||'') + '\')">' +
+                '<div class="notification-icon ' + n.type + '"><i class="fas ' + (icons[n.type]||'fa-info-circle') + '"></i></div>' +
+                '<div class="notification-content"><div class="notification-title">' + n.title + '</div>' +
+                '<div class="notification-message">' + n.message + '</div>' +
+                '<div class="notification-time">' + n.created_at + '</div></div></div>'
+            ).join('');
+        } catch(e) { console.error(e); }
+    };
 
-            const iconMap = {
-                info: 'fa-info-circle',
-                success: 'fa-check-circle',
-                warning: 'fa-exclamation-triangle',
-                danger: 'fa-times-circle'
-            };
-
-            container.innerHTML = filtered.map(notification => `
-                <div class="notification-item ${notification.is_read ? 'read' : 'unread'}" onclick="markAsRead(${notification.id})">
-                    <div class="notification-icon ${notification.type}">
-                        <i class="fas ${iconMap[notification.type] || 'fa-info-circle'}"></i>
-                    </div>
-                    <div class="notification-content">
-                        <div class="notification-title">${notification.title}</div>
-                        <div class="notification-message">${notification.message}</div>
-                        <div class="notification-time">${notification.created_at}</div>
-                    </div>
-                    ${!notification.is_read ? '<span class="unread-badge">جدید</span>' : ''}
-                </div>
-            `).join('');
-        }
-
-        function filterNotifications(filter) {
-            currentFilter = filter;
-            // بروزرسانی دکمه‌های فعال
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.filter === filter);
+    // ⭐ کلیک روی اعلان
+    window.handleNotificationClick = async function(id, link) {
+        const userId = getUid();
+        if (!userId) return;
+        try {
+            await fetch(NOTIF_API + 'mark_notification_read.php', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ notification_id: id, user_id: userId })
             });
-            renderNotifications(filter);
-        }
+            updateNotifications();
+        } catch(e) { console.error(e); }
+        if (link) setTimeout(() => window.location.href = link, 300);
+    };
 
-        function markAsRead(id) {
-            const notification = allNotifications.find(n => n.id === id);
-            if (notification && !notification.is_read) {
-                notification.is_read = true;
-                localStorage.setItem('notifications', JSON.stringify(allNotifications));
-                renderNotifications(currentFilter);
-                // بروزرسانی شمارنده
-                updateNotificationBadge();
+    // ⭐ بارگذاری کامپوننت‌ها
+    async function loadComponent(name, target) {
+        try {
+            const res = await fetch('components/' + name + '.html');
+            const html = await res.text();
+            const el = document.getElementById(target);
+            if (el) el.innerHTML = html;
+        } catch(e) { console.error('loadComponent', name, e); }
+    }
+
+    async function loadAll() {
+        await loadComponent('header', 'headerContainer');
+        await loadComponent('sidebar', 'sidebarContainer');
+        await loadComponent('footer', 'footerContainer');
+        // بعد از لود، توابع هدر را تنظیم کن
+        window.toggleNotifications = function() {
+            const dd = document.getElementById('notificationsDropdown');
+            if (dd) { dd.classList.toggle('show'); loadNotifications(); }
+        };
+        window.toggleUserMenu = function() {
+            const dd = document.getElementById('userDropdown');
+            if (dd) dd.classList.toggle('show');
+        };
+        window.changePassword = function() { window.location.href = 'change-password.html'; };
+        window.logout = function() { localStorage.removeItem('currentUser'); window.location.href = 'index.html'; };
+        window.toggleSidebar = function() {
+            const sb = document.getElementById('sidebar');
+            const mc = document.getElementById('mainContent');
+            if (sb) sb.classList.toggle('collapsed');
+            if (mc) mc.classList.toggle('expanded');
+        };
+        // تاریخ
+        const d = new Date();
+        const dateEl = document.getElementById('currentDate');
+        if (dateEl) dateEl.textContent = d.toLocaleDateString('fa-IR');
+        // نام کاربر
+        const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const nameEl = document.getElementById('userName');
+        if (u && nameEl) nameEl.textContent = u.full_name;
+        // زبان
+        const lang = localStorage.getItem('userLanguage') || 'fa';
+        const sel = document.getElementById('languageSelector');
+        if (sel) sel.value = lang;
+
+        // ⭐ به‌روزرسانی بج‌ها بعد از لود سایدبار
+        updateNotifications();
+    }
+
+    // ============================================
+    // صفحه اعلان‌ها
+    // ============================================
+    document.addEventListener('DOMContentLoaded', async function() {
+        const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (!user) { window.location.href = 'index.html'; return; }
+        currentUserId = parseInt(user.id || 0);
+        console.log('👤 notifications page - currentUserId:', currentUserId);
+
+        // لود کامپوننت‌ها (هدر و سایدبار)
+        await loadAll();
+
+        // لود اعلان‌ها
+        await loadNotificationsPage();
+    });
+
+    async function loadNotificationsPage() {
+        const container = document.getElementById('notificationsList');
+        container.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
+
+        try {
+            const res = await fetch(NOTIF_API + 'get_notifications.php?user_id=' + currentUserId);
+            const result = await res.json();
+            console.log('📋 notifications response:', result);
+
+            if (result.success) {
+                allNotifications = result.data || [];
+                console.log('📋 loaded:', allNotifications.length);
+                updatePageCounts();
+                renderNotificationsPage(currentFilter);
+            } else {
+                container.innerHTML = '<div class="no-notifications"><i class="fas fa-exclamation-triangle"></i><p>خطا: ' + (result.error||'') + '</p></div>';
             }
+        } catch(e) {
+            console.error(e);
+            container.innerHTML = '<div class="no-notifications"><i class="fas fa-wifi"></i><p>خطا در ارتباط با سرور</p></div>';
         }
+    }
 
-        function markAllRead() {
-            allNotifications.forEach(n => n.is_read = true);
-            localStorage.setItem('notifications', JSON.stringify(allNotifications));
-            renderNotifications(currentFilter);
-            updateNotificationBadge();
-            showNotification('همه اعلان‌ها به عنوان خوانده شده علامت‌گذاری شدند!', 'success');
+    function updatePageCounts() {
+        const unread = allNotifications.filter(n => !n.is_read || n.is_read == 0).length;
+        const total = allNotifications.length;
+        const tc = document.getElementById('totalCount');
+        const uc = document.getElementById('unreadCount');
+        if (tc) tc.textContent = total;
+        if (uc) uc.textContent = unread;
+
+        // بج هدر
+        const hb = document.getElementById('notificationBadge');
+        if (hb) {
+            if (unread > 0) { hb.textContent = unread>99?'99+':String(unread); hb.style.display='flex'; }
+            else { hb.style.display = 'none'; }
         }
+        // بج سایدبار
+        const sb = document.getElementById('sidebarNotificationBadge');
+        if (sb) {
+            if (unread > 0) { sb.textContent = unread>99?'99+':String(unread); sb.style.display='inline-flex'; }
+            else { sb.style.display = 'none'; }
+        }
+    }
 
-        function clearAllNotifications() {
-            if (confirm('آیا از پاک کردن همه اعلان‌ها مطمئن هستید؟')) {
-                allNotifications = [];
-                localStorage.setItem('notifications', JSON.stringify(allNotifications));
-                renderNotifications(currentFilter);
-                updateNotificationBadge();
-                showNotification('همه اعلان‌ها پاک شدند!', 'info');
+function renderNotificationsPage(filter) {
+    const container = document.getElementById('notificationsList');
+    let filtered = allNotifications;
+    if (filter === 'unread') filtered = allNotifications.filter(n => !n.is_read || n.is_read == 0);
+    else if (filter === 'read') filtered = allNotifications.filter(n => n.is_read == 1);
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="no-notifications"><i class="fas fa-bell-slash"></i><p>هیچ اعلانی در این دسته وجود ندارد</p></div>';
+        return;
+    }
+    const icons = { info:'fa-info-circle', success:'fa-check-circle', warning:'fa-exclamation-triangle', danger:'fa-times-circle' };
+    container.innerHTML = filtered.map(n => {
+        const isRead = n.is_read == 1;
+        // ⭐ فرار از کوتیشن‌ها در لینک
+        const safeLink = (n.link || '').replace(/'/g, "\\'");
+        return `
+            <div class="notification-item ${isRead?'read':'unread'}" 
+                 onclick="handlePageNotificationClick(${n.id}, '${safeLink}', ${isRead})"
+                 style="cursor:pointer;">
+                ${!isRead ? '<span class="unread-badge">جدید</span>' : ''}
+                <div class="notification-icon ${n.type}"><i class="fas ${icons[n.type]||'fa-info-circle'}"></i></div>
+                <div class="notification-content">
+                    <div class="notification-title">${n.title}</div>
+                    <div class="notification-message">${n.message}</div>
+                    <div class="notification-time">${n.created_at}${n.link?' <a href="#" onclick="event.stopPropagation(); event.preventDefault(); handlePageNotificationClick('+n.id+', 						\''+safeLink+'\', '+isRead+');">مشاهده</a>':''}</div>
+                </div>
+                <div class="notification-actions">
+                    <button class="toggle-read-btn" onclick="event.stopPropagation(); toggleReadPage(${n.id}, ${isRead?0:1})">
+                        <i class="fas ${isRead?'fa-envelope':'fa-envelope-open'}"></i>
+                        ${isRead?'خوانده':'نخوانده'}
+                    </button>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+// ⭐ تابع جدید: کلیک روی ردیف اعلان در صفحه
+async function handlePageNotificationClick(id, link, isRead) {
+    // اگر نخوانده بود، آن را خوانده کن
+    if (!isRead) {
+        try {
+            const res = await fetch(NOTIF_API + 'mark_notification_read.php', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ notification_id: id, user_id: currentUserId })
+            });
+            const r = await res.json();
+            if (r.success) {
+                // ⭐ آپدیت localStorage
+                const n = allNotifications.find(x => x.id === id);
+                if (n) n.is_read = 1;
+                
+                // ⭐ آپدیت UI
+                updatePageCounts();
+                renderNotificationsPage(currentFilter);
+                
+                // ⭐ آپدیت بج هدر و سایدبار
+                if (typeof updateNotifications === 'function') {
+                    updateNotifications();
+                }
             }
+        } catch (e) {
+            console.error('❌ handlePageNotificationClick:', e);
         }
+    }
+    
+    // اگر لینک دارد، به آن برو
+    if (link) {
+        setTimeout(() => { window.location.href = link; }, 200);
+    }
+}
 
-        function updateNotificationBadge() {
-            const unread = allNotifications.filter(n => !n.is_read);
-            document.getElementById('notificationBadge').textContent = unread.length;
-        }
-
-        function showNotification(message, type) {
-            const colors = {
-                success: '#27ae60',
-                error: '#e74c3c',
-                warning: '#f39c12',
-                info: '#3498db'
-            };
-            
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                padding: 15px 25px;
-                background: ${colors[type] || '#3498db'};
-                color: white;
-                border-radius: 10px;
-                font-weight: bold;
-                z-index: 9999;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                animation: slideDown 0.5s ease;
-                max-width: 400px;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.5s';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('mainContent').classList.toggle('expanded');
-        }
-
-        function toggleUserMenu() {
-            document.getElementById('userDropdown').classList.toggle('show');
-        }
-
-        function changePassword() {
-            window.location.href = 'profile.html?action=change-password';
-        }
-
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
-
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.user-profile')) {
-                document.getElementById('userDropdown').classList.remove('show');
+// صادرات به window
+window.handlePageNotificationClick = handlePageNotificationClick;
+        
+    async function toggleReadPage(id, newState) {
+        try {
+            const res = await fetch(NOTIF_API + 'toggle_notification_read.php', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ notification_id: id, user_id: currentUserId, is_read: newState })
+            });
+            const r = await res.json();
+            if (r.success) {
+                const n = allNotifications.find(x => x.id === id);
+                if (n) n.is_read = newState;
+                updatePageCounts();
+                renderNotificationsPage(currentFilter);
             }
-        });
+        } catch(e) { console.error(e); }
+    }
+
+    async function markAllRead() {
+        if (!confirm('همه به عنوان خوانده شده؟')) return;
+        try {
+            const res = await fetch(NOTIF_API + 'mark_all_notifications_read.php', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const r = await res.json();
+            if (r.success) {
+                allNotifications.forEach(n => n.is_read = 1);
+                updatePageCounts();
+                renderNotificationsPage(currentFilter);
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    async function markAllUnread() {
+        if (!confirm('همه به عنوان نخوانده؟')) return;
+        try {
+            const promises = allNotifications.filter(n => n.is_read == 1).map(n =>
+                fetch(NOTIF_API + 'toggle_notification_read.php', {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ notification_id: n.id, user_id: currentUserId, is_read: 0 })
+                })
+            );
+            await Promise.all(promises);
+            allNotifications.forEach(n => n.is_read = 0);
+            updatePageCounts();
+            renderNotificationsPage(currentFilter);
+        } catch(e) { console.error(e); }
+    }
+
+    function filterNotifications(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+        renderNotificationsPage(filter);
+    }
+
+    // صادرات به window
+    window.toggleReadPage = toggleReadPage;
+    window.markAllRead = markAllRead;
+    window.markAllUnread = markAllUnread;
+    window.filterNotifications = filterNotifications;
+    window.loadNotifications = loadNotifications;
     </script>
 </body>
 </html>

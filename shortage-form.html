@@ -3,418 +3,1964 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>گزارش عدم ارسال قطعه</title>
+    <title>فرم عدم ارسال قطعه - Shortage Form | ISO 9001 / IATF 16949</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <style>
+        .sh-container { margin: 0 auto; padding: 20px; }
+
+        .sh-header {
+            background: linear-gradient(135deg, #f39c12 0%, #d68910 100%);
+            color: white; padding: 25px 30px; border-radius: 14px;
+            margin-bottom: 25px; box-shadow: 0 8px 30px rgba(243, 156, 18, 0.3);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 15px;
+        }
+        .sh-header h1 { font-size: 22px; margin: 0; display: flex; align-items: center; gap: 12px; }
+        .sh-header .sh-meta { display: flex; flex-direction: column; gap: 5px; font-size: 13px; text-align: left; }
+        .sh-header .sh-meta .code { font-weight: 700; font-size: 15px; }
+
+        .sh-section {
+            background: white; border-radius: 12px; padding: 22px 25px;
+            margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e9ecef;
+        }
+        .sh-section h3 {
+            color: #2c3e50; margin: 0 0 18px 0; padding-right: 12px;
+            border-right: 4px solid #f39c12; font-size: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sh-section h3 i { color: #f39c12; }
+        .sh-section h3 .iso-ref {
+            font-size: 11px; color: #f39c12; background: #fef5e7;
+            padding: 3px 10px; border-radius: 10px; font-weight: 600;
+            margin-right: auto;
+        }
+
+        .sh-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px 20px; }
+        .sh-grid .full-width { grid-column: 1 / -1; }
+        .sh-grid .half-width { grid-column: span 2; }
+
+        .sh-field { display: flex; flex-direction: column; }
+        .sh-field label {
+            font-weight: 600; font-size: 13px; color: #2c3e50;
+            margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+        }
+        .sh-field label .required { color: #e74c3c; }
+        .sh-field input, .sh-field select, .sh-field textarea {
+            padding: 10px 14px; border: 2px solid #e9ecef; border-radius: 10px;
+            font-size: 14px; font-family: inherit; transition: all 0.3s;
+            background: #fafcff; width: 100%;
+        }
+        .sh-field input:focus, .sh-field select:focus, .sh-field textarea:focus {
+            border-color: #f39c12; outline: none;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+            background: white;
+        }
+        .sh-field textarea { min-height: 80px; resize: vertical; }
+        .sh-field .hint { font-size: 11px; color: #95a5a6; font-weight: 400; }
+
+        .readonly-field {
+            background: #f0f2f7 !important; cursor: not-allowed;
+            color: #6c757d; font-weight: 600;
+        }
+
+        /* Radio & Checkbox Groups */
+        .radio-group, .checkbox-group {
+            display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 6px 0;
+        }
+        .radio-group label, .checkbox-group label {
+            display: flex; align-items: center; gap: 6px;
+            font-weight: 400; font-size: 13px; cursor: pointer;
+            padding: 6px 12px; border-radius: 8px;
+            border: 2px solid #e9ecef; background: #fafcff;
+            transition: all 0.2s;
+        }
+        .radio-group label:hover, .checkbox-group label:hover {
+            border-color: #f39c12; background: #fef5e7;
+        }
+        .radio-group input, .checkbox-group input {
+            width: 16px; height: 16px; cursor: pointer;
+        }
+
+        /* ⭐ جدول اقلام کسری (چندگانه) */
+        .items-table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+        .items-table thead {
+            background: linear-gradient(135deg, #fef5e7 0%, #fdebd0 100%);
+        }
+        .items-table th {
+            padding: 12px 10px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid #f5cba7;
+            white-space: nowrap;
+        }
+        .items-table th .required { color: #e74c3c; margin-right: 3px; }
+        .items-table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s;
+        }
+        .items-table tbody tr:hover { background: #fffbf0; }
+        .items-table tbody tr:last-child { border-bottom: none; }
+        .items-table td {
+            padding: 8px 6px;
+            vertical-align: middle;
+        }
+        .items-table td input,
+        .items-table td select,
+        .items-table td textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-family: inherit;
+            background: white;
+            transition: all 0.2s;
+            min-width: 80px;
+        }
+        .items-table td input:focus,
+        .items-table td select:focus,
+        .items-table td textarea:focus {
+            border-color: #f39c12;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.1);
+        }
+        .items-table td textarea {
+            min-height: 50px;
+            resize: vertical;
+            font-size: 12.5px;
+        }
+        .items-table .item-num {
+            text-align: center;
+            font-weight: 800;
+            color: #f39c12;
+            font-size: 14px;
+            background: #fef5e7;
+            border-radius: 50%;
+            width: 28px; height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .items-table .row-actions {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+        .items-table .btn-row {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .items-table .btn-row.btn-remove {
+            background: #fde8e8;
+            color: #e74c3c;
+        }
+        .items-table .btn-row.btn-remove:hover {
+            background: #e74c3c;
+            color: white;
+            transform: scale(1.05);
+        }
+        .items-table .btn-row.btn-duplicate {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+        .items-table .btn-row.btn-duplicate:hover {
+            background: #0284c7;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .items-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn-add-item {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #f39c12 0%, #d68910 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.25);
+        }
+        .btn-add-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(243, 156, 18, 0.35);
+        }
+        .items-count {
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        .items-count strong { color: #f39c12; font-size: 15px; }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block; padding: 5px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+        }
+        .status-badge.draft { background: #fff3cd; color: #856404; }
+        .status-badge.pending { background: #cce5ff; color: #004085; }
+        .status-badge.in-progress { background: #d1ecf1; color: #0c5460; }
+        .status-badge.done { background: #d4edda; color: #155724; }
+        .status-badge.rejected { background: #f8d7da; color: #721c24; }
+
+        /* Workflow Bar */
+        .workflow-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #f8f9fa; padding: 14px 20px; border-radius: 10px;
+            margin-bottom: 20px; border: 1px solid #e9ecef;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .workflow-bar .stage {
+            display: flex; align-items: center; gap: 8px; font-size: 13px;
+        }
+        .workflow-bar .stage .dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            background: #dee2e6;
+        }
+        .workflow-bar .stage.active .dot { background: #f39c12; box-shadow: 0 0 0 4px rgba(243,156,18,0.2); }
+        .workflow-bar .stage.done .dot { background: #27ae60; }
+        .workflow-bar .stage .label { color: #6c757d; }
+        .workflow-bar .stage.active .label { color: #2c3e50; font-weight: 700; }
+        .workflow-bar .stage.done .label { color: #27ae60; }
+
+        /* Info & Warning Boxes */
+        .info-box {
+            background: #eef2ff; padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; color: #2c3e50; border-right: 4px solid #667eea;
+            margin-top: 10px;
+        }
+        .info-box i { color: #667eea; margin-left: 6px; }
+        .warning-box {
+            background: #fff3cd; padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; color: #856404; border: 1px solid #ffe69b;
+            margin-top: 10px;
+        }
+        .warning-box i { color: #f39c12; margin-left: 6px; }
+        .success-box {
+            background: #d4edda; padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; color: #155724; border: 1px solid #c3e6cb;
+            margin-top: 10px;
+        }
+        .success-box i { color: #27ae60; margin-left: 6px; }
+        .danger-box {
+            background: #fdedec; padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; color: #922b21; border: 1px solid #f5b7b1;
+            margin-top: 10px;
+        }
+        .danger-box i { color: #e74c3c; margin-left: 6px; }
+
+        /* Actions */
+        .sh-actions {
+            display: flex; gap: 12px; justify-content: flex-end;
+            flex-wrap: wrap; margin-top: 25px; padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        .sh-actions .btn {
+            padding: 11px 26px; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-primary { background: #f39c12; color: white; }
+        .btn-primary:hover { background: #d68910; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(243,156,18,0.3); }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #219a52; transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-print { background: #8e44ad; color: white; }
+        .btn-print:hover { background: #7d3c98; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Toast */
+        .toast-message {
+            position: fixed; bottom: 30px; left: 30px;
+            background: #2c3e50; color: white; padding: 16px 28px;
+            border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            font-size: 14px; display: none; align-items: center;
+            gap: 12px; z-index: 9999; max-width: 420px;
+        }
+        .toast-message.show { display: flex; animation: slideUp 0.3s ease; }
+        .toast-message.success { background: #27ae60; }
+        .toast-message.error { background: #e74c3c; }
+        .toast-message.info { background: #3498db; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* File Preview */
+        .file-preview-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px; background: #fef5e7;
+            border: 1px solid #f5cba7; border-radius: 8px;
+            font-size: 12px; max-width: 260px;
+        }
+        .file-preview-item .file-icon {
+            width: 32px; height: 32px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+        .file-preview-item .file-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+        .file-preview-item .file-name { font-weight: 600; color: #2c3e50; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-preview-item .file-size { font-size: 11px; color: #95a5a6; }
+        .file-preview-item .file-remove {
+            background: #e74c3c; color: white; border: none;
+            width: 22px; height: 22px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-size: 11px;
+        }
+
+        @media (max-width: 992px) {
+            .sh-grid { grid-template-columns: 1fr 1fr; }
+            .sh-grid .half-width { grid-column: span 1; }
+        }
+        @media (max-width: 768px) {
+            .sh-grid { grid-template-columns: 1fr; }
+            .sh-header { flex-direction: column; text-align: center; }
+            .sh-header .sh-meta { text-align: center; }
+            .sh-actions { flex-direction: column; }
+            .sh-actions .btn { width: 100%; justify-content: center; }
+            .items-table { min-width: 900px; }
+        }
+    </style>
 </head>
 <body>
+
+    <div class="toast-message" id="toastMessage">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastText">پیام</span>
+    </div>
+
     <div class="app-container">
-        <!-- هدر -->
-        <header class="app-header">
-            <div class="header-left">
-                <button class="hamburger" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="breadcrumb">
-                    <a href="dashboard.html">داشبورد</a>
-                    <span class="separator">/</span>
-                    <span class="current">گزارش عدم ارسال قطعه</span>
-                </div>
-            </div>
-            <div class="header-center">
-                <h2 id="pageTitle">گزارش عدم ارسال قطعه</h2>
-            </div>
-            <div class="header-right">
-                <div class="header-date">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="header-notifications" onclick="toggleNotifications()">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge" id="notificationBadge">0</span>
-                    <div class="notifications-dropdown" id="notificationsDropdown">
-                        <div class="dropdown-header">
-                            <span>اعلان‌ها</span>
-                            <a href="notifications.html">مشاهده همه</a>
-                        </div>
-                        <div class="dropdown-body" id="notificationList">
-                            <div class="no-notifications">هیچ اعلان جدیدی وجود ندارد</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-settings">
-                    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
-                </div>
-                <div class="user-profile" onclick="toggleUserMenu()">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
-                    <span id="userName">کاربر</span>
-                    <i class="fas fa-chevron-down"></i>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
-                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
-                        <hr>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
 
-        <!-- سایدبار -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>📋 NCR System</h2>
-                <p>ISO 9001:2015</p>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
-                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
-                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
-                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
-                <a href="shortage-form.html" class="active"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
-                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
-                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
-                <a href="settings.html"><i class="fas fa-cog"></i> تنظیمات</a>
-            </nav>
-        </aside>
-
-        <!-- محتوای اصلی -->
         <main class="main-content" id="mainContent">
-            <form id="shortageForm" class="form-section">
-                <!-- مرحله 1: اطلاعات اولیه -->
-                <div class="form-step" data-step="1">
-                    <h3>مرحله 1: اطلاعات گزارش (انبار)</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>شماره گزارش</label>
-                            <input type="text" id="shortageNumber" readonly>
+            <div class="sh-container">
+
+                <!-- هدر فرم -->
+                <div class="sh-header">
+                    <div>
+                        <h1><i class="fas fa-truck-loading"></i> فرم عدم ارسال قطعه (Shortage)</h1>
+                        <div style="font-size:13px;opacity:0.9;margin-top:6px;">
+                            Shortage Report / Missing Parts Form
+                            <span style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:6px;margin-right:8px;">
+                                ISO 9001 - 8.4 / IATF 16949 - 8.4.2
+                            </span>
                         </div>
-                        <div class="form-group">
-                            <label>تاریخ گزارش</label>
+                    </div>
+                    <div class="sh-meta">
+                        <div class="code">شماره گزارش: <span id="shortageNumber">SH-2026-0001</span></div>
+                        <div class="date">تاریخ ایجاد: <span id="shortageCreatedAt">-</span></div>
+                        <div class="date">کد فرم: <strong>FM-SH01/00</strong></div>
+                    </div>
+                </div>
+
+                <!-- نوار workflow -->
+                <div class="workflow-bar" id="workflowBar">
+                    <div class="stage active" data-stage="draft"><span class="dot"></span><span class="label">ثبت انبار</span></div>
+                    <div class="stage" data-stage="ceo"><span class="dot"></span><span class="label">تأیید مدیرعامل</span></div>
+                    <div class="stage" data-stage="supplier"><span class="dot"></span><span class="label">پاسخ تأمین‌کننده</span></div>
+                    <div class="stage" data-stage="corrective"><span class="dot"></span><span class="label">اقدام اصلاحی</span></div>
+                    <div class="stage" data-stage="receipt"><span class="dot"></span><span class="label">دریافت جایگزین</span></div>
+                    <div class="stage" data-stage="closed"><span class="dot"></span><span class="label">بسته</span></div>
+                    <div style="margin-right:auto;">
+                        وضعیت: <span id="shStatusBadge" class="status-badge draft">پیش‌نویس</span>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۱: اطلاعات گزارش -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-info-circle"></i> ۱. اطلاعات گزارش
+                        <span class="iso-ref">ISO 9001 - 8.4</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>شماره گزارش <span class="required">*</span></label>
+                            <input type="text" id="shortageNumberInput" class="readonly-field" readonly>
+                        </div>
+                        <div class="sh-field">
+                            <label>تاریخ گزارش <span class="required">*</span></label>
                             <input type="date" id="reportDate">
                         </div>
-                        <div class="form-group">
-                            <label>گزارش دهنده</label>
-                            <input type="text" id="reporterName">
+                        <div class="sh-field">
+                            <label>منبع گزارش</label>
+                            <select id="reportSource">
+                                <option value="warehouse">انبار (عدم دریافت قطعه)</option>
+                                <option value="production">تولید (کمبود حین تولید)</option>
+                                <option value="quality">کنترل کیفیت</option>
+                                <option value="customer">شکایت مشتری</option>
+                                <option value="purchasing">واحد خرید</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label>دپارتمان</label>
+
+                        <div class="sh-field">
+                            <label>گزارش‌دهنده <span class="required">*</span></label>
+                            <input type="text" id="reporterName" placeholder="نام و نام خانوادگی">
+                        </div>
+                        <div class="sh-field">
+                            <label>دپارتمان گزارش‌دهنده <span class="required">*</span></label>
                             <select id="reporterDepartment">
+                                <option value="">انتخاب کنید</option>
+                                <option value="انبار" selected>انبار</option>
                                 <option value="تولید">تولید</option>
                                 <option value="کنترل کیفیت">کنترل کیفیت</option>
-                                <option value="انبار" selected>انبار</option>
+                                <option value="خرید">خرید</option>
+                                <option value="مهندسی">مهندسی</option>
+                                <option value="مدیریت">مدیریت</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>موضوع گزارش</label>
-                            <select id="subject">
-                                <option value="عدم دریافت قطعه">عدم دریافت قطعه</option>
-                                <option value="دریافت قطعه معیوب">دریافت قطعه معیوب</option>
-                                <option value="درخواست قطعه جدید">درخواست قطعه جدید</option>
+                        <div class="sh-field">
+                            <label>اولویت <span class="required">*</span></label>
+                            <select id="priority">
+                                <option value="low">کم</option>
+                                <option value="medium" selected>متوسط</option>
+                                <option value="high">بالا</option>
+                                <option value="critical">بحرانی</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>کد قطعه</label>
-                            <input type="text" id="partCode">
-                        </div>
-                        <div class="form-group">
-                            <label>نام قطعه</label>
-                            <input type="text" id="partName">
-                        </div>
-                        <div class="form-group">
-                            <label>بچ نامبر/بارنامه</label>
-                            <input type="text" id="batchNumber">
-                        </div>
-                        <div class="form-group">
-                            <label>تعداد درخواستی</label>
-                            <input type="number" id="requestedQty">
-                        </div>
-                        <div class="form-group">
-                            <label>تعداد ارسالی</label>
-                            <input type="number" id="sentQty">
-                        </div>
-                        <div class="form-group">
-                            <label>تعداد کسری</label>
-                            <input type="number" id="shortageQty" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label>واحد سنجش</label>
-                            <input type="text" id="unit" value="عدد">
-                        </div>
-                        <div class="form-group full-width">
-                            <label>توضیحات</label>
-                            <textarea id="description" rows="2"></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>مستندات</label>
-                            <input type="text" id="documents" placeholder="نام فایل مستند">
+
+                        <div class="sh-field full-width">
+                            <label>موضوع گزارش <span class="required">*</span></label>
+                            <input type="text" id="subject" placeholder="خلاصه موضوع...">
                         </div>
                     </div>
                 </div>
 
-                <!-- مرحله 2: تایید مدیرعامل -->
-                <div class="form-step" data-step="2">
-                    <h3>مرحله 2: تایید مدیرعامل</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>وضعیت تایید</label>
+                <!-- ============================================ -->
+                <!-- بخش ۲: اطلاعات تأمین‌کننده -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-truck"></i> ۲. اطلاعات تأمین‌کننده
+                        <span class="iso-ref">ISO 9001 - 8.4.1 | IATF - 8.4.2</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>نام تأمین‌کننده <span class="required">*</span></label>
+                            <input type="text" id="supplierName" placeholder="نام کامل تأمین‌کننده">
+                        </div>
+                        <div class="sh-field">
+                            <label>کد تأمین‌کننده</label>
+                            <input type="text" id="supplierCode" placeholder="کد اختصاصی">
+                        </div>
+                        <div class="sh-field">
+                            <label>شماره تماس</label>
+                            <input type="text" id="supplierContact" placeholder="موبایل / تلفن">
+                        </div>
+
+                        <div class="sh-field">
+                            <label>نام رابط</label>
+                            <input type="text" id="supplierContactPerson" placeholder="نام شخص رابط">
+                        </div>
+                        <div class="sh-field">
+                            <label>ایمیل</label>
+                            <input type="email" id="supplierEmail" placeholder="email@example.com" dir="ltr">
+                        </div>
+                        <div class="sh-field">
+                            <label>درجه تأمین‌کننده</label>
+                            <select id="supplierRating">
+                                <option value="">انتخاب کنید</option>
+                                <option value="a">A - عالی</option>
+                                <option value="b">B - خوب</option>
+                                <option value="c">C - قابل قبول</option>
+                                <option value="d">D - نیاز به بهبود</option>
+                            </select>
+                        </div>
+
+                        <div class="sh-field full-width">
+                            <label>آدرس تأمین‌کننده</label>
+                            <textarea id="supplierAddress" rows="2" placeholder="آدرس کامل..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۳: اطلاعات سفارش و حمل -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-file-invoice"></i> ۳. اطلاعات سفارش و حمل
+                        <span class="iso-ref">ISO 9001 - 8.4.3 | IATF - 8.5.2</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>شماره سفارش (PO)</label>
+                            <input type="text" id="orderNumber" placeholder="PO-YYYY-XXXX">
+                        </div>
+                        <div class="sh-field">
+                            <label>تاریخ سفارش</label>
+                            <input type="date" id="orderDate">
+                        </div>
+                        <div class="sh-field">
+                            <label>تاریخ تحویل مورد انتظار</label>
+                            <input type="date" id="expectedDeliveryDate">
+                        </div>
+
+                        <div class="sh-field">
+                            <label>شماره فاکتور</label>
+                            <input type="text" id="invoiceNumber" placeholder="INV-XXXX">
+                        </div>
+                        <div class="sh-field">
+                            <label>شماره بارنامه / حمل</label>
+                            <input type="text" id="shipmentNumber" placeholder="شماره بارنامه">
+                        </div>
+                        <div class="sh-field">
+                            <label>تاریخ دریافت محموله</label>
+                            <input type="date" id="receiptDate">
+                        </div>
+
+                        <div class="sh-field">
+                            <label>شماره Lot / Batch تأمین‌کننده</label>
+                            <input type="text" id="lotNumber" placeholder="شماره سری ساخت تأمین‌کننده">
+                        </div>
+                        <div class="sh-field">
+                            <label>شماره سری داخلی (Traceability)</label>
+                            <input type="text" id="internalSerial" placeholder="شماره سری داخلی">
+                        </div>
+                        <div class="sh-field">
+                            <label>شرایط تحویل (Incoterms)</label>
+                            <select id="deliveryTerms">
+                                <option value="">انتخاب کنید</option>
+                                <option value="EXW">EXW - تحویل در محل تأمین‌کننده</option>
+                                <option value="FOB">FOB - تحویل روی کشتی</option>
+                                <option value="CIF">CIF - هزینه و بیمه پرداخت شده</option>
+                                <option value="DDP">DDP - تحویل در مقصد با عوارض</option>
+                                <option value="internal">تحویل داخلی</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۴: جدول اقلام کسری (چندگانه) -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-boxes"></i> 
+                        ۴. اقلام کسری / عدم ارسال
+                        <span class="iso-ref">ISO 9001 - 8.7 | IATF - 8.5.2</span>
+                        <span style="font-size:12px;color:#6c757d;font-weight:400;margin-right:auto;">
+                            (می‌توانید چندین قلم اضافه کنید)
+                        </span>
+                    </h3>
+
+                    <div class="items-table-wrapper">
+                        <table class="items-table" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:45px;text-align:center;">#</th>
+                                    <th style="min-width:110px;">کد قطعه <span class="required">*</span></th>
+                                    <th style="min-width:140px;">نام قطعه <span class="required">*</span></th>
+                                    <th style="min-width:80px;">واحد</th>
+                                    <th style="min-width:90px;">تعداد سفارش <span class="required">*</span></th>
+                                    <th style="min-width:90px;">تعداد ارسالی <span class="required">*</span></th>
+                                    <th style="min-width:90px;">تعداد کسری</th>
+                                    <th style="min-width:100px;">درصد کسری</th>
+                                    <th style="min-width:130px;">شماره Lot/Batch</th>
+                                    <th style="min-width:180px;">توضیحات</th>
+                                    <th style="width:80px;text-align:center;">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="items-footer">
+                        <button type="button" class="btn-add-item" onclick="addItemRow()">
+                            <i class="fas fa-plus-circle"></i> افزودن قلم جدید
+                        </button>
+                        <div class="items-count">
+                            تعداد اقلام: <strong id="itemsCount">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top:15px;">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>راهنما:</strong> برای هر قلم، تعداد سفارش، تعداد ارسالی و کسری محاسبه می‌شود. می‌توانید چندین قطعه مختلف را در یک گزارش ثبت کنید.
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۵: طبقه‌بندی و ارزیابی مشکل -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-exclamation-triangle"></i> ۵. طبقه‌بندی و ارزیابی مشکل
+                        <span class="iso-ref">ISO 9001 - 8.7 | IATF - 8.4.2.4</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>طبقه‌بندی مشکل <span class="required">*</span></label>
+                            <select id="problemSeverity">
+                                <option value="">انتخاب کنید</option>
+                                <option value="critical">بحرانی (Critical) - توقف تولید</option>
+                                <option value="major">عمده (Major) - تأخیر تحویل</option>
+                                <option value="minor">جزئی (Minor)</option>
+                            </select>
+                        </div>
+                        <div class="sh-field">
+                            <label>دسته‌بندی نقص</label>
+                            <select id="defectCategory">
+                                <option value="">انتخاب کنید</option>
+                                <option value="missing">عدم ارسال کامل</option>
+                                <option value="partial">ارسال ناقص</option>
+                                <option value="wrong_item">ارسال قطعه اشتباه</option>
+                                <option value="wrong_qty">تعداد اشتباه</option>
+                                <option value="packaging">مشکل بسته‌بندی</option>
+                                <option value="documentation">نقص مستندات</option>
+                            </select>
+                        </div>
+                        <div class="sh-field">
+                            <label>میزان تأخیر (روز)</label>
+                            <input type="number" id="delayDays" placeholder="0" min="0">
+                        </div>
+
+                        <div class="sh-field">
+                            <label>وضعیت تولید</label>
+                            <select id="productionImpact">
+                                <option value="">انتخاب کنید</option>
+                                <option value="stopped">خط تولید متوقف شده</option>
+                                <option value="reduced">کاهش سرعت تولید</option>
+                                <option value="normal">تولید عادی ادامه دارد</option>
+                            </select>
+                        </div>
+                        <div class="sh-field">
+                            <label>هزینه تخمینی (ریال)</label>
+                            <input type="number" id="costEstimate" placeholder="0" min="0">
+                        </div>
+                        <div class="sh-field">
+                            <label>مدت توقف تولید (ساعت)</label>
+                            <input type="number" id="downtimeHours" placeholder="0" min="0">
+                        </div>
+
+                        <div class="sh-field full-width">
+                            <label>پیامدهای بالقوه</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" class="effect-checkbox" value="quality"> اثر بر کیفیت محصول</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="safety"> اثر بر ایمنی</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="customer"> اثر بر مشتری</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="cost"> اثر مالی / هزینه</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="delivery"> تأخیر در تحویل</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="production"> توقف تولید</label>
+                            </div>
+                        </div>
+
+                        <div class="sh-field full-width">
+                            <label>مرجع استاندارد / مشخصات فنی</label>
+                            <input type="text" id="standardRef" placeholder="مثال: ISO 9001 - بند 8.4 / مشخصات فنی">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۶: تأیید مدیرعامل -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-user-tie"></i> ۶. تأیید مدیرعامل
+                        <span class="iso-ref">ISO 9001 - 5.1 | IATF - 5.1.1</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>وضعیت تأیید <span class="required">*</span></label>
                             <select id="ceoStatus">
                                 <option value="pending">در انتظار</option>
-                                <option value="approved">تایید شده</option>
+                                <option value="approved">تأیید شده</option>
                                 <option value="rejected">رد شده</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>تاریخ تایید</label>
+                        <div class="sh-field">
+                            <label>تاریخ تأیید</label>
                             <input type="date" id="ceoApprovedDate">
                         </div>
-                        <div class="form-group full-width">
-                            <label>نکات مدیرعامل</label>
-                            <textarea id="ceoNotes" rows="2"></textarea>
+                        <div class="sh-field">
+                            <label>مبلغ تأیید شده (ریال)</label>
+                            <input type="number" id="ceoApprovedAmount" placeholder="0" min="0">
+                        </div>
+                        <div class="sh-field full-width">
+                            <label>نظرات مدیرعامل</label>
+                            <textarea id="ceoNotes" rows="2" placeholder="نظرات و دستورات..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- مرحله 3: پاسخ تامین‌کننده -->
-                <div class="form-step" data-step="3">
-                    <h3>مرحله 3: پاسخ تامین‌کننده</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>وضعیت تامین‌کننده</label>
+                <!-- ============================================ -->
+                <!-- بخش ۷: پاسخ تأمین‌کننده -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-reply-all"></i> ۷. پاسخ تأمین‌کننده
+                        <span class="iso-ref">IATF 16949 - 8.4.2.4.1</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>وضعیت پاسخ تأمین‌کننده</label>
                             <select id="supplierStatus">
-                                <option value="pending">در انتظار</option>
-                                <option value="approved">تایید شده</option>
+                                <option value="pending">در انتظار پاسخ</option>
+                                <option value="accepted">پذیرفته</option>
                                 <option value="rejected">رد شده</option>
+                                <option value="partially">تا حدی پذیرفته</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>گزارش مورد تأیید است</label>
-                            <select id="supplierApproved">
+                        <div class="sh-field">
+                            <label>تاریخ پاسخ تأمین‌کننده</label>
+                            <input type="date" id="supplierResponseDate">
+                        </div>
+                        <div class="sh-field">
+                            <label>نوع پاسخ تأمین‌کننده</label>
+                            <select id="supplierResponseType">
                                 <option value="">انتخاب کنید</option>
-                                <option value="yes">بله - قطعه جایگزین ارسال می‌شود</option>
-                                <option value="no">خیر - هزینه عودت داده می‌شود</option>
+                                <option value="send_remaining">ارسال قطعات باقی‌مانده</option>
+                                <option value="replace">ارسال قطعه جایگزین</option>
+                                <option value="refund">عودت هزینه</option>
+                                <option value="credit_note">اعتبار خرید</option>
+                                <option value="8d">ارائه 8D Report</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>زمان ارسال قطعه/هزینه</label>
-                            <input type="text" id="supplierReplacementDate">
+
+                        <div class="sh-field">
+                            <label>شماره 8D / گزارش اقدام</label>
+                            <input type="text" id="supplier8DNumber" placeholder="8D-YYYY-XXX">
                         </div>
-                        <div class="form-group">
-                            <label>شماره اقدام اصلاحی</label>
-                            <input type="text" id="correctiveActionNumber">
+                        <div class="sh-field">
+                            <label>تاریخ ارسال قطعات</label>
+                            <input type="date" id="supplierActionDate">
                         </div>
-                        <div class="form-group full-width">
-                            <label>نتیجه اقدام تعریف شده</label>
-                            <textarea id="actionResult" rows="2"></textarea>
+                        <div class="sh-field">
+                            <label>مبلغ بازگشت / اعتبار (ریال)</label>
+                            <input type="number" id="supplierRefundAmount" placeholder="0" min="0">
                         </div>
-                        <div class="form-group full-width">
-                            <label>نکات تامین‌کننده</label>
-                            <textarea id="supplierNotes" rows="2"></textarea>
+
+                        <div class="sh-field full-width">
+                            <label>ریشه‌یابی تأمین‌کننده (Root Cause)</label>
+                            <textarea id="supplierRootCause" rows="2" placeholder="ریشه اصلی مشکل اعلامی از طرف تأمین‌کننده..."></textarea>
+                        </div>
+                        <div class="sh-field full-width">
+                            <label>نکات تأمین‌کننده</label>
+                            <textarea id="supplierNotes" rows="2" placeholder="توضیحات تأمین‌کننده..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- مرحله 4: دریافت توسط انبار -->
-                <div class="form-step" data-step="4">
-                    <h3>مرحله 4: دریافت قطعه جایگزین (انبار)</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>وضعیت انبار</label>
+                <!-- ============================================ -->
+                <!-- بخش ۸: اقدام اصلاحی تأمین‌کننده (SCAR) -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-clipboard-check"></i> ۸. اقدام اصلاحی تأمین‌کننده (SCAR)
+                        <span class="iso-ref">IATF 16949 - 8.4.2.5</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field full-width">
+                            <label>آیا نیاز به SCAR (Supplier Corrective Action Request) است؟</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="needSCAR" value="yes" onchange="toggleSCARSubs()"> بله</label>
+                                <label><input type="radio" name="needSCAR" value="no" onchange="toggleSCARSubs()"> خیر</label>
+                            </div>
+                        </div>
+
+                        <div class="sh-field full-width" id="subSCAR" style="display:none;">
+                            <div class="sh-grid" style="padding:0;">
+                                <div class="sh-field">
+                                    <label>شماره SCAR صادرشده</label>
+                                    <input type="text" id="scarNumber" placeholder="SCAR-YYYY-XXX">
+                                </div>
+                                <div class="sh-field">
+                                    <label>تاریخ صدور SCAR</label>
+                                    <input type="date" id="scarIssueDate">
+                                </div>
+                                <div class="sh-field">
+                                    <label>مهلت پاسخ تأمین‌کننده</label>
+                                    <input type="date" id="scarDeadline">
+                                </div>
+
+                                <div class="sh-field full-width">
+                                    <label>شرح درخواست اقدام اصلاحی</label>
+                                    <textarea id="scarDescription" rows="2" placeholder="شرح درخواست از تأمین‌کننده..."></textarea>
+                                </div>
+
+                                <div class="sh-field">
+                                    <label>تاریخ دریافت پاسخ</label>
+                                    <input type="date" id="scarResponseDate">
+                                </div>
+                                <div class="sh-field">
+                                    <label>نتیجه ارزیابی SCAR</label>
+                                    <select id="scarResult">
+                                        <option value="">انتخاب کنید</option>
+                                        <option value="accepted">پذیرفته شده</option>
+                                        <option value="rejected">رد شده</option>
+                                        <option value="in_progress">در حال بررسی</option>
+                                    </select>
+                                </div>
+                                <div class="sh-field">
+                                    <label>شماره CA داخلی مرتبط</label>
+                                    <input type="text" id="linkedCANumber" placeholder="CA-YYYY-XXXX">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- بخش ۹: دریافت قطعات باقی‌مانده (انبار) -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-warehouse"></i> ۹. دریافت قطعات باقی‌مانده (انبار)
+                        <span class="iso-ref">ISO 9001 - 8.5.4</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>وضعیت دریافت</label>
                             <select id="warehouseStatus">
                                 <option value="pending">در انتظار</option>
-                                <option value="received">قطعه جایگزین دریافت شد</option>
-                                <option value="rejected">قطعه جایگزین دریافت نشد</option>
+                                <option value="received">دریافت کامل شد</option>
+                                <option value="partially_received">تا حدی دریافت شد</option>
+                                <option value="not_received">دریافت نشد</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="sh-field">
                             <label>تاریخ دریافت</label>
                             <input type="date" id="replacementReceivedDate">
                         </div>
-                        <div class="form-group">
+                        <div class="sh-field">
                             <label>تعداد دریافت شده</label>
-                            <input type="number" id="replacementQuantity">
+                            <input type="number" id="replacementQuantity" placeholder="0" min="0">
                         </div>
-                        <div class="form-group full-width">
+
+                        <div class="sh-field">
+                            <label>شماره رسید انبار</label>
+                            <input type="text" id="warehouseReceiptNumber" placeholder="WR-XXXX">
+                        </div>
+                        <div class="sh-field">
+                            <label>شماره Lot جدید</label>
+                            <input type="text" id="newLotNumber" placeholder="Lot جدید">
+                        </div>
+                        <div class="sh-field">
+                            <label>وضعیت کیفیت قطعات</label>
+                            <select id="replacementQuality">
+                                <option value="">انتخاب کنید</option>
+                                <option value="approved">تأیید شده</option>
+                                <option value="rejected">رد شده</option>
+                                <option value="inspection">در حال بازرسی</option>
+                            </select>
+                        </div>
+
+                        <div class="sh-field full-width">
                             <label>نکات انبار</label>
-                            <textarea id="warehouseNotes" rows="2"></textarea>
+                            <textarea id="warehouseNotes" rows="2" placeholder="توضیحات انبار..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره گزارش</button>
-                    <button type="button" class="btn btn-success" onclick="printShortage()"><i class="fas fa-print"></i> چاپ</button>
-                    <button type="button" class="btn btn-warning" onclick="window.location.href='dashboard.html'"><i class="fas fa-arrow-right"></i> بازگشت</button>
+                <!-- ============================================ -->
+                <!-- بخش ۱۰: پایش و بستن گزارش -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-chart-line"></i> ۱۰. پایش و بستن گزارش
+                        <span class="iso-ref">ISO 9001 - 10.2.1.f</span>
+                    </h3>
+                    <div class="sh-grid">
+                        <div class="sh-field">
+                            <label>نتیجه نهایی <span class="required">*</span></label>
+                            <select id="finalResult">
+                                <option value="">انتخاب کنید</option>
+                                <option value="accepted">پذیرفته شده - قطعات دریافت شد</option>
+                                <option value="partially">تا حدی پذیرفته</option>
+                                <option value="rejected">رد شده</option>
+                                <option value="cancelled">لغو شده</option>
+                            </select>
+                        </div>
+                        <div class="sh-field">
+                            <label>مسئول پایش</label>
+                            <input type="text" id="verifier" placeholder="نام مسئول پایش" readonly>
+                        </div>
+                        <div class="sh-field">
+                            <label>تاریخ بستن</label>
+                            <input type="date" id="closureDate">
+                        </div>
+
+                        <div class="sh-field full-width">
+                            <label>یادداشت نهایی</label>
+                            <textarea id="finalNotes" rows="2" placeholder="توضیحات نهایی..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top:12px;">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>ارزیابی تأمین‌کننده:</strong> پس از بستن گزارش، امتیاز تأمین‌کننده بر اساس تعداد گزارش‌های کسری و پاسخ‌دهی به‌روزرسانی می‌شود.
+                    </div>
                 </div>
-            </form>
+
+                <!-- ============================================ -->
+                <!-- بخش ۱۱: پیوست‌ها -->
+                <!-- ============================================ -->
+                <div class="sh-section">
+                    <h3>
+                        <i class="fas fa-paperclip"></i> ۱۱. پیوست‌ها
+                        <span class="iso-ref">ISO 9001 - 7.5.3</span>
+                    </h3>
+                    <div class="sh-field">
+                        <label>فایل‌های پیوست</label>
+                        <input type="file" id="attachments" multiple
+                               accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                               onchange="handleFileSelection(this)">
+                        <small class="hint">حداکثر 5 مگابایت برای هر فایل - فرمت‌های مجاز: jpg, png, pdf, doc, xlsx</small>
+                        <div id="selectedFilesPreview" style="margin-top:12px; display:none;">
+                            <div style="font-weight:700; color:#2c3e50; margin-bottom:8px; font-size:13px;">
+                                <i class="fas fa-paperclip"></i>
+                                فایل‌های انتخاب شده (<span id="selectedFilesCount">0</span>):
+                            </div>
+                            <div id="selectedFilesList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های عملیات -->
+                <div class="sh-actions">
+                    <button type="button" class="btn btn-secondary" onclick="goBack()">
+                        <i class="fas fa-arrow-right"></i> بازگشت
+                    </button>
+                    <button type="button" class="btn btn-print" onclick="printForm()">
+                        <i class="fas fa-print"></i> چاپ
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                        <i class="fas fa-save"></i> ذخیره پیش‌نویس
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnSubmit" onclick="submitForm()">
+                        <i class="fas fa-paper-plane"></i> ثبت نهایی
+                    </button>
+                </div>
+
+            </div>
+
+            <div id="footerContainer"></div>
         </main>
     </div>
 
-    <script src="i18n.js"></script>
-    <script src="database.js"></script>
+    <script src="database.js?v=20261101"></script>
     <script src="app.js"></script>
-    <script src="print.js"></script>
-    <script src="data/sample-data.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+
     <script>
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        // ============================================
+        // CONFIG
+        // ============================================
+        const API_BASE = window.NCR_API + '';
+        const STORAGE_KEY = 'shortages';
+        const DRAFT_KEY = 'shortage_drafts';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
-            
-            if (currentUser) {
-                document.getElementById('userName').textContent = currentUser.full_name;
-                document.getElementById('reporterName').value = currentUser.full_name;
+        let currentUser = { id: 2, full_name: 'مدیر کیفیت', username: 'quality_user', role: 'quality' };
+        let shortageData = {};
+        let selectedFiles = [];
+        let itemRowCounter = 0;
+
+        // ============================================
+        // UTILITY
+        // ============================================
+        function showToast(message, type) {
+            var toast = document.getElementById('toastMessage');
+            var text = document.getElementById('toastText');
+            var icon = document.getElementById('toastIcon');
+            text.textContent = message;
+            toast.className = 'toast-message show';
+            if (type === 'success') { toast.classList.add('success'); icon.className = 'fas fa-check-circle'; }
+            else if (type === 'error') { toast.classList.add('error'); icon.className = 'fas fa-exclamation-circle'; }
+            else { toast.classList.add('info'); icon.className = 'fas fa-info-circle'; }
+            setTimeout(function() { toast.classList.remove('show'); }, 4000);
+        }
+
+        function getToday() {
+            var d = new Date();
+            return d.getFullYear() + '-' +
+                   String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(d.getDate()).padStart(2, '0');
+        }
+
+        function formatPersianDate(dateStr) {
+            if (!dateStr) return '-';
+            var parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            var months = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+            var m = parseInt(parts[1]) - 1;
+            return parseInt(parts[2]) + ' ' + months[m] + ' ' + parts[0];
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function getCheckedValues(className) {
+            var arr = [];
+            document.querySelectorAll('.' + className + ':checked').forEach(function(el) {
+                arr.push(el.value);
+            });
+            return arr;
+        }
+
+        function setCheckedValues(className, values) {
+            if (!Array.isArray(values)) values = [];
+            document.querySelectorAll('.' + className).forEach(function(el) {
+                el.checked = (values.indexOf(el.value) !== -1);
+            });
+        }
+
+        async function generateShortageNumber() {
+            try {
+                const res = await fetch(API_BASE + '/get_next_shortage_number.php');
+                const result = await res.json();
+                if (result.success && result.shortage_number) return result.shortage_number;
+            } catch (e) { console.warn('⚠️ API failed, using local fallback'); }
+            var year = new Date().getFullYear();
+            var shortages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            var maxNum = 0;
+            shortages.forEach(function(s) {
+                if (s.shortageNumber) {
+                    var parts = s.shortageNumber.split('-');
+                    var num = parseInt(parts[parts.length - 1]) || 0;
+                    if (num > maxNum) maxNum = num;
+                }
+            });
+            return 'SH-' + year + '-' + String(maxNum + 1).padStart(4, '0');
+        }
+
+        // ============================================
+        // CONDITIONAL TOGGLES
+        // ============================================
+        function toggleSCARSubs() {
+            var el = document.querySelector('input[name="needSCAR"]:checked');
+            var sub = document.getElementById('subSCAR');
+            if (el && el.value === 'yes') {
+                sub.style.display = 'block';
+            } else {
+                sub.style.display = 'none';
             }
-
-            document.getElementById('shortageNumber').value = generateShortageNumber();
-            document.getElementById('reportDate').value = now.toISOString().split('T')[0];
-
-            updateNotifications();
-        });
-
-        function generateShortageNumber() {
-            const date = new Date();
-            const year = date.getFullYear();
-            const count = JSON.parse(localStorage.getItem('shortages') || '[]').length + 1;
-            return `SH-${year}-${String(count).padStart(3, '0')}`;
         }
 
-        // محاسبه خودکار کسری
-        document.getElementById('requestedQty').addEventListener('input', calculateShortage);
-        document.getElementById('sentQty').addEventListener('input', calculateShortage);
+        // ============================================
+        // مدیریت ردیف‌های اقلام کسری
+        // ============================================
+        function addItemRow(data) {
+            data = data || {};
+            itemRowCounter++;
+            var rowId = 'item-row-' + itemRowCounter;
+            var tbody = document.getElementById('itemsTableBody');
 
-        function calculateShortage() {
-            const requested = parseInt(document.getElementById('requestedQty').value) || 0;
-            const sent = parseInt(document.getElementById('sentQty').value) || 0;
-            document.getElementById('shortageQty').value = requested - sent > 0 ? requested - sent : 0;
-        }
-
-        // ذخیره گزارش
-        document.getElementById('shortageForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const shortage = {
-                shortage_number: document.getElementById('shortageNumber').value,
-                report_date: document.getElementById('reportDate').value,
-                reporter_name: document.getElementById('reporterName').value,
-                reporter_department: document.getElementById('reporterDepartment').value,
-                subject: document.getElementById('subject').value,
-                part_code: document.getElementById('partCode').value,
-                part_name: document.getElementById('partName').value,
-                batch_number: document.getElementById('batchNumber').value,
-                requested_qty: parseInt(document.getElementById('requestedQty').value) || 0,
-                sent_qty: parseInt(document.getElementById('sentQty').value) || 0,
-                shortage_qty: parseInt(document.getElementById('shortageQty').value) || 0,
-                unit: document.getElementById('unit').value,
-                documents: document.getElementById('documents').value,
-                description: document.getElementById('description').value,
-
-                ceo_status: document.getElementById('ceoStatus').value,
-                ceo_approved_date: document.getElementById('ceoApprovedDate').value,
-                ceo_notes: document.getElementById('ceoNotes').value,
-
-                supplier_status: document.getElementById('supplierStatus').value,
-                supplier_approved: document.getElementById('supplierApproved').value,
-                supplier_replacement_date: document.getElementById('supplierReplacementDate').value,
-                corrective_action_number: document.getElementById('correctiveActionNumber').value,
-                action_result: document.getElementById('actionResult').value,
-                supplier_notes: document.getElementById('supplierNotes').value,
-
-                warehouse_status: document.getElementById('warehouseStatus').value,
-                replacement_received_date: document.getElementById('replacementReceivedDate').value,
-                replacement_quantity: parseInt(document.getElementById('replacementQuantity').value) || 0,
-                warehouse_notes: document.getElementById('warehouseNotes').value,
-
-                final_status: document.getElementById('warehouseStatus').value === 'received' ? 'closed' : 'in_progress',
-                created_at: new Date().toISOString(),
-                created_by: currentUser ? currentUser.full_name : ''
-            };
-
-            let shortages = JSON.parse(localStorage.getItem('shortages') || '[]');
-            shortages.push(shortage);
-            localStorage.setItem('shortages', JSON.stringify(shortages));
-
-            showNotification('گزارش عدم ارسال قطعه با موفقیت ثبت شد!', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
-        });
-
-        function showNotification(message, type) {
-            const colors = {
-                success: '#27ae60',
-                error: '#e74c3c',
-                warning: '#f39c12',
-                info: '#3498db'
-            };
-            
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                padding: 15px 25px;
-                background: ${colors[type] || '#3498db'};
-                color: white;
-                border-radius: 10px;
-                font-weight: bold;
-                z-index: 9999;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                animation: slideDown 0.5s ease;
-                max-width: 400px;
+            var row = document.createElement('tr');
+            row.id = rowId;
+            row.dataset.rowId = itemRowCounter;
+            row.innerHTML = `
+                <td style="text-align:center;">
+                    <span class="item-num">${itemRowCounter}</span>
+                </td>
+                <td>
+                    <input type="text" class="item-code" placeholder="کد قطعه" value="${escapeHtml(data.partCode || '')}">
+                </td>
+                <td>
+                    <input type="text" class="item-name" placeholder="نام قطعه" value="${escapeHtml(data.partName || '')}">
+                </td>
+                <td>
+                    <select class="item-unit">
+                        <option value="عدد" ${data.unit === 'عدد' || !data.unit ? 'selected' : ''}>عدد</option>
+                        <option value="کیلوگرم" ${data.unit === 'کیلوگرم' ? 'selected' : ''}>کیلوگرم</option>
+                        <option value="متر" ${data.unit === 'متر' ? 'selected' : ''}>متر</option>
+                        <option value="لیتر" ${data.unit === 'لیتر' ? 'selected' : ''}>لیتر</option>
+                        <option value="تن" ${data.unit === 'تن' ? 'selected' : ''}>تن</option>
+                        <option value="ست" ${data.unit === 'ست' ? 'selected' : ''}>ست</option>
+                        <option value="بسته" ${data.unit === 'بسته' ? 'selected' : ''}>بسته</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" class="item-ordered" placeholder="0" min="0" value="${data.orderedQty || ''}" oninput="calculateItemShortage('${rowId}')">
+                </td>
+                <td>
+                    <input type="number" class="item-sent" placeholder="0" min="0" value="${data.sentQty || ''}" oninput="calculateItemShortage('${rowId}')">
+                </td>
+                <td>
+                    <input type="number" class="item-shortage readonly-field" placeholder="0" readonly value="${data.shortageQty || ''}">
+                </td>
+                <td>
+                    <input type="number" class="item-percentage readonly-field" placeholder="0" readonly value="${data.shortagePercentage || ''}">
+                </td>
+                <td>
+                    <input type="text" class="item-lot" placeholder="Lot/Batch" value="${escapeHtml(data.lotNumber || '')}">
+                </td>
+                <td>
+                    <textarea class="item-notes" rows="2" placeholder="توضیحات...">${escapeHtml(data.notes || '')}</textarea>
+                </td>
+                <td>
+                    <div class="row-actions">
+                        <button type="button" class="btn-row btn-duplicate" onclick="duplicateItemRow('${rowId}')" title="کپی">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button type="button" class="btn-row btn-remove" onclick="removeItemRow('${rowId}')" title="حذف">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
             `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.5s';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
-        }
-
-        function printShortage() {
-            window.print();
-        }
-
-        // توابع عمومی
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('mainContent').classList.toggle('expanded');
-        }
-
-        function toggleUserMenu() {
-            document.getElementById('userDropdown').classList.toggle('show');
-        }
-
-        function toggleNotifications() {
-            document.getElementById('notificationsDropdown').classList.toggle('show');
-        }
-
-        function updateNotifications() {
-            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            const unread = notifications.filter(n => !n.is_read);
-            document.getElementById('notificationBadge').textContent = unread.length;
-        }
-
-        function changePassword() {
-            window.location.href = 'profile.html?action=change-password';
-        }
-
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
-
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.user-profile')) {
-                document.getElementById('userDropdown').classList.remove('show');
+            tbody.appendChild(row);
+            updateItemsCount();
+            updateItemRowNumbers();
+            if (data.orderedQty || data.sentQty) {
+                calculateItemShortage(rowId);
             }
-            if (!e.target.closest('.header-notifications')) {
-                document.getElementById('notificationsDropdown').classList.remove('show');
+        }
+
+        function calculateItemShortage(rowId) {
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            var ordered = parseInt(row.querySelector('.item-ordered').value) || 0;
+            var sent = parseInt(row.querySelector('.item-sent').value) || 0;
+            var shortage = ordered - sent > 0 ? ordered - sent : 0;
+            var percentage = ordered > 0 ? ((shortage / ordered) * 100).toFixed(1) : 0;
+            
+            row.querySelector('.item-shortage').value = shortage;
+            row.querySelector('.item-percentage').value = percentage + '%';
+        }
+
+        function removeItemRow(rowId) {
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            var count = document.querySelectorAll('#itemsTableBody tr').length;
+            if (count <= 1) {
+                showToast('حداقل یک قلم باید وجود داشته باشد.', 'error');
+                return;
+            }
+            if (!confirm('آیا از حذف این قلم مطمئن هستید؟')) return;
+            row.remove();
+            updateItemsCount();
+            updateItemRowNumbers();
+            showToast('قلم حذف شد', 'info');
+        }
+
+        function duplicateItemRow(rowId) {
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            var data = {
+                partCode: row.querySelector('.item-code').value,
+                partName: row.querySelector('.item-name').value,
+                unit: row.querySelector('.item-unit').value,
+                orderedQty: row.querySelector('.item-ordered').value,
+                sentQty: row.querySelector('.item-sent').value,
+                lotNumber: row.querySelector('.item-lot').value,
+                notes: row.querySelector('.item-notes').value
+            };
+            addItemRow(data);
+            showToast('ردیف کپی شد', 'success');
+        }
+
+        function updateItemRowNumbers() {
+            var rows = document.querySelectorAll('#itemsTableBody tr');
+            rows.forEach(function(row, idx) {
+                var numEl = row.querySelector('.item-num');
+                if (numEl) numEl.textContent = idx + 1;
+            });
+        }
+
+        function updateItemsCount() {
+            var count = document.querySelectorAll('#itemsTableBody tr').length;
+            var el = document.getElementById('itemsCount');
+            if (el) el.textContent = count;
+        }
+
+        function getItemsData() {
+            var items = [];
+            document.querySelectorAll('#itemsTableBody tr').forEach(function(row) {
+                var partCode = row.querySelector('.item-code').value.trim();
+                var partName = row.querySelector('.item-name').value.trim();
+                var unit = row.querySelector('.item-unit').value;
+                var orderedQty = parseInt(row.querySelector('.item-ordered').value) || 0;
+                var sentQty = parseInt(row.querySelector('.item-sent').value) || 0;
+                var shortageQty = parseInt(row.querySelector('.item-shortage').value) || 0;
+                var shortagePercentage = row.querySelector('.item-percentage').value;
+                var lotNumber = row.querySelector('.item-lot').value.trim();
+                var notes = row.querySelector('.item-notes').value.trim();
+
+                if (partCode || partName || orderedQty || sentQty) {
+                    items.push({
+                        partCode: partCode,
+                        partName: partName,
+                        unit: unit,
+                        orderedQty: orderedQty,
+                        sentQty: sentQty,
+                        shortageQty: shortageQty,
+                        shortagePercentage: shortagePercentage,
+                        lotNumber: lotNumber,
+                        notes: notes
+                    });
+                }
+            });
+            return items;
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            var user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) currentUser = user;
+
+            document.getElementById('reportDate').value = getToday();
+            document.getElementById('reporterName').value = currentUser.full_name || currentUser.username;
+            document.getElementById('verifier').value = currentUser.full_name || currentUser.username;
+
+            addItemRow();
+
+            var urlParams = new URLSearchParams(window.location.search);
+            var shortageNumber = urlParams.get('shortage');
+
+            if (shortageNumber) {
+                await loadShortage(shortageNumber);
+            } else {
+                var newNum = await generateShortageNumber();
+                document.getElementById('shortageNumber').textContent = newNum;
+                document.getElementById('shortageNumberInput').value = newNum;
+                document.getElementById('shortageCreatedAt').textContent = formatPersianDate(getToday());
+            }
+
+            if (shortageNumber) {
+                document.getElementById('shortageCreatedAt').textContent = formatPersianDate(shortageData.reportDate || getToday());
             }
         });
+
+        // ============================================
+        // SUBMIT
+        // ============================================
+        function validateForm() {
+            var required = ['shortageNumberInput', 'reportDate', 'reporterName', 'reporterDepartment', 'subject', 'supplierName', 'priority', 'problemSeverity', 'finalResult'];
+            var invalid = null;
+            required.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el.value || !el.value.trim()) {
+                    el.style.borderColor = '#e74c3c';
+                    if (!invalid) invalid = el;
+                } else {
+                    el.style.borderColor = '';
+                }
+            });
+
+            var items = getItemsData();
+            if (items.length === 0) {
+                showToast('حداقل یک قلم باید ثبت شود', 'error');
+                return false;
+            }
+
+            var missingInRows = false;
+            document.querySelectorAll('#itemsTableBody tr').forEach(function(row) {
+                var code = row.querySelector('.item-code');
+                var name = row.querySelector('.item-name');
+                var ordered = row.querySelector('.item-ordered');
+                var sent = row.querySelector('.item-sent');
+
+                var hasData = code.value.trim() || name.value.trim() || ordered.value || sent.value;
+                if (hasData) {
+                    if (!code.value.trim()) { code.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { code.style.borderColor = ''; }
+                    if (!name.value.trim()) { name.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { name.style.borderColor = ''; }
+                    if (!ordered.value) { ordered.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { ordered.style.borderColor = ''; }
+                    if (!sent.value && sent.value !== '0') { sent.style.borderColor = '#e74c3c'; missingInRows = true; }
+                    else { sent.style.borderColor = ''; }
+                }
+            });
+
+            if (missingInRows) {
+                showToast('لطفاً فیلدهای الزامی هر قلم (کد، نام، تعداد سفارش، تعداد ارسالی) را تکمیل کنید', 'error');
+                return false;
+            }
+
+            if (invalid) {
+                invalid.focus();
+                invalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast('لطفاً فیلدهای الزامی را تکمیل کنید', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function collectData() {
+            var needSCAR = document.querySelector('input[name="needSCAR"]:checked');
+            return {
+                shortageNumber: document.getElementById('shortageNumberInput').value.trim(),
+                reportDate: document.getElementById('reportDate').value,
+                reportSource: document.getElementById('reportSource').value,
+                reporterName: document.getElementById('reporterName').value.trim(),
+                reporterDepartment: document.getElementById('reporterDepartment').value,
+                priority: document.getElementById('priority').value,
+                subject: document.getElementById('subject').value.trim(),
+
+                supplierName: document.getElementById('supplierName').value.trim(),
+                supplierCode: document.getElementById('supplierCode').value.trim(),
+                supplierContact: document.getElementById('supplierContact').value.trim(),
+                supplierContactPerson: document.getElementById('supplierContactPerson').value.trim(),
+                supplierEmail: document.getElementById('supplierEmail').value.trim(),
+                supplierRating: document.getElementById('supplierRating').value,
+                supplierAddress: document.getElementById('supplierAddress').value.trim(),
+
+                orderNumber: document.getElementById('orderNumber').value.trim(),
+                orderDate: document.getElementById('orderDate').value,
+                expectedDeliveryDate: document.getElementById('expectedDeliveryDate').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value.trim(),
+                shipmentNumber: document.getElementById('shipmentNumber').value.trim(),
+                receiptDate: document.getElementById('receiptDate').value,
+                lotNumber: document.getElementById('lotNumber').value.trim(),
+                internalSerial: document.getElementById('internalSerial').value.trim(),
+                deliveryTerms: document.getElementById('deliveryTerms').value,
+
+                items: getItemsData(),
+
+                problemSeverity: document.getElementById('problemSeverity').value,
+                defectCategory: document.getElementById('defectCategory').value,
+                delayDays: document.getElementById('delayDays').value || 0,
+                productionImpact: document.getElementById('productionImpact').value,
+                costEstimate: document.getElementById('costEstimate').value || 0,
+                downtimeHours: document.getElementById('downtimeHours').value || 0,
+                effects: getCheckedValues('effect-checkbox'),
+                standardRef: document.getElementById('standardRef').value.trim(),
+
+                ceoStatus: document.getElementById('ceoStatus').value,
+                ceoApprovedDate: document.getElementById('ceoApprovedDate').value,
+                ceoApprovedAmount: document.getElementById('ceoApprovedAmount').value || 0,
+                ceoNotes: document.getElementById('ceoNotes').value.trim(),
+
+                supplierStatus: document.getElementById('supplierStatus').value,
+                supplierResponseDate: document.getElementById('supplierResponseDate').value,
+                supplierResponseType: document.getElementById('supplierResponseType').value,
+                supplier8DNumber: document.getElementById('supplier8DNumber').value.trim(),
+                supplierActionDate: document.getElementById('supplierActionDate').value,
+                supplierRefundAmount: document.getElementById('supplierRefundAmount').value || 0,
+                supplierRootCause: document.getElementById('supplierRootCause').value.trim(),
+                supplierNotes: document.getElementById('supplierNotes').value.trim(),
+
+                needSCAR: needSCAR ? needSCAR.value : '',
+                scarNumber: document.getElementById('scarNumber').value.trim(),
+                scarIssueDate: document.getElementById('scarIssueDate').value,
+                scarDeadline: document.getElementById('scarDeadline').value,
+                scarDescription: document.getElementById('scarDescription').value.trim(),
+                scarResponseDate: document.getElementById('scarResponseDate').value,
+                scarResult: document.getElementById('scarResult').value,
+                linkedCANumber: document.getElementById('linkedCANumber').value.trim(),
+
+                warehouseStatus: document.getElementById('warehouseStatus').value,
+                replacementReceivedDate: document.getElementById('replacementReceivedDate').value,
+                replacementQuantity: document.getElementById('replacementQuantity').value || 0,
+                warehouseReceiptNumber: document.getElementById('warehouseReceiptNumber').value.trim(),
+                newLotNumber: document.getElementById('newLotNumber').value.trim(),
+                replacementQuality: document.getElementById('replacementQuality').value,
+                warehouseNotes: document.getElementById('warehouseNotes').value.trim(),
+
+                finalResult: document.getElementById('finalResult').value,
+                verifier: document.getElementById('verifier').value,
+                closureDate: document.getElementById('closureDate').value,
+                finalNotes: document.getElementById('finalNotes').value.trim(),
+
+                status: 'draft',
+                createdAt: new Date().toISOString()
+            };
+        }
+
+        async function submitForm() {
+            if (!validateForm()) return;
+
+            shortageData = collectData();
+            shortageData.status = 'pending';
+            shortageData.submittedAt = new Date().toISOString();
+
+            var btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ثبت...';
+
+            try {
+                var payload = {
+                    shortage_number: shortageData.shortageNumber,
+                    report_date: shortageData.reportDate,
+                    report_source: shortageData.reportSource,
+                    reporter_name: shortageData.reporterName,
+                    reporter_department: shortageData.reporterDepartment,
+                    priority: shortageData.priority,
+                    subject: shortageData.subject,
+                    supplier_name: shortageData.supplierName,
+                    supplier_code: shortageData.supplierCode,
+                    supplier_contact: shortageData.supplierContact,
+                    supplier_contact_person: shortageData.supplierContactPerson,
+                    supplier_email: shortageData.supplierEmail,
+                    supplier_rating: shortageData.supplierRating,
+                    supplier_address: shortageData.supplierAddress,
+                    order_number: shortageData.orderNumber,
+                    order_date: shortageData.orderDate,
+                    expected_delivery_date: shortageData.expectedDeliveryDate,
+                    invoice_number: shortageData.invoiceNumber,
+                    shipment_number: shortageData.shipmentNumber,
+                    receipt_date: shortageData.receiptDate,
+                    lot_number: shortageData.lotNumber,
+                    internal_serial: shortageData.internalSerial,
+                    delivery_terms: shortageData.deliveryTerms,
+                    items: JSON.stringify(shortageData.items || []),
+                    problem_severity: shortageData.problemSeverity,
+                    defect_category: shortageData.defectCategory,
+                    delay_days: shortageData.delayDays,
+                    production_impact: shortageData.productionImpact,
+                    cost_estimate: shortageData.costEstimate,
+                    downtime_hours: shortageData.downtimeHours,
+                    effects: JSON.stringify(shortageData.effects || []),
+                    standard_ref: shortageData.standardRef,
+                    ceo_status: shortageData.ceoStatus,
+                    ceo_approved_date: shortageData.ceoApprovedDate,
+                    ceo_approved_amount: shortageData.ceoApprovedAmount,
+                    ceo_notes: shortageData.ceoNotes,
+                    supplier_status: shortageData.supplierStatus,
+                    supplier_response_date: shortageData.supplierResponseDate,
+                    supplier_response_type: shortageData.supplierResponseType,
+                    supplier_8d_number: shortageData.supplier8DNumber,
+                    supplier_action_date: shortageData.supplierActionDate,
+                    supplier_refund_amount: shortageData.supplierRefundAmount,
+                    supplier_root_cause: shortageData.supplierRootCause,
+                    supplier_notes: shortageData.supplierNotes,
+                    need_scar: shortageData.needSCAR,
+                    scar_number: shortageData.scarNumber,
+                    scar_issue_date: shortageData.scarIssueDate,
+                    scar_deadline: shortageData.scarDeadline,
+                    scar_description: shortageData.scarDescription,
+                    scar_response_date: shortageData.scarResponseDate,
+                    scar_result: shortageData.scarResult,
+                    linked_ca_number: shortageData.linkedCANumber,
+                    warehouse_status: shortageData.warehouseStatus,
+                    replacement_received_date: shortageData.replacementReceivedDate,
+                    replacement_quantity: shortageData.replacementQuantity,
+                    warehouse_receipt_number: shortageData.warehouseReceiptNumber,
+                    new_lot_number: shortageData.newLotNumber,
+                    replacement_quality: shortageData.replacementQuality,
+                    warehouse_notes: shortageData.warehouseNotes,
+                    final_result: shortageData.finalResult,
+                    verifier: shortageData.verifier,
+                    closure_date: shortageData.closureDate,
+                    final_notes: shortageData.finalNotes,
+                    status: shortageData.status,
+                    created_by: currentUser.full_name || currentUser.username
+                };
+
+                try {
+                    await fetch(API_BASE + '/save_shortage.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (e) { console.warn('⚠️ Server save failed, using localStorage'); }
+
+                var shortages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var existingIdx = shortages.findIndex(function(s) { return s.shortageNumber === shortageData.shortageNumber; });
+                if (existingIdx !== -1) shortages[existingIdx] = shortageData;
+                else shortages.push(shortageData);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(shortages));
+
+                if (selectedFiles.length > 0) {
+                    var fd = new FormData();
+                    fd.append('shortage_number', shortageData.shortageNumber);
+                    for (var i = 0; i < selectedFiles.length; i++) {
+                        fd.append('attachments[]', selectedFiles[i]);
+                    }
+                    try {
+                        await fetch(API_BASE + '/upload_shortage_documents.php', { method: 'POST', body: fd });
+                    } catch (e) { console.warn('⚠️ Attachment upload failed'); }
+                }
+
+                try {
+                    await fetch(API_BASE + '/save_notification.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: null,
+                            title: '⚠️ گزارش عدم ارسال قطعه',
+                            message: 'گزارش ' + shortageData.shortageNumber + ' برای تأمین‌کننده ' + shortageData.supplierName + ' با ' + shortageData.items.length + ' قلم ثبت شد.',
+                            type: 'warning',
+                            link: 'shortage-form.html?shortage=' + shortageData.shortageNumber
+                        })
+                    });
+                } catch (e) { console.warn('⚠️ Notification failed'); }
+
+                showToast('✅ گزارش عدم ارسال قطعه با موفقیت ثبت شد!', 'success');
+
+                document.getElementById('shStatusBadge').textContent = 'در انتظار';
+                document.getElementById('shStatusBadge').className = 'status-badge pending';
+
+                setTimeout(function() {
+                    window.location.href = 'ncr-list.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Submit error:', error);
+                showToast('خطا در ثبت فرم!', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> ثبت نهایی';
+            }
+        }
+
+        function saveDraft() {
+            shortageData = collectData();
+            shortageData.status = 'draft';
+            var drafts = JSON.parse(localStorage.getItem(DRAFT_KEY) || '[]');
+            var idx = drafts.findIndex(function(d) { return d.shortageNumber === shortageData.shortageNumber; });
+            if (idx !== -1) drafts[idx] = shortageData;
+            else drafts.push(shortageData);
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+            showToast('پیش‌نویس ذخیره شد (' + shortageData.items.length + ' قلم)', 'success');
+        }
+
+        async function loadShortage(shortageNumber) {
+            try {
+                var shortages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var shortage = shortages.find(function(s) { return s.shortageNumber === shortageNumber; });
+                if (shortage) { populateForm(shortage); return; }
+                var res = await fetch(API_BASE + '/get_shortage.php?shortage_number=' + encodeURIComponent(shortageNumber));
+                var result = await res.json();
+                if (result.success && result.data) { populateForm(result.data); }
+            } catch (e) { console.warn('⚠️ Load shortage failed:', e); }
+        }
+
+        function populateForm(shortage) {
+            shortageData = shortage;
+            document.getElementById('shortageNumber').textContent = shortage.shortageNumber || '-';
+            document.getElementById('shortageNumberInput').value = shortage.shortageNumber || '';
+            document.getElementById('reportDate').value = shortage.reportDate || '';
+            document.getElementById('reportSource').value = shortage.reportSource || 'warehouse';
+            document.getElementById('reporterName').value = shortage.reporterName || '';
+            document.getElementById('reporterDepartment').value = shortage.reporterDepartment || '';
+            document.getElementById('priority').value = shortage.priority || 'medium';
+            document.getElementById('subject').value = shortage.subject || '';
+
+            document.getElementById('supplierName').value = shortage.supplierName || '';
+            document.getElementById('supplierCode').value = shortage.supplierCode || '';
+            document.getElementById('supplierContact').value = shortage.supplierContact || '';
+            document.getElementById('supplierContactPerson').value = shortage.supplierContactPerson || '';
+            document.getElementById('supplierEmail').value = shortage.supplierEmail || '';
+            document.getElementById('supplierRating').value = shortage.supplierRating || '';
+            document.getElementById('supplierAddress').value = shortage.supplierAddress || '';
+
+            document.getElementById('orderNumber').value = shortage.orderNumber || '';
+            document.getElementById('orderDate').value = shortage.orderDate || '';
+            document.getElementById('expectedDeliveryDate').value = shortage.expectedDeliveryDate || '';
+            document.getElementById('invoiceNumber').value = shortage.invoiceNumber || '';
+            document.getElementById('shipmentNumber').value = shortage.shipmentNumber || '';
+            document.getElementById('receiptDate').value = shortage.receiptDate || '';
+            document.getElementById('lotNumber').value = shortage.lotNumber || '';
+            document.getElementById('internalSerial').value = shortage.internalSerial || '';
+            document.getElementById('deliveryTerms').value = shortage.deliveryTerms || '';
+
+            document.getElementById('problemSeverity').value = shortage.problemSeverity || '';
+            document.getElementById('defectCategory').value = shortage.defectCategory || '';
+            document.getElementById('delayDays').value = shortage.delayDays || '';
+            document.getElementById('productionImpact').value = shortage.productionImpact || '';
+            document.getElementById('costEstimate').value = shortage.costEstimate || '';
+            document.getElementById('downtimeHours').value = shortage.downtimeHours || '';
+            setCheckedValues('effect-checkbox', shortage.effects);
+            document.getElementById('standardRef').value = shortage.standardRef || '';
+
+            document.getElementById('ceoStatus').value = shortage.ceoStatus || 'pending';
+            document.getElementById('ceoApprovedDate').value = shortage.ceoApprovedDate || '';
+            document.getElementById('ceoApprovedAmount').value = shortage.ceoApprovedAmount || '';
+            document.getElementById('ceoNotes').value = shortage.ceoNotes || '';
+
+            document.getElementById('supplierStatus').value = shortage.supplierStatus || 'pending';
+            document.getElementById('supplierResponseDate').value = shortage.supplierResponseDate || '';
+            document.getElementById('supplierResponseType').value = shortage.supplierResponseType || '';
+            document.getElementById('supplier8DNumber').value = shortage.supplier8DNumber || '';
+            document.getElementById('supplierActionDate').value = shortage.supplierActionDate || '';
+            document.getElementById('supplierRefundAmount').value = shortage.supplierRefundAmount || '';
+            document.getElementById('supplierRootCause').value = shortage.supplierRootCause || '';
+            document.getElementById('supplierNotes').value = shortage.supplierNotes || '';
+
+            if (shortage.needSCAR) {
+                var el = document.querySelector('input[name="needSCAR"][value="' + shortage.needSCAR + '"]');
+                if (el) el.checked = true;
+            }
+            document.getElementById('scarNumber').value = shortage.scarNumber || '';
+            document.getElementById('scarIssueDate').value = shortage.scarIssueDate || '';
+            document.getElementById('scarDeadline').value = shortage.scarDeadline || '';
+            document.getElementById('scarDescription').value = shortage.scarDescription || '';
+            document.getElementById('scarResponseDate').value = shortage.scarResponseDate || '';
+            document.getElementById('scarResult').value = shortage.scarResult || '';
+            document.getElementById('linkedCANumber').value = shortage.linkedCANumber || '';
+            toggleSCARSubs();
+
+            document.getElementById('warehouseStatus').value = shortage.warehouseStatus || 'pending';
+            document.getElementById('replacementReceivedDate').value = shortage.replacementReceivedDate || '';
+            document.getElementById('replacementQuantity').value = shortage.replacementQuantity || '';
+            document.getElementById('warehouseReceiptNumber').value = shortage.warehouseReceiptNumber || '';
+            document.getElementById('newLotNumber').value = shortage.newLotNumber || '';
+            document.getElementById('replacementQuality').value = shortage.replacementQuality || '';
+            document.getElementById('warehouseNotes').value = shortage.warehouseNotes || '';
+
+            document.getElementById('finalResult').value = shortage.finalResult || '';
+            document.getElementById('verifier').value = shortage.verifier || '';
+            document.getElementById('closureDate').value = shortage.closureDate || '';
+            document.getElementById('finalNotes').value = shortage.finalNotes || '';
+
+            // اقلام
+            var tbody = document.getElementById('itemsTableBody');
+            tbody.innerHTML = '';
+            itemRowCounter = 0;
+            var items = shortage.items || [];
+            if (typeof items === 'string') {
+                try { items = JSON.parse(items); } catch (e) { items = []; }
+            }
+            if (!Array.isArray(items) || items.length === 0) {
+                addItemRow();
+            } else {
+                items.forEach(function(item) { addItemRow(item); });
+            }
+
+            var statusMap = {
+                'draft': { text: 'پیش‌نویس', cls: 'draft' },
+                'pending': { text: 'در انتظار', cls: 'pending' },
+                'in_progress': { text: 'در حال بررسی', cls: 'in-progress' },
+                'done': { text: 'تکمیل شده', cls: 'done' },
+                'rejected': { text: 'رد شده', cls: 'rejected' }
+            };
+            var s = statusMap[shortage.status] || statusMap['draft'];
+            var badge = document.getElementById('shStatusBadge');
+            badge.textContent = s.text;
+            badge.className = 'status-badge ' + s.cls;
+        }
+
+        // ============================================
+        // FILE HANDLING
+        // ============================================
+        function handleFileSelection(input) {
+            if (!input.files || input.files.length === 0) return;
+            var maxSize = 5 * 1024 * 1024;
+            var allowed = ['jpg','jpeg','png','gif','pdf','doc','docx','xls','xlsx'];
+
+            for (var i = 0; i < input.files.length; i++) {
+                var file = input.files[i];
+                if (file.size > maxSize) {
+                    showToast('❌ فایل "' + file.name + '" بزرگتر از 5 مگابایت است', 'error');
+                    continue;
+                }
+                var ext = file.name.split('.').pop().toLowerCase();
+                if (allowed.indexOf(ext) === -1) {
+                    showToast('❌ پسوند فایل "' + file.name + '" مجاز نیست', 'error');
+                    continue;
+                }
+                if (selectedFiles.some(function(f) { return f.name === file.name && f.size === file.size; })) continue;
+                selectedFiles.push(file);
+            }
+            input.value = '';
+            renderSelectedFiles();
+        }
+
+        function renderSelectedFiles() {
+            var container = document.getElementById('selectedFilesPreview');
+            var list = document.getElementById('selectedFilesList');
+            var countEl = document.getElementById('selectedFilesCount');
+            if (!container || !list) return;
+            if (selectedFiles.length === 0) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            if (countEl) countEl.textContent = selectedFiles.length;
+
+            var html = '';
+            selectedFiles.forEach(function(file, idx) {
+                var ext = file.name.split('.').pop().toLowerCase();
+                var iconClass = 'fa-file', iconType = 'other';
+                if (['jpg','jpeg','png','gif'].indexOf(ext) !== -1) { iconClass = 'fa-file-image'; iconType = 'image'; }
+                else if (ext === 'pdf') { iconClass = 'fa-file-pdf'; iconType = 'pdf'; }
+                else if (['doc','docx'].indexOf(ext) !== -1) { iconClass = 'fa-file-word'; iconType = 'word'; }
+                else if (['xls','xlsx'].indexOf(ext) !== -1) { iconClass = 'fa-file-excel'; iconType = 'excel'; }
+
+                html += '<div class="file-preview-item">';
+                html += '<div class="file-icon ' + iconType + '"><i class="fas ' + iconClass + '"></i></div>';
+                html += '<div class="file-info"><div class="file-name" title="' + file.name + '">' + file.name + '</div>';
+                html += '<div class="file-size">' + formatFileSize(file.size) + '</div></div>';
+                html += '<button type="button" class="file-remove" onclick="removeSelectedFile(' + idx + ')"><i class="fas fa-times"></i></button>';
+                html += '</div>';
+            });
+            list.innerHTML = html;
+        }
+
+        function removeSelectedFile(idx) {
+            if (idx < 0 || idx >= selectedFiles.length) return;
+            var removed = selectedFiles.splice(idx, 1);
+            renderSelectedFiles();
+            showToast('فایل "' + removed[0].name + '" حذف شد', 'info');
+        }
+
+        // ============================================
+        // PRINT
+        // ============================================
+        function printForm() {
+            var sh = collectData();
+            var itemsHtml = '';
+            if (sh.items && sh.items.length > 0) {
+                itemsHtml = '<table style="width:100%;border-collapse:collapse;font-size:9.5px;"><thead><tr style="background:#e0e0e0;"><th style="border:1px solid #000;padding:3px;">#</th><th style="border:1px solid #000;padding:3px;">کد قطعه</th><th style="border:1px solid #000;padding:3px;">نام قطعه</th><th style="border:1px solid #000;padding:3px;">واحد</th><th style="border:1px solid #000;padding:3px;">سفارش</th><th style="border:1px solid #000;padding:3px;">ارسالی</th><th style="border:1px solid #000;padding:3px;">کسری</th><th style="border:1px solid #000;padding:3px;">%</th><th style="border:1px solid #000;padding:3px;">Lot</th></tr></thead><tbody>';
+                sh.items.forEach(function(item, i) {
+                    itemsHtml += '<tr><td style="border:1px solid #000;padding:3px;text-align:center;">' + (i+1) + '</td><td style="border:1px solid #000;padding:3px;">' + (item.partCode || '-') + '</td><td style="border:1px solid #000;padding:3px;">' + (item.partName || '-') + '</td><td style="border:1px solid #000;padding:3px;">' + (item.unit || '-') + '</td><td style="border:1px solid #000;padding:3px;text-align:center;">' + (item.orderedQty || '-') + '</td><td style="border:1px solid #000;padding:3px;text-align:center;">' + (item.sentQty || '-') + '</td><td style="border:1px solid #000;padding:3px;text-align:center;color:#c0392b;font-weight:700;">' + (item.shortageQty || '-') + '</td><td style="border:1px solid #000;padding:3px;text-align:center;">' + (item.shortagePercentage || '-') + '</td><td style="border:1px solid #000;padding:3px;">' + (item.lotNumber || '-') + '</td></tr>';
+                });
+                itemsHtml += '</tbody></table>';
+            } else { itemsHtml = '<div style="padding:8px;color:#999;">قلمی ثبت نشده است</div>'; }
+
+            var effectsLabels = { 'quality': 'کیفیت', 'safety': 'ایمنی', 'customer': 'مشتری', 'cost': 'هزینه', 'delivery': 'تحویل', 'production': 'توقف تولید' };
+            var effectsText = (sh.effects || []).map(function(e) { return effectsLabels[e] || e; }).join('، ') || '-';
+            var severityLabels = { 'critical': 'بحرانی', 'major': 'عمده', 'minor': 'جزئی' };
+
+            var html = `
+                <!DOCTYPE html>
+                <html lang="fa" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>گزارش عدم ارسال قطعه - ${sh.shortageNumber}</title>
+                    <style>
+                        @page { size: A4 portrait; margin: 8mm; }
+                        * { box-sizing: border-box; }
+                        body { font-family: 'Vazirmatn', Tahoma, Arial, sans-serif; font-size: 9.5px; color: #000; margin: 0; }
+                        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; }
+                        .header h1 { margin: 0 0 3px 0; font-size: 14px; }
+                        .section { border: 1.2px solid #000; margin-bottom: 6px; }
+                        .section-title { background: #e0e0e0; padding: 3px 8px; font-weight: 700; font-size: 10px; border-bottom: 1px solid #000; }
+                        .section-body { padding: 5px 8px; }
+                        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 4px; }
+                        .field { display: flex; gap: 4px; padding: 2px 0; border-bottom: 1px dotted #999; }
+                        .field .label { font-weight: 700; min-width: 80px; }
+                        .field .value { flex: 1; }
+                        .full { grid-column: 1 / -1; }
+                        .signatures { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 8px; border-top: 1px solid #000; }
+                        .sig-box { border: 1px solid #000; padding: 6px; text-align: center; min-height: 55px; }
+                        .sig-box .title { font-weight: 700; margin-bottom: 20px; font-size: 9px; }
+                        .sig-box .line { border-top: 1px solid #000; padding-top: 2px; font-size: 8.5px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>گزارش عدم ارسال قطعه (Shortage Report)</h1>
+                        <div>کد فرم: FM-SH01/00 | ISO 9001:2015 بند 8.4 | IATF 16949 بند 8.4.2</div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۱. اطلاعات گزارش</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">شماره گزارش:</span><span class="value">${sh.shortageNumber}</span></div>
+                                <div class="field"><span class="label">تاریخ:</span><span class="value">${formatPersianDate(sh.reportDate)}</span></div>
+                                <div class="field"><span class="label">منبع:</span><span class="value">${sh.reportSource}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">گزارش‌دهنده:</span><span class="value">${sh.reporterName}</span></div>
+                                <div class="field"><span class="label">دپارتمان:</span><span class="value">${sh.reporterDepartment}</span></div>
+                                <div class="field"><span class="label">اولویت:</span><span class="value">${sh.priority}</span></div>
+                            </div>
+                            <div class="field full"><span class="label">موضوع:</span><span class="value">${sh.subject}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۲. تأمین‌کننده</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">نام:</span><span class="value">${sh.supplierName}</span></div>
+                                <div class="field"><span class="label">کد:</span><span class="value">${sh.supplierCode || '-'}</span></div>
+                                <div class="field"><span class="label">درجه:</span><span class="value">${sh.supplierRating || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">رابط:</span><span class="value">${sh.supplierContactPerson || '-'}</span></div>
+                                <div class="field"><span class="label">تماس:</span><span class="value">${sh.supplierContact || '-'}</span></div>
+                                <div class="field"><span class="label">ایمیل:</span><span class="value">${sh.supplierEmail || '-'}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۳. سفارش</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">شماره PO:</span><span class="value">${sh.orderNumber || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ سفارش:</span><span class="value">${formatPersianDate(sh.orderDate)}</span></div>
+                                <div class="field"><span class="label">تحویل مورد انتظار:</span><span class="value">${formatPersianDate(sh.expectedDeliveryDate)}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">فاکتور:</span><span class="value">${sh.invoiceNumber || '-'}</span></div>
+                                <div class="field"><span class="label">بارنامه:</span><span class="value">${sh.shipmentNumber || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ دریافت:</span><span class="value">${formatPersianDate(sh.receiptDate)}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۴. اقلام کسری (${sh.items.length} مورد)</div>
+                        <div class="section-body">${itemsHtml}</div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۵. طبقه‌بندی و ارزیابی</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">طبقه‌بندی:</span><span class="value">${severityLabels[sh.problemSeverity] || '-'}</span></div>
+                                <div class="field"><span class="label">دسته نقص:</span><span class="value">${sh.defectCategory || '-'}</span></div>
+                                <div class="field"><span class="label">تأخیر:</span><span class="value">${sh.delayDays || '0'} روز</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">وضعیت تولید:</span><span class="value">${sh.productionImpact || '-'}</span></div>
+                                <div class="field"><span class="label">هزینه تخمینی:</span><span class="value">${sh.costEstimate ? Number(sh.costEstimate).toLocaleString() : '-'} ریال</span></div>
+                                <div class="field"><span class="label">توقف تولید:</span><span class="value">${sh.downtimeHours || '-'} ساعت</span></div>
+                            </div>
+                            <div class="field full"><span class="label">پیامدها:</span><span class="value">${effectsText}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۶. تأیید مدیرعامل</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">وضعیت:</span><span class="value">${sh.ceoStatus}</span></div>
+                                <div class="field"><span class="label">تاریخ تأیید:</span><span class="value">${formatPersianDate(sh.ceoApprovedDate)}</span></div>
+                                <div class="field"><span class="label">مبلغ:</span><span class="value">${sh.ceoApprovedAmount ? Number(sh.ceoApprovedAmount).toLocaleString() : '-'} ریال</span></div>
+                            </div>
+                            <div class="field full"><span class="label">نظرات:</span><span class="value">${sh.ceoNotes || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۷. پاسخ تأمین‌کننده</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">وضعیت:</span><span class="value">${sh.supplierStatus}</span></div>
+                                <div class="field"><span class="label">تاریخ پاسخ:</span><span class="value">${formatPersianDate(sh.supplierResponseDate)}</span></div>
+                                <div class="field"><span class="label">نوع پاسخ:</span><span class="value">${sh.supplierResponseType || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">8D Number:</span><span class="value">${sh.supplier8DNumber || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ اقدام:</span><span class="value">${formatPersianDate(sh.supplierActionDate)}</span></div>
+                                <div class="field"><span class="label">مبلغ بازگشت:</span><span class="value">${sh.supplierRefundAmount ? Number(sh.supplierRefundAmount).toLocaleString() : '-'} ریال</span></div>
+                            </div>
+                            <div class="field full"><span class="label">ریشه اصلی:</span><span class="value">${sh.supplierRootCause || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۸. SCAR (اقدام اصلاحی تأمین‌کننده)</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">نیاز به SCAR:</span><span class="value">${sh.needSCAR === 'yes' ? 'بله' : 'خیر'}</span></div>
+                                <div class="field"><span class="label">شماره SCAR:</span><span class="value">${sh.scarNumber || '-'}</span></div>
+                                <div class="field"><span class="label">مهلت:</span><span class="value">${formatPersianDate(sh.scarDeadline)}</span></div>
+                            </div>
+                            <div class="field full"><span class="label">نتیجه:</span><span class="value">${sh.scarResult || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۹. دریافت (انبار)</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">وضعیت:</span><span class="value">${sh.warehouseStatus}</span></div>
+                                <div class="field"><span class="label">تاریخ دریافت:</span><span class="value">${formatPersianDate(sh.replacementReceivedDate)}</span></div>
+                                <div class="field"><span class="label">تعداد:</span><span class="value">${sh.replacementQuantity || '-'}</span></div>
+                            </div>
+                            <div class="row-3">
+                                <div class="field"><span class="label">رسید انبار:</span><span class="value">${sh.warehouseReceiptNumber || '-'}</span></div>
+                                <div class="field"><span class="label">Lot جدید:</span><span class="value">${sh.newLotNumber || '-'}</span></div>
+                                <div class="field"><span class="label">کیفیت:</span><span class="value">${sh.replacementQuality || '-'}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">۱۰. نتیجه نهایی</div>
+                        <div class="section-body">
+                            <div class="row-3">
+                                <div class="field"><span class="label">نتیجه:</span><span class="value">${sh.finalResult}</span></div>
+                                <div class="field"><span class="label">مسئول پایش:</span><span class="value">${sh.verifier || '-'}</span></div>
+                                <div class="field"><span class="label">تاریخ بستن:</span><span class="value">${formatPersianDate(sh.closureDate)}</span></div>
+                            </div>
+                            <div class="field full"><span class="label">یادداشت:</span><span class="value">${sh.finalNotes || '-'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="signatures">
+                        <div class="sig-box"><div class="title">انبار</div><div class="line">نام و امضا</div></div>
+                        <div class="sig-box"><div class="title">مدیرعامل</div><div class="line">نام و امضا</div></div>
+                        <div class="sig-box"><div class="title">مدیریت کیفیت</div><div class="line">نام و امضا</div></div>
+                        <div class="sig-box"><div class="title">تأمین‌کننده</div><div class="line">نام و امضا</div></div>
+                    </div>
+
+                    <div style="text-align:center;margin-top:8px;font-size:8.5px;color:#666;">
+                        تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')}
+                    </div>
+
+                    <div style="text-align:center;margin-top:12px;" class="no-print">
+                        <button onclick="window.print()" style="padding:6px 16px;background:#f39c12;color:white;border:none;border-radius:5px;cursor:pointer;font-size:12px;">🖨️ چاپ</button>
+                    </div>
+                    <style>@media print { .no-print { display: none !important; } }</style>
+                </body>
+                </html>
+            `;
+            var w = window.open('', '_blank', 'width=900,height=1000');
+            w.document.write(html);
+            w.document.close();
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        // Expose for inline handlers
+        window.handleFileSelection = handleFileSelection;
+        window.removeSelectedFile = removeSelectedFile;
+        window.submitForm = submitForm;
+        window.saveDraft = saveDraft;
+        window.printForm = printForm;
+        window.goBack = goBack;
+        window.addItemRow = addItemRow;
+        window.removeItemRow = removeItemRow;
+        window.duplicateItemRow = duplicateItemRow;
+        window.toggleSCARSubs = toggleSCARSubs;
+        window.calculateItemShortage = calculateItemShortage;
     </script>
+
 </body>
 </html>

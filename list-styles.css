@@ -1,0 +1,290 @@
+/* ============================================
+   استایل مشترک صفحه‌های لیست (NCR / کلیم / خرید / اقدام اصلاحی)
+   ============================================ */
+
+.filter-section {
+    background: #fff;
+    border: 1px solid #eef0f4;
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.filter-section .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.filter-section .form-group {
+    margin: 0;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.table-container {
+    background: #fff;
+    border: 1px solid #eef0f4;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eef0f4;
+}
+
+.table-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.table-count {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.table-container thead th {
+    background: #f8f9fb;
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 12px 14px;
+    white-space: nowrap;
+}
+
+.table-container tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f1f3f6;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.table-container tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-container tbody tr:hover {
+    background: #f8f9ff;
+}
+
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.sortable .sort-icon {
+    opacity: 0.35;
+    margin-inline-start: 4px;
+    font-size: 11px;
+}
+
+th.sortable.sorted-asc .sort-icon,
+th.sortable.sorted-desc .sort-icon {
+    opacity: 1;
+    color: #667eea;
+}
+
+.empty-row,
+.loading-row {
+    text-align: center;
+    padding: 40px 20px !important;
+    color: #94a3b8;
+}
+
+.empty-row i,
+.loading-row i {
+    margin-inline-end: 8px;
+}
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    border-top: 1px solid #eef0f4;
+}
+
+.pagination {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.pagination button {
+    padding: 5px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    color: #495057;
+}
+
+.pagination button:hover {
+    background: #f1f3f9;
+}
+
+.page-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.page-size select {
+    padding: 5px 8px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background: #fff;
+    color: #495057;
+}
+
+.link-primary {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+}
+
+/* دکمه چاپ در لیست‌ها (هم‌رنگ لیست NCR) */
+.btn-print-list {
+    background: #8e44ad;
+    color: #fff;
+    border: none;
+}
+.btn-print-list:hover {
+    background: #7d3c98;
+}
+
+/* دکمه غیرفعال (مشابه لیست NCR) */
+.btn-disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+.badge-secondary {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* عنوان فقط در چاپ دیده می‌شود */
+.print-only {
+    display: none;
+    margin-bottom: 14px;
+}
+
+.print-only h2 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    color: #111;
+}
+
+.print-only p {
+    margin: 0;
+    font-size: 12px;
+    color: #555;
+}
+
+@media print {
+    #headerContainer,
+    #sidebarContainer,
+    #footerContainer,
+    .filter-section,
+    .table-footer,
+    .action-buttons,
+    .no-print,
+    .btn {
+        display: none !important;
+    }
+
+    .app-container {
+        display: block !important;
+    }
+
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    .table-container {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .table-container table {
+        min-width: 0 !important;
+        font-size: 11px;
+    }
+
+    .table-container thead th {
+        background: #f2f2f2 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    html.rtl .table-container th,
+    html.rtl .table-container td {
+        text-align: right !important;
+    }
+
+    html.ltr .table-container th,
+    html.ltr .table-container td {
+        text-align: left !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+}

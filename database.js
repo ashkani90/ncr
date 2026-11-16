@@ -2,10 +2,30 @@
 // database.js - ارتباط با دیتابیس از طریق API
 // ============================================
 
-// تشخیص آدرس API به صورت خودکار
+// ============================================
+// تشخیص آدرس API بر اساس محیط اجرا (لوکال / آنلاین)
+//   لوکال  (XAMPP): http://localhost:8080/ncr/api
+//   آنلاین (هاست):  https://ncr.page.gd/api
+// ============================================
+(function () {
+    var script = document.currentScript;
+    var base;
+
+    if (script && script.src) {
+        base = script.src.replace(/[^\/]*$/, '');
+    } else {
+        base = location.origin + location.pathname.replace(/[^\/]*$/, '');
+    }
+
+    if (base.charAt(base.length - 1) !== '/') base += '/';
+
+    window.NCR_ROOT = base;                 // http://localhost:8080/ncr/
+    window.NCR_API = base + 'api';          // http://localhost:8080/ncr/api
+    window.NCR_API_DIR = window.NCR_API + '/';
+})();
+
 function getApiBaseUrl() {
-    // آدرس واقعی هاست - با توجه به دامنه شما
-    return 'https://ncr.page.gd/api/';
+    return window.NCR_API_DIR;
 }
 
 const API_BASE_URL = getApiBaseUrl();
@@ -41,7 +61,8 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
         return result;
     } catch (error) {
         console.error('❌ API Error:', error);
-        return { success: false, error: error.message };
+        // network:true یعنی پاسخ از سرور دریافت نشده (خطای شبکه/CORS) و می‌توان از fallback استفاده کرد
+        return { success: false, error: error.message, network: true };
     }
 }
 
@@ -146,17 +167,37 @@ async function getDashboardStats() {
 }
 
 // ============================================
-// توابع اعلان‌ها
+// توابع اعلان‌ها - نسخه دیتابیسی
 // ============================================
 
-async function getAllNotifications() {
-    const result = await apiRequest('get_notifications.php');
+async function getAllNotifications(userId) {
+    if (!userId) {
+        console.warn('⚠️ getAllNotifications: userId is required');
+        return [];
+    }
+    const result = await apiRequest('get_notifications.php?user_id=' + encodeURIComponent(userId));
     return result.success ? result.data : [];
 }
 
-async function addNotification(title, message, type, link = '') {
+async function addNotification(title, message, type, link, userId) {
     const result = await apiRequest('save_notification.php', 'POST', {
-        title, message, type, link
+        title, message, type, link: link || '', user_id: userId || null
+    });
+    return result.success;
+}
+
+async function markNotificationRead(notificationId, userId) {
+    if (!notificationId || !userId) return false;
+    const result = await apiRequest('mark_notification_read.php', 'POST', {
+        notification_id: notificationId,
+        user_id: userId
+    });
+    return result.success;
+}
+
+async function markAllNotificationsRead(userId) {
+    const result = await apiRequest('mark_all_notifications_read.php', 'POST', {
+        user_id: userId
     });
     return result.success;
 }
@@ -193,18 +234,22 @@ async function loginUser(username, password) {
     console.log('🔑 loginUser called with:', username);
     
     try {
-        // ابتدا سعی می‌کنیم از API استفاده کنیم
+        // اولویت اول: API
         const result = await apiRequest('login.php', 'POST', { username, password });
         console.log('🔑 Login API result:', result);
-        
-        if (result && result.success) {
+
+        // اگر سرور پاسخ داده باشد (حتی «رمز اشتباه»)، دیگر از localStorage استفاده نمی‌کنیم
+        if (result && !result.network) {
+            if (result.success && result.user) {
+                localStorage.setItem('currentUser', JSON.stringify(result.user));
+            }
             return result;
         }
     } catch (error) {
         console.error('❌ Login API error:', error);
     }
     
-    // اگر API کار نکرد، از localStorage استفاده می‌کنیم
+    // Fallback: localStorage
     console.log('📦 Using localStorage fallback for login');
     return loginFromLocalStorage(username, password);
 }
@@ -212,24 +257,18 @@ async function loginUser(username, password) {
 function loginFromLocalStorage(username, password) {
     let users = JSON.parse(localStorage.getItem('users') || '[]');
     
-    // اگر کاربری در localStorage وجود ندارد، ایجاد کن
+    // اگر کاربری وجود ندارد، از دیتابیس دریافت کن
     if (users.length === 0) {
-        const defaultUsers = [
-            { id: 1, username: 'admin', password: 'admin123', full_name: 'مدیر سیستم', role: 'admin', department: 'مدیریت', language: 'fa' },
-            { id: 2, username: 'quality', password: 'quality123', full_name: 'علی حسینی', role: 'quality', department: 'کنترل کیفیت', language: 'fa' },
-            { id: 3, username: 'production', password: 'prod123', full_name: 'احمد رضایی', role: 'production', department: 'تولید', language: 'fa' }
-        ];
-        localStorage.setItem('users', JSON.stringify(defaultUsers));
-        users = defaultUsers;
+        console.warn('⚠️ No users in localStorage. Please create users in database.');
+        return { success: false, error: 'کاربری یافت نشد. لطفاً با مدیر سیستم تماس بگیرید.' };
     }
     
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
-        console.log('✅ User found in localStorage:', user);
+        localStorage.setItem('currentUser', JSON.stringify(user));
         return { success: true, user: user };
     }
     
-    console.log('❌ User not found in localStorage');
     return { success: false, error: 'نام کاربری یا رمز عبور اشتباه است' };
 }
 
@@ -263,3 +302,7 @@ window.deleteUser = deleteUser;
 console.log('✅ database.js loaded - API URL:', API_BASE_URL);
 
 window.API_BASE_URL = API_BASE_URL;
+window.getAllNotifications = getAllNotifications;
+window.addNotification = addNotification;
+window.markNotificationRead = markNotificationRead;
+window.markAllNotificationsRead = markAllNotificationsRead;

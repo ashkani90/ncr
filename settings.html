@@ -9,57 +9,11 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- هدر -->
-        <header class="app-header">
-            <div class="header-left">
-                <button class="hamburger" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="breadcrumb">
-                    <a href="dashboard.html">داشبورد</a>
-                    <span class="separator">/</span>
-                    <span class="current">تنظیمات</span>
-                </div>
-            </div>
-            <div class="header-center">
-                <h2 id="pageTitle">تنظیمات</h2>
-            </div>
-            <div class="header-right">
-                <div class="header-date">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="user-profile" onclick="toggleUserMenu()">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="User" id="userAvatar">
-                    <span id="userName">کاربر</span>
-                    <i class="fas fa-chevron-down"></i>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.html"><i class="fas fa-user-edit"></i> ویرایش پروفایل</a>
-                        <a href="#" onclick="changePassword()"><i class="fas fa-key"></i> تغییر رمز عبور</a>
-                        <hr>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- سایدبار -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>📋 NCR System</h2>
-                <p>ISO 9001:2015</p>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.html"><i class="fas fa-chart-pie"></i> داشبورد</a>
-                <a href="ncr-list.html"><i class="fas fa-list"></i> لیست NCRها</a>
-                <a href="new-ncr.html"><i class="fas fa-plus-circle"></i> ثبت NCR جدید</a>
-                <a href="claim-form.html"><i class="fas fa-file-signature"></i> فرم کلیم</a>
-                <a href="shortage-form.html"><i class="fas fa-truck-loading"></i> عدم ارسال قطعه</a>
-                <a href="purchase-request.html"><i class="fas fa-shopping-cart"></i> درخواست خرید</a>
-                <a href="notifications.html"><i class="fas fa-bell"></i> اعلان‌ها</a>
-                <a href="settings.html" class="active"><i class="fas fa-cog"></i> تنظیمات</a>
-            </nav>
-        </aside>
+        <!-- کامپوننت هدر -->
+        <div id="headerContainer"></div>
+        
+        <!-- کامپوننت سایدبار -->
+        <div id="sidebarContainer"></div>
 
         <!-- محتوای اصلی -->
         <main class="main-content" id="mainContent">
@@ -195,15 +149,25 @@
                     <button class="btn btn-secondary" onclick="resetSettings()"><i class="fas fa-undo"></i> بازنشانی به پیش‌فرض</button>
                 </div>
             </div>
+            
+            <!-- کامپوننت فوتر -->
+            <div id="footerContainer"></div>            
+            
         </main>
     </div>
 
-    <script src="i18n.js"></script>
-    <script src="database.js"></script>
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
     <script src="app.js"></script>
-    <script src="data/sample-data.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            
+            // بارگذاری کامپوننت‌ها
+            loadAllComponents();
+            
             const now = new Date();
             document.getElementById('currentDate').textContent = now.toLocaleDateString('fa-IR');
             
@@ -371,7 +335,7 @@
         }
 
         function changePassword() {
-            window.location.href = 'profile.html?action=change-password';
+            window.location.href = 'change-password.html';
         }
 
         function logout() {

@@ -5,17 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="menu_ncr_list">لیست NCRها</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="list-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pagination { display: flex; gap: 10px; align-items: center; }
+        .pagination button {
+            padding: 5px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+        .link-primary { color: #667eea; text-decoration: none; }
+        .link-primary:hover { text-decoration: underline; }
+        .loading-row { text-align: center; padding: 40px; color: #6c757d; }
+        .loading-row i { font-size: 24px; animation: spin 1s linear infinite; margin-left: 8px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* استایل دکمه‌های غیرفعال */
+        .btn-disabled {
+            opacity: 0.4 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            background: #e9ecef !important;
+            color: #adb5bd !important;
+            border: 1px solid #dee2e6 !important;
+        }
+        .btn-disabled i {
+            color: #adb5bd !important;
+        }
+
+        /* ⭐ استایل دکمه چاپ */
+        .btn-print-ncr {
+            background: #8e44ad;
+            color: white;
+            border: none;
+        }
+        .btn-print-ncr:hover {
+            background: #7d3c98;
+        }
+        .btn-print-ncr i {
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- کامپوننت هدر -->
         <div id="headerContainer"></div>
-        
-        <!-- کامپوننت سایدبار -->
         <div id="sidebarContainer"></div>
 
-        <!-- محتوای اصلی -->
         <main class="main-content" id="mainContent">
             <!-- فیلترها -->
             <div class="filter-section">
@@ -93,7 +153,10 @@
                         </thead>
                         <tbody id="ncrTableBody">
                             <tr>
-                                <td colspan="9" style="text-align: center;">در حال بارگذاری...</td>
+                                <td colspan="9" class="loading-row">
+                                    <i class="fas fa-spinner"></i>
+                                    در حال بارگذاری...
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -116,545 +179,1388 @@
                 </div>
             </div>
 
-            <!-- کامپوننت فوتر -->
-            <div id="footerContainer"></div>       
-                        
-        </main> 
+            <div id="footerContainer"></div>
+        </main>
     </div>
 
-    <script src="i18n.js"></script>
-    <script src="database.js"></script>
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
+    <script src="permissions.js?v=20261101"></script>
     <script src="app.js"></script>
     <script src="print.js"></script>
-    <script src="data/sample-data.js"></script>
-    <script src="components/loader.js"></script>
+    <script src="list-tools.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
 
     <script>
-        // ============================================
-        // بارگذاری کامپوننت‌ها
-        // ============================================
-        loadAllComponents();
+    // ============================================
+    // متغیرهای سراسری
+    // ============================================
+    let allNCRs = [];
+    let filteredNCRs = [];
+    let currentPage = 1;
+    let pageSize = 25;
+    let sortField = 'report_date';
+    let sortDirection = 'desc';
 
-        let allNCRs = [];
-        let filteredNCRs = [];
-        let currentPage = 1;
-        let pageSize = 25;
-        let sortField = 'report_date';
-        let sortDirection = 'desc';
+    // ترجمه با کلید i18n
+    function tl(key, fallback) {
+        if (window.ListTools && window.ListTools.tr) return window.ListTools.tr(key, fallback);
+        return fallback;
+    }
 
-        // ============================================
-        // بارگذاری اولیه
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNCRsFromDatabase();
-        });
-
-        // ============================================
-        // بارگذاری NCRها از دیتابیس از طریق API
-        // ============================================
-        async function loadNCRsFromDatabase() {
-            const tbody = document.getElementById('ncrTableBody');
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">در حال بارگذاری داده‌ها...</td></tr>';
-            
+    // ============================================
+    // ⭐ راه‌اندازی اولیه
+    // ============================================
+    async function initNCRListPage() {
+        console.log('🚀 initNCRListPage started');
+        
+        if (typeof window.loadAllComponents === 'function') {
             try {
-                console.log('📡 Fetching NCRs from API...');
-                
-                // استفاده از تابع getAllNCRs از database.js
-                const ncrs = await window.getAllNCRs();
-                
-                console.log('📡 NCRs received:', ncrs);
-                
-                if (ncrs && ncrs.length > 0) {
-                    allNCRs = ncrs;
-                    filteredNCRs = [...allNCRs];
-                    renderTable();
-                    document.getElementById('recordCount').textContent = 'تعداد: ' + allNCRs.length;
-                    console.log('✅ Loaded ' + allNCRs.length + ' NCRs from API');
-                } else {
-                    // اگر داده‌ای از API نیامد، از localStorage استفاده کن
-                    console.log('📦 No data from API, using localStorage fallback...');
-                    loadNCRsFromLocalStorage();
-                }
-            } catch (error) {
-                console.error('❌ Error loading NCRs:', error);
-                loadNCRsFromLocalStorage();
-            }
-        }
-
-        // ============================================
-        // بارگذاری از localStorage (fallback)
-        // ============================================
-        function loadNCRsFromLocalStorage() {
-            console.log('📦 Loading NCRs from localStorage...');
-            const stored = JSON.parse(localStorage.getItem('ncrs') || '[]');
-            
-            if (stored && stored.length > 0) {
-                allNCRs = stored;
-                filteredNCRs = [...allNCRs];
-                renderTable();
-                document.getElementById('recordCount').textContent = 'تعداد: ' + allNCRs.length;
-                showNotification('داده‌ها از حافظه محلی بارگذاری شدند.', 'info');
-            } else {
-                // اگر هیچ داده‌ای وجود نداشت، از داده‌های نمونه استفاده کن
-                console.log('📦 No data in localStorage, loading sample data...');
-                loadSampleDataFromFile();
-            }
-        }
-
-        // ============================================
-        // بارگذاری داده‌های نمونه از فایل sample-data.js
-        // ============================================
-        function loadSampleDataFromFile() {
-            try {
-                if (window.SAMPLE_DATA && window.SAMPLE_DATA.ncrs) {
-                    allNCRs = window.SAMPLE_DATA.ncrs;
-                    filteredNCRs = [...allNCRs];
-                    renderTable();
-                    document.getElementById('recordCount').textContent = 'تعداد: ' + allNCRs.length;
-                    showNotification('داده‌های نمونه بارگذاری شدند.', 'info');
-                    console.log('✅ Loaded sample data:', allNCRs.length);
-                } else {
-                    const tbody = document.getElementById('ncrTableBody');
-                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">هیچ NCR ثبت نشده است</td></tr>';
-                    document.getElementById('recordCount').textContent = 'تعداد: 0';
-                }
+                await window.loadAllComponents();
+                console.log('✅ Components loaded');
             } catch (e) {
-                console.error('❌ Error loading sample data:', e);
-                const tbody = document.getElementById('ncrTableBody');
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">خطا در بارگذاری داده‌ها</td></tr>';
+                console.warn('⚠️ loadAllComponents error:', e);
             }
         }
+        
+        console.log('📡 Now loading NCRs...');
+        await loadNCRsFromDatabase();
+    }
 
-        // ============================================
-        // فیلتر کردن NCRها - اصلاح شده
-        // ============================================
-        function filterNCRs() {
-            const search = document.getElementById('searchInput').value.trim().toLowerCase();
-            const status = document.getElementById('statusFilter').value;
-            const priority = document.getElementById('priorityFilter').value;
-            const dateFrom = document.getElementById('dateFrom').value;
-            const dateTo = document.getElementById('dateTo').value;
-            const department = document.getElementById('departmentFilter').value;
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNCRListPage);
+    } else {
+        initNCRListPage();
+    }
 
-            console.log('🔍 Filtering with:', { search, status, priority, dateFrom, dateTo, department });
-
-            filteredNCRs = allNCRs.filter(function(ncr) {
-                // جستجو در فیلدهای مختلف
-                const searchableFields = [
-                    ncr.ncr_number || '',
-                    ncr.part_name || '',
-                    ncr.subject || '',
-                    ncr.part_code || '',
-                    ncr.reporter_name || '',
-                    ncr.description || ''
-                ];
-                const matchSearch = !search || searchableFields.some(field => 
-                    field.toString().toLowerCase().includes(search)
-                );
-
-                // فیلتر وضعیت - با توجه به داده‌های واقعی
-                let ncrStatus = ncr.final_status || 'open';
-                // اگر final_status خالی بود، از quality_status استفاده کن
-                if (!ncrStatus || ncrStatus === '') {
-                    ncrStatus = ncr.quality_status === 'approved' ? 'in_progress' : 'open';
-                }
-                const matchStatus = !status || ncrStatus === status;
-
-                // فیلتر اولویت
-                const ncrPriority = ncr.priority || 'medium';
-                const matchPriority = !priority || ncrPriority === priority;
-
-                // فیلتر تاریخ
-                const matchDate = (!dateFrom || (ncr.report_date && ncr.report_date >= dateFrom)) && 
-                                  (!dateTo || (ncr.report_date && ncr.report_date <= dateTo));
-
-                // فیلتر دپارتمان
-                const matchDepartment = !department || (ncr.reporter_department && ncr.reporter_department === department);
-
-                return matchSearch && matchStatus && matchPriority && matchDate && matchDepartment;
-            });
-
-            console.log('🔍 Filtered results:', filteredNCRs.length);
-
-            currentPage = 1;
-            renderTable();
-            document.getElementById('recordCount').textContent = 'تعداد: ' + filteredNCRs.length;
+    // ============================================
+    // ⭐ بارگذاری NCRها از API
+    // ============================================
+    async function loadNCRsFromDatabase() {
+        const tbody = document.getElementById('ncrTableBody');
+        if (!tbody) {
+            console.error('❌ ncrTableBody not found');
+            return;
         }
-
-        // ============================================
-        // بازنشانی فیلترها
-        // ============================================
-        function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('priorityFilter').value = '';
-            document.getElementById('dateFrom').value = '';
-            document.getElementById('dateTo').value = '';
-            document.getElementById('departmentFilter').value = '';
-            filterNCRs();
-            showNotification('فیلترها بازنشانی شدند.', 'info');
-        }
-
-        // ============================================
-        // رندر جدول - اصلاح شده
-        // ============================================
-        function renderTable() {
-            const tbody = document.getElementById('ncrTableBody');
+        
+        tbody.innerHTML = '<tr><td colspan="9" class="loading-row"><i class="fas fa-spinner"></i> در حال بارگذاری داده‌ها...</td></tr>';
+        
+        try {
+            console.log('📡 Fetching NCRs from API...');
             
-            if (!filteredNCRs || filteredNCRs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">هیچ NCR یافت نشد</td></tr>';
-                return;
-            }
-
-            // مرتب‌سازی
-            const sorted = [...filteredNCRs].sort(function(a, b) {
-                let aVal = a[sortField] || '';
-                let bVal = b[sortField] || '';
-                if (sortField === 'report_date' || sortField === 'created_at') {
-                    aVal = new Date(aVal);
-                    bVal = new Date(bVal);
-                }
-                if (typeof aVal === 'string') aVal = aVal.toLowerCase();
-                if (typeof bVal === 'string') bVal = bVal.toLowerCase();
-                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-                return 0;
-            });
-
-            const totalPages = Math.ceil(sorted.length / pageSize) || 1;
-            const start = (currentPage - 1) * pageSize;
-            const end = Math.min(start + pageSize, sorted.length);
-            const pageData = sorted.slice(start, end);
-
-            document.getElementById('pageInfo').textContent = 'صفحه ' + currentPage + ' از ' + totalPages;
-
-            // برچسب‌ها
-            const priorityLabels = {
-                high: '<span class="badge badge-danger">بالا</span>',
-                medium: '<span class="badge badge-warning">متوسط</span>',
-                low: '<span class="badge badge-info">کم</span>'
-            };
+            const url = window.NCR_API + '/get_ncrs.php';
+            const response = await fetch(url);
+            const text = await response.text();
             
-            const statusLabels = {
-                closed: '<span class="badge badge-success">بسته</span>',
-                in_progress: '<span class="badge badge-warning">در حال بررسی</span>',
-                open: '<span class="badge badge-danger">باز</span>',
-                rejected: '<span class="badge badge-secondary">رد شده</span>'
-            };
-
-            let html = '';
-            pageData.forEach(function(ncr) {
-                const ncrNumber = ncr.ncr_number || '-';
-                const partName = ncr.part_name || '-';
-                const subject = ncr.subject || '-';
-                const reportDate = ncr.report_date || '-';
-                
-                // اولویت
-                const priorityKey = ncr.priority || 'medium';
-                const priorityHtml = priorityLabels[priorityKey] || priorityLabels.medium;
-                
-                // وضعیت
-                let statusKey = ncr.final_status || 'open';
-                if (!statusKey || statusKey === '') {
-                    statusKey = ncr.quality_status === 'approved' ? 'in_progress' : 'open';
-                }
-                const statusHtml = statusLabels[statusKey] || statusLabels.open;
-                
-                // مرحله
-                const stepHtml = getStepBadge(ncr);
-                
-                // گزارش‌دهنده
-                const reporter = ncr.reporter_name || '-';
-                
-                html += '<tr>' +
-                    '<td><strong><a href="ncr-detail.html?number=' + ncrNumber + '" class="link-primary">' + ncrNumber + '</a></strong></td>' +
-                    '<td>' + partName + '</td>' +
-                    '<td>' + subject + '</td>' +
-                    '<td>' + reportDate + '</td>' +
-                    '<td>' + priorityHtml + '</td>' +
-                    '<td>' + stepHtml + '</td>' +
-                    '<td>' + statusHtml + '</td>' +
-                    '<td>' + reporter + '</td>' +
-                    '<td>' +
-                        '<button class="btn btn-sm btn-primary" onclick="viewNCR(\'' + ncrNumber + '\')"><i class="fas fa-eye"></i></button> ' +
-                        '<button class="btn btn-sm btn-success" onclick="editNCR(\'' + ncrNumber + '\')"><i class="fas fa-edit"></i></button> ' +
-                        '<button class="btn btn-sm btn-danger" onclick="deleteNCR(\'' + ncrNumber + '\')"><i class="fas fa-trash"></i></button>' +
-                    '</td>' +
-                '</tr>';
-            });
-
-            tbody.innerHTML = html;
-        }
-
-        // ============================================
-        // دریافت مرحله NCR
-        // ============================================
-        function getStepBadge(ncr) {
-            // بر اساس داده‌های واقعی
-            if (ncr.final_status === 'closed') {
-                return '<span class="badge badge-success">مرحله 6: بسته</span>';
-            } else if (ncr.final_quality_status === 'approved') {
-                return '<span class="badge badge-info">مرحله 5: بررسی نهایی</span>';
-            } else if (ncr.cft_status === 'approved') {
-                return '<span class="badge badge-info">مرحله 4: CFT</span>';
-            } else if (ncr.fmea_status === 'completed') {
-                return '<span class="badge badge-info">مرحله 3: FMEA</span>';
-            } else if (ncr.quality_status === 'approved') {
-                return '<span class="badge badge-info">مرحله 2: ریشه‌یابی</span>';
-            } else {
-                return '<span class="badge badge-secondary">مرحله 1: ثبت</span>';
-            }
-        }
-
-        // ============================================
-        // مرتب‌سازی
-        // ============================================
-        function sortTable(field) {
-            if (sortField === field) {
-                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortField = field;
-                sortDirection = 'asc';
-            }
-            renderTable();
-        }
-
-        // ============================================
-        // تغییر صفحه
-        // ============================================
-        function changePage(direction) {
-            var totalPages = Math.ceil(filteredNCRs.length / pageSize) || 1;
-            if (direction === 'prev' && currentPage > 1) currentPage--;
-            if (direction === 'next' && currentPage < totalPages) currentPage++;
-            renderTable();
-        }
-
-        function changePageSize() {
-            pageSize = parseInt(document.getElementById('pageSize').value);
-            currentPage = 1;
-            renderTable();
-        }
-
-        // ============================================
-        // عملیات روی NCR
-        // ============================================
-        function viewNCR(number) {
-            if (number && number !== '-') {
-                window.location.href = 'ncr-detail.html?number=' + number;
-            } else {
-                showNotification('شماره NCR معتبر نیست.', 'error');
-            }
-        }
-
-        function editNCR(number) {
-            if (number && number !== '-') {
-                window.location.href = 'ncr-detail.html?number=' + number + '&edit=true';
-            } else {
-                showNotification('شماره NCR معتبر نیست.', 'error');
-            }
-        }
-
-        async function deleteNCR(number) {
-            if (!number || number === '-') {
-                showNotification('شماره NCR معتبر نیست.', 'error');
-                return;
-            }
-            
-            if (!confirm('آیا از حذف NCR ' + number + ' مطمئن هستید؟')) return;
-
+            let result;
             try {
-                const result = await window.deleteNCR(number);
-                if (result) {
-                    showNotification('NCR با موفقیت حذف شد!', 'success');
-                    loadNCRsFromDatabase();
+                result = JSON.parse(text);
+            } catch (e) {
+                console.error('❌ JSON parse error:', e);
+                tbody.innerHTML = '<tr><td colspan="9" class="loading-row" style="color:red;">خطا: پاسخ سرور نامعتبر است</td></tr>';
+                return;
+            }
+            
+            if (result && result.success && result.data) {
+                allNCRs = result.data;
+                filteredNCRs = [...allNCRs];
+                console.log('✅ Loaded ' + allNCRs.length + ' NCRs');
+                
+                if (allNCRs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="loading-row">' + tl('no_data', 'هیچ NCR ثبت نشده است') + '</td></tr>';
+                    document.getElementById('recordCount').textContent = tl('count_label', 'تعداد') + ': 0';
                     return;
                 }
-            } catch (error) {
-                console.warn('⚠️ API delete failed, using localStorage:', error);
-            }
-
-            // Fallback: حذف از localStorage
-            var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
-            ncrs = ncrs.filter(function(n) { return n.ncr_number !== number; });
-            localStorage.setItem('ncrs', JSON.stringify(ncrs));
-            loadNCRsFromDatabase();
-            showNotification('NCR با موفقیت حذف شد!', 'success');
-        }
-
-        // ============================================
-        // توابع نمایش پیام
-        // ============================================
-        function showNotification(message, type) {
-            var colors = {
-                success: '#27ae60',
-                error: '#e74c3c',
-                warning: '#f39c12',
-                info: '#3498db'
-            };
-            
-            // حذف اعلان‌های قبلی
-            document.querySelectorAll('.custom-notification').forEach(el => el.remove());
-            
-            var notification = document.createElement('div');
-            notification.className = 'custom-notification';
-            notification.style.cssText = 'position: fixed; top: 80px; right: 20px; padding: 15px 25px; background: ' + (colors[type] || '#3498db') + '; color: white; border-radius: 10px; font-weight: bold; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: slideDown 0.5s ease; max-width: 400px;';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(function() {
-                notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.5s';
-                setTimeout(function() { notification.remove(); }, 500);
-            }, 3000);
-        }
-
-        // ============================================
-        // توابع خروجی و چاپ
-        // ============================================
-        function exportData() {
-            if (window.exportToExcel) {
-                window.exportToExcel();
+                
+                renderTable();
+                document.getElementById('recordCount').textContent = tl('count_label', 'تعداد') + ': ' + allNCRs.length;
             } else {
-                showNotification('قابلیت خروجی در حال آماده‌سازی است...', 'info');
+                console.error('❌ API returned error:', result);
+                tbody.innerHTML = '<tr><td colspan="9" class="loading-row" style="color:red;">خطا: ' + (result.error || 'پاسخ نامعتبر') + '</td></tr>';
             }
+        } catch (error) {
+            console.error('❌ Fetch error:', error);
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-row" style="color:red;">خطا در ارتباط با سرور: ' + error.message + '</td></tr>';
         }
+    }
 
-        function printPage() {
-            if (window.printPage) {
-                window.printPage();
+    // ============================================
+    // فیلتر کردن NCRها
+    // ============================================
+    function filterNCRs() {
+        const search = document.getElementById('searchInput').value.trim().toLowerCase();
+        const status = document.getElementById('statusFilter').value;
+        const priority = document.getElementById('priorityFilter').value;
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        const department = document.getElementById('departmentFilter').value;
+
+        filteredNCRs = allNCRs.filter(function(ncr) {
+            const searchableFields = [
+                ncr.ncr_number || '',
+                ncr.part_name || '',
+                ncr.subject || '',
+                ncr.part_code || '',
+                ncr.reporter_name || '',
+                ncr.description || ''
+            ];
+            const matchSearch = !search || searchableFields.some(field => 
+                field.toString().toLowerCase().includes(search)
+            );
+
+            let ncrStatus = ncr.final_status || ncr.status || 'open';
+            if (ncrStatus === 'draft' || ncrStatus === 'step1_submitted') ncrStatus = 'open';
+            else if (ncrStatus === 'step2_submitted' || ncrStatus === 'step3_submitted') ncrStatus = 'in_progress';
+            const matchStatus = !status || ncrStatus === status;
+
+            const ncrPriority = ncr.priority || 'medium';
+            const matchPriority = !priority || ncrPriority === priority;
+
+            const matchDate = (!dateFrom || (ncr.report_date && ncr.report_date >= dateFrom)) && 
+                              (!dateTo || (ncr.report_date && ncr.report_date <= dateTo));
+
+            const matchDepartment = !department || (ncr.reporter_department && ncr.reporter_department === department);
+
+            return matchSearch && matchStatus && matchPriority && matchDate && matchDepartment;
+        });
+
+        currentPage = 1;
+        renderTable();
+        document.getElementById('recordCount').textContent = tl('count_label', 'تعداد') + ': ' + filteredNCRs.length;
+    }
+
+    // ============================================
+    // بازنشانی فیلترها
+    // ============================================
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('priorityFilter').value = '';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        document.getElementById('departmentFilter').value = '';
+        filterNCRs();
+        showNotification('فیلترها بازنشانی شدند.', 'info');
+    }
+
+    // ============================================
+    // ⭐⭐⭐ تعیین مرحله NCR از داده‌ها
+    // ============================================
+    function getNCRCurrentStep(ncr) {
+        if (ncr.current_step) {
+            return parseInt(ncr.current_step);
+        }
+        const status = ncr.status || 'draft';
+        if (status === 'draft' || status === 'step1_submitted') return 1;
+        if (status === 'step2_submitted') return 2;
+        if (status === 'step3_submitted') return 3;
+        if (status === 'closed') return 4;
+        return 1;
+    }
+
+    // ============================================
+    // ⭐⭐⭐ تعیین مرحله جاری بر اساس وضعیت
+    // ============================================
+    function getCurrentStage(ncr) {
+        const status = ncr.status || 'draft';
+        if (status === 'draft' || status === 'step1_submitted') return 1;
+        if (status === 'step2_submitted') return 2;
+        if (status === 'step3_submitted') return 3;
+        if (status === 'closed') return 4;
+        return 1;
+    }
+
+    // ============================================
+    // ⭐⭐⭐ بررسی دسترسی‌ها
+    // ============================================
+    function getActionPermissions(ncr) {
+        const currentStage = getCurrentStage(ncr);
+        const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const userRole = user ? user.role : 'reporter';
+        
+        const currentUserName = user ? (user.full_name || user.username || '').trim() : '';
+        const currentUserId = user ? parseInt(user.id || 0) : 0;
+        const currentUserUsername = user ? (user.username || '').trim() : '';
+        
+        const reporterName = (ncr.reporter_name || '').trim();
+        const reporterId = ncr.created_by_id ? parseInt(ncr.created_by_id) : 0;
+        
+        const isReporterByName = (currentUserName && reporterName && 
+                                  currentUserName === reporterName);
+        const isReporterByUsername = (currentUserUsername && reporterName && 
+                                      currentUserUsername === reporterName);
+        const isReporterById = (currentUserId && reporterId && 
+                                currentUserId === reporterId);
+        
+        const isReporter = isReporterByName || isReporterByUsername || isReporterById;
+        const isAdmin = (userRole === 'admin');
+        
+        // مشاهده
+        let canView = true;
+        const ncrStep = getNCRCurrentStep(ncr);
+        if (ncrStep >= 2 && ncr.status === 'draft') {
+            canView = false;
+        }
+        
+        // ویرایش
+        let canEdit = false;
+        if (ncr.status === 'closed') {
+            canEdit = false;
+        } else {
+            if (typeof window.canEditNCRStep === 'function') {
+                let stepToEdit = 1;
+                if (ncr.status === 'draft' || ncr.status === 'step1_submitted') stepToEdit = 1;
+                else if (ncr.status === 'step2_submitted') stepToEdit = 2;
+                else if (ncr.status === 'step3_submitted') stepToEdit = 3;
+                
+                const ncrDataForCheck = {
+                    status: ncr.status,
+                    step2_submitted_at: ncr.step2_submitted_at,
+                    step3_submitted_at: ncr.step3_submitted_at,
+                    step4_submitted_at: ncr.step4_submitted_at
+                };
+                canEdit = window.canEditNCRStep(stepToEdit, ncrDataForCheck);
             } else {
-                window.print();
+                if (ncr.status === 'draft' || ncr.status === 'step1_submitted') {
+                    canEdit = true;
+                } else if (ncr.status === 'step2_submitted') {
+                    canEdit = (userRole === 'quality' || userRole === 'admin');
+                } else if (ncr.status === 'step3_submitted') {
+                    canEdit = (userRole === 'engineering' || userRole === 'admin');
+                }
             }
         }
+        
+        // حذف
+        let canDelete = false;
+        if (ncr.status !== 'closed') {
+            const step2Done = ncr.step2_submitted_at != null;
+            const step3Done = ncr.step3_submitted_at != null;
+            const step4Done = ncr.step4_submitted_at != null;
+            const stagesNotDone = (!step2Done && !step3Done && !step4Done);
+            
+            if (stagesNotDone && (isReporter || isAdmin)) {
+                canDelete = true;
+            }
+        }
+        
+        // ⭐ چاپ: همه می‌توانند چاپ کنند
+        const canPrint = true;
+        
+        return { 
+            canView, 
+            canEdit, 
+            canDelete, 
+            canPrint,
+            currentStage, 
+            ncrStep,
+            isReporter,
+            isAdmin
+        };
+    }
 
-        // ============================================
-        // بارگذاری مجدد داده‌ها (برای رفع خطا)
-        // ============================================
-        function refreshData() {
-            showNotification('در حال بارگذاری مجدد داده‌ها...', 'info');
-            loadNCRsFromDatabase();
+    // ============================================
+    // ⭐⭐⭐ رندر جدول با دکمه‌های شرطی + دکمه چاپ
+    // ============================================
+    function renderTable() {
+        const tbody = document.getElementById('ncrTableBody');
+        
+        if (!filteredNCRs || filteredNCRs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-row">هیچ NCR یافت نشد</td></tr>';
+            return;
         }
 
-        // بارگذاری مجدد هر 60 ثانیه (اختیاری)
-        // setInterval(refreshData, 60000);
+        const sorted = [...filteredNCRs].sort(function(a, b) {
+            let aVal = a[sortField] || '';
+            let bVal = b[sortField] || '';
+            if (sortField === 'report_date' || sortField === 'created_at') {
+                aVal = new Date(aVal);
+                bVal = new Date(bVal);
+            }
+            if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+            if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+            if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
 
-        console.log('✅ ncr-list.html loaded successfully');
-    </script>
+        const totalPages = Math.ceil(sorted.length / pageSize) || 1;
+        const start = (currentPage - 1) * pageSize;
+        const end = Math.min(start + pageSize, sorted.length);
+        const pageData = sorted.slice(start, end);
 
+        document.getElementById('pageInfo').textContent = tl('page_info', 'صفحه') + ' ' + currentPage + ' / ' + totalPages;
+
+        const priorityLabels = {
+            high: '<span class="badge badge-danger">' + tl('priority_high', 'بالا') + '</span>',
+            medium: '<span class="badge badge-warning">' + tl('priority_medium', 'متوسط') + '</span>',
+            low: '<span class="badge badge-info">' + tl('priority_low', 'کم') + '</span>'
+        };
+        
+        const statusLabels = {
+            closed: '<span class="badge badge-success">' + tl('status_closed', 'بسته') + '</span>',
+            in_progress: '<span class="badge badge-warning">' + tl('status_in_progress', 'در حال بررسی') + '</span>',
+            open: '<span class="badge badge-danger">' + tl('status_open', 'باز') + '</span>',
+            rejected: '<span class="badge badge-secondary">' + tl('status_rejected', 'رد شده') + '</span>'
+        };
+
+        let html = '';
+        pageData.forEach(function(ncr) {
+            const ncrNumber = ncr.ncr_number || '-';
+            const partName = ncr.part_name || '-';
+            const subject = ncr.subject || ncr.description || '-';
+            const reportDate = ncr.report_date || '-';
+            
+            const priorityKey = ncr.priority || 'medium';
+            const priorityHtml = priorityLabels[priorityKey] || priorityLabels.medium;
+            
+            let statusKey = ncr.final_status || ncr.status || 'open';
+            if (statusKey === 'draft' || statusKey === 'step1_submitted') statusKey = 'open';
+            else if (statusKey === 'step2_submitted' || statusKey === 'step3_submitted') statusKey = 'in_progress';
+            const statusHtml = statusLabels[statusKey] || statusLabels.open;
+            
+            const stepHtml = getStepBadge(ncr);
+            const reporter = ncr.reporter_name || '-';
+            
+            const permissions = getActionPermissions(ncr);
+            
+            // دکمه مشاهده
+            let viewBtn = '';
+            if (permissions.canView) {
+                viewBtn = '<button class="btn btn-sm btn-primary" onclick="viewNCR(\'' + ncrNumber + '\')" title="مشاهده"><i class="fas fa-eye"></i></button>';
+            } else {
+                viewBtn = '<button class="btn btn-sm btn-primary btn-disabled" title="مشاهده غیرفعال"><i class="fas fa-eye"></i></button>';
+            }
+            
+            // دکمه ویرایش
+            let editBtn = '';
+            if (permissions.canEdit) {
+                editBtn = '<button class="btn btn-sm btn-success" onclick="editNCR(\'' + ncrNumber + '\')" title="ویرایش"><i class="fas fa-edit"></i></button>';
+            } else {
+                editBtn = '<button class="btn btn-sm btn-success btn-disabled" title="ویرایش غیرفعال"><i class="fas fa-edit"></i></button>';
+            }
+            
+            // دکمه حذف
+            let deleteBtn = '';
+            if (permissions.canDelete) {
+                deleteBtn = '<button class="btn btn-sm btn-danger" onclick="deleteNCR(\'' + ncrNumber + '\')" title="حذف"><i class="fas fa-trash"></i></button>';
+            } else {
+                deleteBtn = '<button class="btn btn-sm btn-danger btn-disabled" title="حذف غیرفعال"><i class="fas fa-trash"></i></button>';
+            }
+            
+            // ⭐⭐⭐ دکمه چاپ (همیشه فعال)
+            let printBtn = '';
+            if (permissions.canPrint) {
+                printBtn = '<button class="btn btn-sm btn-print-ncr" onclick="printNCRFromList(\'' + ncrNumber + '\')" title="چاپ فرم NCR"><i class="fas fa-print"></i></button>';
+            }
+            
+            html += '<tr>' +
+                '<td><strong><a href="new-ncr.html?number=' + ncrNumber + '" class="link-primary">' + ncrNumber + '</a></strong></td>' +
+                '<td>' + partName + '</td>' +
+                '<td>' + subject + '</td>' +
+                '<td>' + reportDate + '</td>' +
+                '<td>' + priorityHtml + '</td>' +
+                '<td>' + stepHtml + '</td>' +
+                '<td>' + statusHtml + '</td>' +
+                '<td>' + reporter + '</td>' +
+                '<td style="white-space:nowrap;">' +
+                    viewBtn + ' ' +
+                    editBtn + ' ' +
+                    printBtn + ' ' +
+                    deleteBtn +
+                '</td>' +
+            '</tr>';
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    // ============================================
+    // مرحله NCR - نمایش بج مرحله
+    // ============================================
+    function getStepBadge(ncr) {
+        const status = ncr.status || 'draft';
+        
+        if (status === 'closed' || ncr.final_status === 'closed') {
+            return '<span class="badge badge-success">مرحله 4: پایش</span>';
+        } else if (status === 'step3_submitted') {
+            return '<span class="badge badge-info">مرحله 4: پایش</span>';
+        } else if (status === 'step2_submitted') {
+            return '<span class="badge badge-info">مرحله 3: تعیین تکلیف</span>';
+        } else if (status === 'step1_submitted') {
+            return '<span class="badge badge-info">مرحله 2: ارزیابی و تحلیل</span>';
+        } else if (status === 'draft') {
+            return '<span class="badge badge-secondary">مرحله 1: شناسایی</span>';
+        } else {
+            return '<span class="badge badge-secondary">مرحله 1: شناسایی</span>';
+        }
+    }
+
+    // ============================================
+    // مرتب‌سازی و صفحه‌بندی
+    // ============================================
+    function sortTable(field) {
+        if (sortField === field) {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortField = field;
+            sortDirection = 'asc';
+        }
+        renderTable();
+    }
+
+    function changePage(direction) {
+        var totalPages = Math.ceil(filteredNCRs.length / pageSize) || 1;
+        if (direction === 'prev' && currentPage > 1) currentPage--;
+        if (direction === 'next' && currentPage < totalPages) currentPage++;
+        renderTable();
+    }
+
+    function changePageSize() {
+        pageSize = parseInt(document.getElementById('pageSize').value);
+        currentPage = 1;
+        renderTable();
+    }
+
+    // ============================================
+    // عملیات
+    // ============================================
+    function viewNCR(number) {
+        if (number && number !== '-') {
+            window.location.href = 'new-ncr.html?number=' + number;
+        }
+    }
+
+    function editNCR(number) {
+        if (number && number !== '-') {
+            window.location.href = 'new-ncr.html?number=' + number + '&edit=true';
+        }
+    }
+
+    async function deleteNCR(number) {
+        if (!number || number === '-') return;
+        
+        const ncr = allNCRs.find(n => n.ncr_number === number);
+        if (!ncr) {
+            showNotification('NCR یافت نشد!', 'error');
+            return;
+        }
+        
+        const permissions = getActionPermissions(ncr);
+        if (!permissions.canDelete) {
+            showNotification('شما مجاز به حذف این NCR نیستید!', 'error');
+            return;
+        }
+        
+        if (!confirm('آیا از حذف NCR ' + number + ' مطمئن هستید؟')) return;
+
+        try {
+            const response = await fetch(window.NCR_API + '/delete_ncr.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ncr_number: number })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification('NCR با موفقیت حذف شد!', 'success');
+                await loadNCRsFromDatabase();
+            } else {
+                showNotification('خطا: ' + (result.error || ''), 'error');
+            }
+        } catch (error) {
+            console.error('❌ Delete error:', error);
+            showNotification('خطا در حذف NCR', 'error');
+        }
+    }
+
+    // ============================================
+    // ⭐⭐⭐ چاپ فرم NCR از لیست
+    // ============================================
+    async function printNCRFromList(ncrNumber) {
+        console.log('🖨️ printNCRFromList called for:', ncrNumber);
+        
+        if (!ncrNumber || ncrNumber === '-') {
+            showNotification('شماره NCR نامعتبر است', 'error');
+            return;
+        }
+        
+        showNotification('در حال آماده‌سازی فرم چاپی...', 'info');
+        
+        try {
+            // بارگذاری داده‌های کامل NCR از API
+            const url = window.NCR_API + '/get_ncr.php?number=' + encodeURIComponent(ncrNumber);
+            const response = await fetch(url);
+            const text = await response.text();
+            
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (e) {
+                console.error('❌ JSON parse error:', e);
+                showNotification('خطا: پاسخ سرور نامعتبر است', 'error');
+                return;
+            }
+            
+            if (!result.success || !result.data) {
+                showNotification('خطا در بارگذاری NCR: ' + (result.error || 'داده یافت نشد'), 'error');
+                return;
+            }
+            
+            const ncr = result.data;
+            
+            // ساخت آبجکت داده برای چاپ
+            const ncrDataForPrint = buildNCRDataForPrint(ncr);
+            
+            // باز کردن پنجره چاپ
+            openPrintWindow(ncrDataForPrint);
+            
+        } catch (error) {
+            console.error('❌ printNCRFromList error:', error);
+            showNotification('خطا در آماده‌سازی چاپ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================
+    // ⭐ ساخت آبجکت داده برای چاپ
+    // ============================================
+    function buildNCRDataForPrint(ncr) {
+        // پارس کردن فیلدهای JSON
+        let fishboneChecked = [];
+        let fishboneSubItems = {};
+        let partImage = null;
+        
+        try {
+            if (ncr.fishbone_checks) {
+                fishboneChecked = typeof ncr.fishbone_checks === 'string' 
+                    ? JSON.parse(ncr.fishbone_checks) 
+                    : ncr.fishbone_checks;
+            }
+        } catch (e) { console.warn('fishbone_checks parse error:', e); }
+        
+        try {
+            if (ncr.fishbone_other) {
+                fishboneSubItems = typeof ncr.fishbone_other === 'string' 
+                    ? JSON.parse(ncr.fishbone_other) 
+                    : ncr.fishbone_other;
+            }
+        } catch (e) { console.warn('fishbone_other parse error:', e); }
+        
+        try {
+            if (ncr.part_image) {
+                partImage = typeof ncr.part_image === 'string' 
+                    ? JSON.parse(ncr.part_image) 
+                    : ncr.part_image;
+            }
+        } catch (e) { 
+            partImage = ncr.part_image; 
+        }
+        
+        return {
+            step1_data: {
+                ncr_number: ncr.ncr_number || '-',
+                report_date: ncr.report_date || '',
+                reporter_name: ncr.reporter_name || '-',
+                reporter_position: ncr.reporter_position || '-',
+                reporter_department: ncr.reporter_department || '-',
+                location_found: ncr.location_found || '-',
+                inspection_number: ncr.inspection_number || '',
+                work_station: ncr.work_station || '',
+                skeleton_process: ncr.skeleton_process || '',
+                sheet_metal_process: ncr.sheet_metal_process || '',
+                fiber_process: ncr.fiber_process || '',
+                painting_process: ncr.painting_process || '',
+                product_type: ncr.product_type || '-',
+                bus_model: ncr.bus_model || '',
+                car_model: ncr.car_model || '',
+                truck_model: ncr.truck_model || '',
+                minibus_model: ncr.minibus_model || '',
+                tractor_model: ncr.tractor_model || '',
+                part_code: ncr.part_code || '-',
+                part_name: ncr.part_name || '-',
+                quantity: ncr.quantity || '-',
+                unit: ncr.unit || '-',
+                description: ncr.description || '-',
+                batch_number: ncr.batch_number || ''
+            },
+            step2_data: {
+                standard_ref: ncr.standard_ref || '',
+                batch_number: ncr.batch_number || '',
+                immediate_action: ncr.immediate_action || '',
+                severity: ncr.severity || '',
+                quality_notes: ncr.quality_notes || '',
+                analysis_method: ncr.analysis_method || '',
+                fishbone_checked: fishboneChecked,
+                fishbone_subitems: fishboneSubItems,
+                why1: ncr.why1 || '',
+                why2: ncr.why2 || '',
+                why3: ncr.why3 || '',
+                why4: ncr.why4 || '',
+                why5: ncr.why5 || '',
+                analysis_conclusion: ncr.analysis_conclusion || ''
+            },
+            step3_data: {
+                confirmation: ncr.confirmation || '',
+                reject_reason: ncr.reject_reason || '',
+                disposition_type: ncr.disposition_type || '',
+                rework_responsible: ncr.rework_responsible || '',
+                rework_deadline: ncr.rework_deadline || '',
+                rework_action_number: ncr.rework_action_number || '',
+                concession_number: ncr.concession_number || '',
+                hold_reason: ncr.hold_reason || '',
+                claim_number: ncr.claim_number || '',
+                purchase_number: ncr.purchase_number || '',
+                corrective_action: ncr.corrective_action || '',
+                corrective_number: ncr.corrective_number || ''
+            },
+            step4_data: {
+                effectiveness: ncr.effectiveness || '',
+                ineffective_action_number: ncr.ineffective_action_number || '',
+                monitoring_date: ncr.monitoring_date || '',
+                monitoring_responsible: ncr.monitoring_responsible || '',
+                monitoring_notes: ncr.monitoring_notes || '',
+                final_status: ncr.final_status || 'open'
+            },
+            part_image: partImage,
+            status: ncr.status || 'draft'
+        };
+    }
+
+    // ============================================
+    // ⭐ توابع کمکی چاپ (کپی شده از new-ncr.html)
+    // ============================================
+    function formatPersianDate(dateStr) {
+        if (!dateStr) return '-';
+        var parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
+        var months = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+        var m = parseInt(parts[1]) - 1;
+        return parseInt(parts[2]) + ' ' + months[m] + ' ' + parts[0];
+    }
+
+    function getProductModel(d1) {
+        if (!d1.product_type) return '-';
+        if (d1.product_type === 'اتوبوس') return d1.bus_model || '-';
+        if (d1.product_type === 'سواری') return d1.car_model || '-';
+        if (d1.product_type === 'کامیونت') return d1.truck_model || '-';
+        if (d1.product_type === 'مینی بوس') return d1.minibus_model || '-';
+        if (d1.product_type === 'کشنده') return d1.tractor_model || '-';
+        return '-';
+    }
+
+    // ============================================
+    // ⭐⭐⭐ باز کردن پنجره چاپ
+    // ============================================
+    function openPrintWindow(ncrDataForPrint) {
+        const d1 = ncrDataForPrint.step1_data;
+        const d2 = ncrDataForPrint.step2_data;
+        const d3 = ncrDataForPrint.step3_data;
+        const d4 = ncrDataForPrint.step4_data;
+        
+        // تصویر قطعه
+        var partImageHtml = '';
+        if (ncrDataForPrint.part_image) {
+            var imgData = ncrDataForPrint.part_image;
+            var imageUrl = '';
+            if (typeof imgData === 'string') {
+                try { var p = JSON.parse(imgData); imageUrl = p.url || p.path || ''; }
+                catch (e) { imageUrl = imgData; }
+            } else if (typeof imgData === 'object') {
+                imageUrl = imgData.url || imgData.path || '';
+            }
+            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                imageUrl = window.NCR_ROOT + '' + imageUrl.replace(/^\/+/, '');
+            }
+            if (imageUrl) {
+                partImageHtml = '<img src="' + imageUrl + '" alt="تصویر قطعه" style="max-width:100%; max-height:180px; border-radius:4px;">';
+            }
+        }
+        if (!partImageHtml) {
+            partImageHtml = '<div style="color:#999; text-align:center; padding:20px; font-size:10px;"><div style="font-size:24px; margin-bottom:5px;">🖼️</div>تصویر قطعه ثبت نشده است</div>';
+        }
+        
+        // نمودار Fishbone
+        var fishboneSvg = '';
+        if (d2.analysis_method === 'fishbone') {
+            fishboneSvg = buildFishboneSvgForPrint(d1.description, d2.fishbone_checked, d2.fishbone_subitems);
+        }
+        
+        // تابع چک‌باکس
+        function cb(checked) {
+            return '<span class="checkbox' + (checked ? ' checked' : '') + '">' + (checked ? '✓' : '') + '</span>';
+        }
+        
+        // ساخت HTML
+        var printHtml = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>فرم عدم انطباق - ${d1.ncr_number || ''}</title>
     <style>
-        .header-language {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        @page { size: A4 portrait; margin: 6mm; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
+            margin: 0; padding: 0; background: white; color: #000;
+            font-size: 9px; line-height: 1.4;
         }
-        .language-label {
-            font-size: 13px;
-            color: var(--gray, #95a5a6);
-            white-space: nowrap;
+        .print-container { max-width: 100%; width: 100%; }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            border: 2px solid #000; padding: 5px 10px; margin-bottom: 5px;
+            background: #e8e8e8;
         }
-        .lang-select {
-            padding: 5px 10px;
-            border: 2px solid var(--light-gray, #e9ecef);
-            border-radius: 8px;
-            font-size: 13px;
-            background: white;
-            cursor: pointer;
-            font-family: 'Vazir', 'Segoe UI', Tahoma, Arial, sans-serif;
-            transition: all 0.3s ease;
-            outline: none;
-            color: var(--dark, #2c3e50);
+        .header .title { font-size: 14px; font-weight: 800; }
+        .header .form-code { font-size: 9.5px; font-weight: 700; }
+
+        .main-info {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; margin-bottom: 5px;
         }
-        .lang-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .info-cell {
+            border: 1.5px solid #000; padding: 3px 6px; display: flex; align-items: center; gap: 4px;
+            background: #fff; font-size: 8.5px;
         }
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
+        .info-cell .label { font-weight: 700; min-width: 55px; }
+        .info-cell .value { font-weight: 500; }
+
+        .section { border: 1.5px solid #000; margin-bottom: 4px; page-break-inside: avoid; }
+        .section-title {
+            background: #d0d0d0; font-weight: 800; padding: 3px 8px;
+            font-size: 10px; border-bottom: 1.5px solid #000;
         }
-        .filter-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .section-body { padding: 4px 8px; }
+
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 3px; }
+        .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; margin-bottom: 3px; }
+        .field-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 3px; margin-bottom: 3px; }
+        .field {
+            border-bottom: 1px dotted #888; padding: 1px 3px; min-height: 17px;
+            display: flex; gap: 3px; font-size: 8.5px; align-items: baseline;
         }
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
+        .field .f-label { font-weight: 700; color: #333; min-width: 65px; flex-shrink: 0; }
+        .field .f-value { flex: 1; color: #000; }
+        .field-full { grid-column: 1 / -1; }
+        .field-block { display: block; padding: 2px 3px; }
+        .field-block .f-label { font-weight: 700; color: #333; display: block; margin-bottom: 1px; }
+        .field-block .f-value { display: block; white-space: pre-wrap; font-size: 8.5px; min-height: 14px; }
+
+        .box-item {
+            display: inline-flex; align-items: center; gap: 3px;
+            margin-left: 8px; margin-bottom: 1px; font-weight: 600; font-size: 8.5px;
         }
-        .btn-secondary:hover {
-            background: #5a6268;
+        .box-item .checkbox {
+            width: 11px; height: 11px; border: 1.2px solid #000;
+            display: inline-block; text-align: center; line-height: 9px;
+            font-size: 8px; font-weight: 900; background: #fff;
         }
-        .table-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            border-top: 1px solid #e9ecef;
-            flex-wrap: wrap;
-            gap: 10px;
+        .box-item .checkbox.checked { background: #000; color: #fff; }
+
+        .part-image-section {
+            display: flex; gap: 8px; margin: 4px 0;
+            border: 1.5px solid #000; border-radius: 4px; padding: 6px;
+            background: #fafafa;
         }
-        .pagination {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+        .part-image-box {
+            flex: 0 0 180px; min-height: 130px;
+            border: 1px dashed #666; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            background: #fff; padding: 4px;
         }
-        .pagination button {
-            padding: 5px 12px;
-            border: 1px solid #e9ecef;
-            border-radius: 5px;
-            background: white;
-            cursor: pointer;
+        .part-image-box img { max-width: 100%; max-height: 160px; }
+        .part-desc-box { flex: 1; }
+        .part-desc-box .desc-label { font-weight: 700; font-size: 9px; margin-bottom: 2px; }
+        .part-desc-box .desc-text {
+            white-space: pre-wrap; font-size: 8.5px;
+            background: #fff; padding: 4px 6px; border-radius: 3px;
+            border: 1px solid #e0e0e0; min-height: 50px;
         }
-        .pagination button:hover {
-            background: #f8f9fa;
+
+        .fishbone-section {
+            margin: 4px 0; padding: 4px;
+            border: 1.5px solid #000; border-radius: 4px;
+            background: #fff;
         }
-        .page-size {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .fishbone-section .fishbone-title {
+            font-weight: 700; font-size: 9.5px; margin-bottom: 4px;
+            text-align: center; color: #1e293b;
         }
-        .page-size select {
-            padding: 5px 10px;
-            border: 1px solid #e9ecef;
-            border-radius: 5px;
+        .fishbone-svg-wrapper { width: 100%; overflow-x: auto; }
+        .fishbone-svg-wrapper svg { width: 100%; height: auto; display: block; }
+
+        .fishbone-list { margin-top: 4px; }
+        .fishbone-list-title { font-weight: 700; font-size: 9px; margin-bottom: 3px; }
+        .fishbone-categories { display: flex; flex-wrap: wrap; gap: 3px; }
+        .fishbone-cat {
+            flex: 1 1 30%; min-width: 120px;
+            background: #fff; border: 1px solid #e0e0e0;
+            border-radius: 3px; padding: 3px 5px;
         }
-        .link-primary {
-            color: #667eea;
-            text-decoration: none;
+        .fishbone-cat-header { margin-bottom: 2px; }
+        .fishbone-cat-name { font-weight: 700; font-size: 8px; color: #dc2626; }
+        .fishbone-subs { margin: 0; padding-right: 12px; font-size: 8px; }
+        .fishbone-subs li { margin-bottom: 1px; }
+
+        .why-list { margin: 4px 0; }
+        .why-list-title { font-weight: 700; font-size: 9px; margin-bottom: 3px; }
+        .why-items { margin: 0; padding-right: 16px; font-size: 8.5px; }
+        .why-items li { margin-bottom: 2px; }
+
+        .signatures {
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px;
+            margin-top: 6px; padding-top: 4px; border-top: 2px solid #000;
         }
-        .link-primary:hover {
-            text-decoration: underline;
+        .signature-box {
+            border: 1.5px solid #000; padding: 5px; text-align: center;
+            min-height: 50px; border-radius: 3px;
         }
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .signature-box .sig-title { font-weight: 700; margin-bottom: 12px; font-size: 8.5px; }
+        .signature-box .sig-line { border-top: 1px solid #000; padding-top: 2px; font-size: 7.5px; }
+
+        .footer-note {
+            text-align: center; font-size: 7.5px; color: #666;
+            margin-top: 4px; padding-top: 3px; border-top: 1px solid #ccc;
         }
-        @media (max-width: 768px) {
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-            .filter-actions {
-                flex-direction: column;
-            }
-            .filter-actions .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            .table-footer {
-                flex-direction: column;
-            }
-            .header-language .language-label {
-                display: none;
-            }
+
+        .print-actions { text-align: center; margin: 10px 0; }
+        .print-actions button {
+            padding: 6px 16px; font-size: 12px; font-weight: 700;
+            cursor: pointer; border: none; border-radius: 4px; margin: 0 4px;
+        }
+        .btn-print-action { background: #667eea; color: white; }
+        .btn-close-action { background: #6c757d; color: white; }
+
+        @media print {
+            .print-actions { display: none !important; }
+            body { padding: 0; font-size: 8.5px; }
+            .section { page-break-inside: avoid; }
+            .part-image-section { page-break-inside: avoid; }
         }
     </style>
+</head>
+<body>
+    <div class="print-container">
+        <div class="header">
+            <div class="title">فرم عدم انطباق (NCR)</div>
+            <div class="form-code">کد فرم: FM-NCR01/00</div>
+        </div>
+        
+        <div class="main-info">
+            <div class="info-cell"><span class="label">تاریخ گزارش:</span><span class="value">${formatPersianDate(d1.report_date) || '-'}</span></div>
+            <div class="info-cell"><span class="label">شماره عدم انطباق:</span><span class="value">${d1.ncr_number || '-'}</span></div>
+            <div class="info-cell"><span class="label">وضعیت:</span><span class="value">${ncrDataForPrint.status === 'closed' ? 'بسته' : (ncrDataForPrint.status === 'draft' ? 'پیش‌نویس' : 'در جریان')}</span></div>
+        </div>
+
+        <!-- بخش ۱ -->
+        <div class="section">
+            <div class="section-title">📋 بخش ۱: اطلاعات شناسایی عدم انطباق</div>
+            <div class="section-body">
+                <div class="field-row-3">
+                    <div class="field"><span class="f-label">گزارش‌دهنده:</span><span class="f-value">${d1.reporter_name || '-'}</span></div>
+                    <div class="field"><span class="f-label">پست سازمانی:</span><span class="f-value">${d1.reporter_position || '-'}</span></div>
+                    <div class="field"><span class="f-label">دپارتمان:</span><span class="f-value">${d1.reporter_department || '-'}</span></div>
+                </div>
+                <div class="field-row-3">
+                    <div class="field"><span class="f-label">محل شناسایی:</span><span class="f-value">${d1.location_found || '-'}</span></div>
+                    <div class="field"><span class="f-label">نوع محصول:</span><span class="f-value">${d1.product_type || '-'}</span></div>
+                    <div class="field"><span class="f-label">مدل محصول:</span><span class="f-value">${getProductModel(d1)}</span></div>
+                </div>
+                <div class="field-row-4">
+                    <div class="field"><span class="f-label">ایستگاه کاری:</span><span class="f-value">${d1.work_station || '-'}</span></div>
+                    <div class="field"><span class="f-label">فرآیند:</span><span class="f-value">${d1.skeleton_process || d1.sheet_metal_process || d1.fiber_process || d1.painting_process || '-'}</span></div>
+                    <div class="field"><span class="f-label">کد قطعه:</span><span class="f-value">${d1.part_code || '-'}</span></div>
+                    <div class="field"><span class="f-label">نام قطعه:</span><span class="f-value">${d1.part_name || '-'}</span></div>
+                </div>
+                <div class="field-row-3">
+                    <div class="field"><span class="f-label">تعداد:</span><span class="f-value">${d1.quantity || '-'} ${d1.unit || ''}</span></div>
+                    <div class="field"><span class="f-label">شماره برگ بازرسی:</span><span class="f-value">${d1.inspection_number || '-'}</span></div>
+                    <div class="field"><span class="f-label">بچ نامبر/بارنامه:</span><span class="f-value">${d1.batch_number || '-'}</span></div>
+                </div>
+
+                <div class="part-image-section">
+                    <div class="part-image-box">
+                        ${partImageHtml}
+                    </div>
+                    <div class="part-desc-box">
+                        <div class="desc-label">شرح عدم انطباق:</div>
+                        <div class="desc-text">${d1.description || '-'}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بخش ۲ -->
+        <div class="section">
+            <div class="section-title">🔬 بخش ۲: ارزیابی و تحلیل</div>
+            <div class="section-body">
+                <div class="field-row-4">
+                    <div class="field"><span class="f-label">مرجع استاندارد:</span><span class="f-value">${d2.standard_ref || '-'}</span></div>
+                    <div class="field"><span class="f-label">بچ نامبر:</span><span class="f-value">${d2.batch_number || '-'}</span></div>
+                    <div class="field"><span class="f-label">اقدام فوری:</span><span class="f-value">${d2.immediate_action || '-'}</span></div>
+                    <div class="field"><span class="f-label">شدت:</span><span class="f-value">${d2.severity || '-'}</span></div>
+                </div>
+
+                <div class="field field-full" style="display:block;">
+                    <span class="f-label">اقدام فوری انجام شده:</span>
+                    <div class="f-value" style="margin-top:2px;">
+                        <span class="box-item">${cb(d2.immediate_action === 'قرنطینه')} قرنطینه</span>
+                        <span class="box-item">${cb(d2.immediate_action === 'جداسازی')} جداسازی</span>
+                        <span class="box-item">${cb(d2.immediate_action === 'توقف تولید')} توقف تولید</span>
+                        <span class="box-item">${cb(d2.immediate_action === 'علامت گذاری')} علامت‌گذاری</span>
+                        <span class="box-item">${cb(d2.immediate_action === 'اطلاع رسانی')} اطلاع‌رسانی</span>
+                        <span class="box-item">${cb(d2.immediate_action === 'سایر')} سایر</span>
+                    </div>
+                </div>
+
+                <div class="field field-full" style="display:block;">
+                    <span class="f-label">شدت:</span>
+                    <div class="f-value" style="margin-top:2px;">
+                        <span class="box-item">${cb(d2.severity === 'بحرانی')} بحرانی</span>
+                        <span class="box-item">${cb(d2.severity === 'عمده')} عمده</span>
+                        <span class="box-item">${cb(d2.severity === 'جزئی')} جزئی</span>
+                    </div>
+                </div>
+
+                <div class="field field-full" style="display:block;">
+                    <span class="f-label">روش تحلیل:</span>
+                    <div class="f-value" style="margin-top:2px;">
+                        <span class="box-item">${cb(d2.analysis_method === 'fishbone')} Ishikawa Fishbone</span>
+                        <span class="box-item">${cb(d2.analysis_method === '5why')} 5 Why</span>
+                        <span class="box-item">${cb(d2.analysis_method === 'سایر')} سایر</span>
+                    </div>
+                </div>
+
+                <div class="field field-full field-block">
+                    <span class="f-label">نظر کارشناس کیفیت:</span>
+                    <span class="f-value">${d2.quality_notes || '-'}</span>
+                </div>
+
+                ${fishboneSvg ? `
+                <div class="fishbone-section">
+                    <div class="fishbone-title">🐟 نمودار علت و معلول (Ishikawa Fishbone Diagram)</div>
+                    <div class="fishbone-svg-wrapper">
+                        ${fishboneSvg}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${d2.analysis_method === 'fishbone' ? buildFishboneListHtml(d2.fishbone_checked, d2.fishbone_subitems) : ''}
+                ${d2.analysis_method === '5why' ? build5WhyHtml(d2) : ''}
+
+                <div class="field field-full field-block">
+                    <span class="f-label">نتیجه تحلیل:</span>
+                    <span class="f-value">${d2.analysis_conclusion || '-'}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- بخش ۳ -->
+        <div class="section">
+            <div class="section-title">⚖️ بخش ۳: تعیین تکلیف</div>
+            <div class="section-body">
+                <div class="field field-full" style="display:block;">
+                    <span class="f-label">آیا عدم انطباق مورد تأیید است؟</span>
+                    <div class="f-value" style="margin-top:2px;">
+                        <span class="box-item">${cb(d3.confirmation === 'yes')} بله</span>
+                        <span class="box-item">${cb(d3.confirmation === 'no')} خیر</span>
+                    </div>
+                </div>
+
+                <div class="field field-full" style="display:block;">
+                    <span class="f-label">نوع تعیین تکلیف:</span>
+                    <div class="f-value" style="margin-top:2px;">
+                        <span class="box-item">${cb(d3.disposition_type === 'rework')} رفع عدم انطباق با دوباره‌کاری</span>
+                        <span class="box-item">${cb(d3.disposition_type === 'concession')} صدور مجوز ارفاقی</span>
+                        <span class="box-item">${cb(d3.disposition_type === 'hold')} نگهداری تا اطلاع ثانوی</span>
+                        <span class="box-item">${cb(d3.disposition_type === 'scrap')} ضایعات</span>
+                        <span class="box-item">${cb(d3.disposition_type === 'claim')} کلیم</span>
+                        <span class="box-item">${cb(d3.disposition_type === 'purchase')} درخواست خرید</span>
+                    </div>
+                </div>
+
+                <div class="field-row-3">
+                    <div class="field"><span class="f-label">مسئول دوباره‌کاری:</span><span class="f-value">${d3.rework_responsible || '-'}</span></div>
+                    <div class="field"><span class="f-label">مهلت انجام:</span><span class="f-value">${formatPersianDate(d3.rework_deadline) || '-'}</span></div>
+                    <div class="field"><span class="f-label">شماره فرم اقدام:</span><span class="f-value">${d3.rework_action_number || '-'}</span></div>
+                </div>
+
+                <div class="field-row-3">
+                    <div class="field"><span class="f-label">شماره مجوز ارفاقی:</span><span class="f-value">${d3.concession_number || '-'}</span></div>
+                    <div class="field"><span class="f-label">علت نگهداری:</span><span class="f-value">${d3.hold_reason || '-'}</span></div>
+                    <div class="field"><span class="f-label">شماره کلیم:</span><span class="f-value">${d3.claim_number || '-'}</span></div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field"><span class="f-label">شماره درخواست خرید:</span><span class="f-value">${d3.purchase_number || '-'}</span></div>
+                    <div class="field field-full field-block" style="border-bottom:none;">
+                        <span class="f-label">دلیل عدم تأیید:</span>
+                        <span class="f-value">${d3.reject_reason || '-'}</span>
+                    </div>
+                </div>
+
+                <div class="field field-full" style="display:block;">
+                    <span class="f-label">نیاز به صدور اقدام اصلاحی و بهبود:</span>
+                    <div class="f-value" style="margin-top:2px;">
+                        <span class="box-item">${cb(d3.corrective_action === 'yes')} می‌باشد</span>
+                        <span class="box-item">${cb(d3.corrective_action === 'no')} نمی‌باشد</span>
+                        <span style="margin-right:10px;">شماره اقدام اصلاحی: <strong>${d3.corrective_number || '-'}</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بخش ۴ -->
+        <div class="section">
+            <div class="section-title">📊 بخش ۴: پایش</div>
+            <div class="section-body">
+                <div class="field field-full" style="display:block;">
+                    <span class="f-label">اقدامات تعریف شده در مرحله تعیین تکلیف اثربخش بوده است؟</span>
+                    <div class="f-value" style="margin-top:2px;">
+                        <span class="box-item">${cb(d4.effectiveness === 'yes')} بله</span>
+                        <span class="box-item">${cb(d4.effectiveness === 'no')} خیر</span>
+                    </div>
+                </div>
+
+                <div class="field field-full field-block">
+                    <span class="f-label">با توجه به اینکه اقدامات تعریف شده در مرحله تعیین تکلیف اثر بخش نبوده است، اقدام اصلاحی و بهبود به شماره:</span>
+                    <span class="f-value">${d4.ineffective_action_number || '-'}</span>
+                </div>
+
+                <div class="field-row-3">
+                    <div class="field"><span class="f-label">تاریخ پایش:</span><span class="f-value">${formatPersianDate(d4.monitoring_date) || '-'}</span></div>
+                    <div class="field"><span class="f-label">مسئول پایش:</span><span class="f-value">${d4.monitoring_responsible || '-'}</span></div>
+                    <div class="field"><span class="f-label">وضعیت گزارش:</span>
+                        <span class="f-value">
+                            <span class="box-item">${cb(d4.final_status === 'open' || !d4.final_status)} باز</span>
+                            <span class="box-item">${cb(d4.final_status === 'in_progress')} در حال بررسی</span>
+                            <span class="box-item">${cb(d4.final_status === 'closed')} بسته</span>
+                            <span class="box-item">${cb(d4.final_status === 'rejected')} رد شده</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="field field-full field-block">
+                    <span class="f-label">توضیحات نهایی:</span>
+                    <span class="f-value">${d4.monitoring_notes || '-'}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- امضاءها -->
+        <div class="signatures">
+            <div class="signature-box">
+                <div class="sig-title">گزارش‌دهنده</div>
+                <div class="sig-line">نام و امضاء</div>
+            </div>
+            <div class="signature-box">
+                <div class="sig-title">مدیریت کیفیت</div>
+                <div class="sig-line">نام و امضاء</div>
+            </div>
+            <div class="signature-box">
+                <div class="sig-title">کمیته فنی</div>
+                <div class="sig-line">نام و امضاء</div>
+            </div>
+            <div class="signature-box">
+                <div class="sig-title">مدیریت</div>
+                <div class="sig-line">نام و امضاء</div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')} - این فرم از لیست NCRها تولید شده است.
+        </div>
+
+        <div class="print-actions">
+            <button class="btn-print-action" onclick="window.print()">🖨️ چاپ فرم</button>
+            <button class="btn-close-action" onclick="window.close()">✖ بستن</button>
+        </div>
+    </div>
+</body>
+</html>`;
+        
+        var printWindow = window.open('', '_blank', 'width=900,height=1000');
+        printWindow.document.write(printHtml);
+        printWindow.document.close();
+    }
+
+    // ============================================
+    // ⭐ توابع کمکی SVG Fishbone
+    // ============================================
+    function buildFishboneSvgForPrint(problemText, checkedCategories, subItems) {
+        checkedCategories = checkedCategories || [];
+        subItems = subItems || {};
+
+        var svgWidth = 900;
+        var svgHeight = 420;
+        var spineY = 210;
+        var spineStartX = 60;
+        var spineEndX = 680;
+
+        var branchConfigs = [
+            { id: 'material', defaultLabel: 'MATERIAL', isTop: true, startX: 160, startY: 60, spineX: 260 },
+            { id: 'method', defaultLabel: 'METHOD', isTop: true, startX: 360, startY: 60, spineX: 460 },
+            { id: 'measurement', defaultLabel: 'MEASUREMENT', isTop: true, startX: 560, startY: 60, spineX: 660 },
+            { id: 'environment', defaultLabel: 'ENVIRONMENT', isTop: false, startX: 160, startY: 360, spineX: 260 },
+            { id: 'machine', defaultLabel: 'MACHINE', isTop: false, startX: 360, startY: 360, spineX: 460 },
+            { id: 'man', defaultLabel: 'MAN', isTop: false, startX: 560, startY: 360, spineX: 660 }
+        ];
+
+        var svgContent = '';
+        svgContent += '<defs><filter id="cardShadowPrint" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.1" /></filter></defs>';
+
+        // دم ماهی
+        svgContent += '<path d="M 20 ' + (spineY - 40) + ' C 40 ' + (spineY - 20) + ', 40 ' + (spineY + 20) + ', 20 ' + (spineY + 40) + ' C 55 ' + (spineY + 20) + ', 55 ' + (spineY - 20) + ', 20 ' + (spineY - 40) + ' Z" fill="#64748b" opacity="0.3" />';
+        svgContent += '<circle cx="' + spineStartX + '" cy="' + spineY + '" r="4" fill="#1e293b" />';
+
+        // خط اصلی
+        svgContent += '<line x1="' + spineStartX + '" y1="' + spineY + '" x2="' + spineEndX + '" y2="' + spineY + '" stroke="#1e293b" stroke-width="3" stroke-linecap="round" />';
+
+        // شاخه‌ها
+        branchConfigs.forEach(function(cfg) {
+            var isChecked = checkedCategories.indexOf(cfg.id) !== -1;
+            var subs = subItems[cfg.id] || [];
+            var isActive = isChecked || subs.length > 0;
+
+            var boneColor = isActive ? '#dc2626' : '#94a3b8';
+            var textColor = isActive ? '#b91c1c' : '#475569';
+            var strokeWidth = isActive ? '2.5' : '1.5';
+
+            var startX = cfg.startX;
+            var startY = cfg.startY;
+            var endX = cfg.spineX;
+            var endY = spineY;
+
+            svgContent += '<line x1="' + startX + '" y1="' + startY + '" x2="' + endX + '" y2="' + endY + '" stroke="' + boneColor + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" />';
+            svgContent += '<circle cx="' + endX + '" cy="' + endY + '" r="' + (isActive ? '4.5' : '3') + '" fill="' + boneColor + '" stroke="#fff" stroke-width="1" />';
+
+            var badgeWidth = 90;
+            var badgeHeight = 22;
+            var badgeX = startX - (badgeWidth / 2);
+            var badgeY = cfg.isTop ? startY - badgeHeight - 4 : startY + 4;
+            var badgeBg = isActive ? '#ef4444' : '#f1f5f9';
+            var badgeTextFill = isActive ? '#ffffff' : '#334155';
+            var badgeBorder = isActive ? '#dc2626' : '#cbd5e1';
+
+            svgContent += '<g filter="' + (isActive ? 'url(#cardShadowPrint)' : 'none') + '">';
+            svgContent += '<rect x="' + badgeX + '" y="' + badgeY + '" width="' + badgeWidth + '" height="' + badgeHeight + '" rx="4" fill="' + badgeBg + '" stroke="' + badgeBorder + '" stroke-width="1" />';
+            svgContent += '<text x="' + (badgeX + badgeWidth/2) + '" y="' + (badgeY + 15) + '" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="9" fill="' + badgeTextFill + '">' + cfg.defaultLabel + '</text>';
+            svgContent += '</g>';
+
+            if (subs.length > 0) {
+                var totalSubs = subs.length;
+                subs.forEach(function(subText, idx) {
+                    var t = 0.25 + (idx + 1) * (0.55 / (totalSubs + 1));
+                    var jointX = startX + t * (endX - startX);
+                    var jointY = startY + t * (endY - startY);
+                    var ribLength = 45;
+                    var ribEndX = jointX - ribLength;
+                    var ribEndY = jointY;
+
+                    svgContent += '<line x1="' + jointX + '" y1="' + jointY + '" x2="' + ribEndX + '" y2="' + ribEndY + '" stroke="' + boneColor + '" stroke-width="1.5" stroke-linecap="round" />';
+                    svgContent += '<circle cx="' + jointX + '" cy="' + jointY + '" r="2.5" fill="' + boneColor + '" />';
+
+                    var circleX = ribEndX - 8;
+                    var circleRadius = 7;
+                    svgContent += '<circle cx="' + circleX + '" cy="' + ribEndY + '" r="' + circleRadius + '" fill="' + (isActive ? '#fee2e2' : '#f1f5f9') + '" stroke="' + boneColor + '" stroke-width="1" />';
+                    svgContent += '<text x="' + circleX + '" y="' + (ribEndY + 2.5) + '" text-anchor="middle" font-size="8" font-weight="700" fill="' + textColor + '" font-family="Arial, sans-serif">' + (idx + 1) + '</text>';
+
+                    var textEndX = circleX - circleRadius - 4;
+                    var maxChars = 35;
+                    var line1 = subText;
+                    var line2 = '';
+                    if (subText.length > maxChars) {
+                        var splitIdx = subText.lastIndexOf(' ', maxChars);
+                        if (splitIdx === -1 || splitIdx < maxChars * 0.5) splitIdx = maxChars;
+                        line1 = subText.substring(0, splitIdx).trim();
+                        line2 = subText.substring(splitIdx).trim();
+                        if (line2.length > maxChars) line2 = line2.substring(0, maxChars - 3) + '...';
+                    }
+
+                    var line1Y, line2Y;
+                    if (line2) {
+                        line1Y = ribEndY - 3;
+                        line2Y = ribEndY + 8;
+                    } else {
+                        line1Y = ribEndY + 3;
+                        line2Y = null;
+                    }
+
+                    svgContent += '<text x="' + textEndX + '" y="' + line1Y + '" text-anchor="end" font-size="9" font-weight="600" fill="#1e293b" font-family="inherit, Vazirmatn, sans-serif">' + line1 + '</text>';
+                    if (line2) {
+                        svgContent += '<text x="' + textEndX + '" y="' + line2Y + '" text-anchor="end" font-size="9" font-weight="600" fill="#1e293b" font-family="inherit, Vazirmatn, sans-serif">' + line2 + '</text>';
+                    }
+                });
+            }
+        });
+
+        // سر ماهی
+        var headLength = 60;
+        var headHeight = 45;
+        var headTipX = spineEndX + headLength;
+        var headBaseX = spineEndX;
+        var headTopY = spineY - headHeight;
+        var headBottomY = spineY + headHeight;
+
+        svgContent += '<g filter="url(#cardShadowPrint)">';
+        svgContent += '<defs><linearGradient id="fishHeadGradPrint" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1e293b" /><stop offset="100%" stop-color="#0f172a" /></linearGradient></defs>';
+        svgContent += '<polygon points="' + headBaseX + ',' + headTopY + ' ' + headTipX + ',' + spineY + ' ' + headBaseX + ',' + headBottomY + '" fill="url(#fishHeadGradPrint)" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round" />';
+        svgContent += '<circle cx="' + (headBaseX + 15) + '" cy="' + (spineY - 10) + '" r="3.5" fill="#ffffff" opacity="0.9" />';
+        svgContent += '<circle cx="' + (headBaseX + 15) + '" cy="' + (spineY - 10) + '" r="1.8" fill="#0f172a" />';
+        svgContent += '<path d="M ' + (headBaseX + 28) + ' ' + (spineY - 14) + ' Q ' + (headBaseX + 34) + ' ' + spineY + ' ' + (headBaseX + 28) + ' ' + (spineY + 14) + '" stroke="#64748b" stroke-width="1.5" fill="none" opacity="0.5" />';
+        svgContent += '</g>';
+
+        // جعبه معلول
+        var boxX = headTipX + 15;
+        var boxY = spineY - 45;
+        var boxW = 200;
+        var boxH = 90;
+
+        var displayProblem = problemText || 'عدم انطباق';
+        var problemLine1 = displayProblem;
+        var problemLine2 = '';
+        if (displayProblem.length > 25) {
+            var splitIdx = displayProblem.lastIndexOf(' ', 25);
+            if (splitIdx === -1) splitIdx = 25;
+            problemLine1 = displayProblem.substring(0, splitIdx).trim();
+            problemLine2 = displayProblem.substring(splitIdx).trim();
+            if (problemLine2.length > 28) problemLine2 = problemLine2.substring(0, 25) + '...';
+        }
+
+        svgContent += '<g filter="url(#cardShadowPrint)">';
+        svgContent += '<rect x="' + boxX + '" y="' + boxY + '" width="' + boxW + '" height="' + boxH + '" rx="8" fill="#ef4444" stroke="#dc2626" stroke-width="1.5" />';
+        svgContent += '<text x="' + (boxX + boxW/2) + '" y="' + (boxY + 22) + '" text-anchor="middle" font-family="inherit, Vazirmatn, Arial, sans-serif" font-weight="800" font-size="10" fill="#ffffff">🚨 معلول / شرح مشکل</text>';
+        svgContent += '<line x1="' + (boxX + 12) + '" y1="' + (boxY + 30) + '" x2="' + (boxX + boxW - 12) + '" y2="' + (boxY + 30) + '" stroke="#fca5a5" stroke-width="1" />';
+        svgContent += '<text x="' + (boxX + boxW/2) + '" y="' + (boxY + 50) + '" text-anchor="middle" font-family="inherit, Vazirmatn, Tahoma, sans-serif" font-weight="700" font-size="9.5" fill="#ffffff">' + problemLine1 + '</text>';
+        if (problemLine2) {
+            svgContent += '<text x="' + (boxX + boxW/2) + '" y="' + (boxY + 68) + '" text-anchor="middle" font-family="inherit, Vazirmatn, Tahoma, sans-serif" font-weight="700" font-size="9.5" fill="#ffffff">' + problemLine2 + '</text>';
+        }
+        svgContent += '</g>';
+
+        return '<svg viewBox="0 0 ' + svgWidth + ' ' + svgHeight + '" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;max-height:350px;">' + svgContent + '</svg>';
+    }
+
+    function buildFishboneListHtml(checkedCategories, subItems) {
+        checkedCategories = checkedCategories || [];
+        subItems = subItems || {};
+
+        var catNames = { 'man': 'MAN', 'machine': 'MACHINE', 'method': 'METHOD', 'material': 'MATERIAL', 'environment': 'ENVIRONMENT', 'measurement': 'MEASUREMENT' };
+        var catNamesFa = { 'man': 'نیروی انسانی', 'machine': 'ماشین', 'method': 'روش', 'material': 'مواد', 'environment': 'محیط', 'measurement': 'اندازه‌گیری' };
+
+        var html = '<div class="fishbone-list"><div class="fishbone-list-title">🐟 دسته‌بندی‌های Fishbone:</div><div class="fishbone-categories">';
+        var hasAny = false;
+
+        ['man', 'machine', 'method', 'material', 'environment', 'measurement'].forEach(function(catId) {
+            var isChecked = checkedCategories.indexOf(catId) !== -1;
+            var subs = subItems[catId] || [];
+            if (isChecked || subs.length > 0) {
+                hasAny = true;
+                html += '<div class="fishbone-cat">';
+                html += '<div class="fishbone-cat-header"><span class="fishbone-cat-name">✓ ' + (catNamesFa[catId] || catId) + ' (' + (catNames[catId] || catId) + ')</span></div>';
+                if (subs.length > 0) {
+                    html += '<ul class="fishbone-subs">';
+                    subs.forEach(function(s) { html += '<li>' + s + '</li>'; });
+                    html += '</ul>';
+                }
+                html += '</div>';
+            }
+        });
+
+        html += '</div></div>';
+        return hasAny ? html : '';
+    }
+
+    function build5WhyHtml(d2) {
+        var whyItems = [
+            { num: 1, value: d2.why1 }, { num: 2, value: d2.why2 },
+            { num: 3, value: d2.why3 }, { num: 4, value: d2.why4 }, { num: 5, value: d2.why5 }
+        ];
+
+        var html = '<div class="why-list"><div class="why-list-title">❓ تحلیل 5 چرا (5 Why):</div><ol class="why-items">';
+        whyItems.forEach(function(w) {
+            if (w.value && w.value.trim()) {
+                html += '<li><strong>چرا ' + w.num + (w.num === 5 ? ' (ریشه‌ای)' : '') + ':</strong> ' + w.value + '</li>';
+            } else {
+                html += '<li><strong>چرا ' + w.num + (w.num === 5 ? ' (ریشه‌ای)' : '') + ':</strong> -</li>';
+            }
+        });
+        html += '</ol></div>';
+        return html;
+    }
+
+    // ============================================
+    // نمایش پیام
+    // ============================================
+    function showNotification(message, type) {
+        var colors = {
+            success: '#27ae60',
+            error: '#e74c3c',
+            warning: '#f39c12',
+            info: '#3498db'
+        };
+        
+        document.querySelectorAll('.custom-notification').forEach(el => el.remove());
+        
+        var notification = document.createElement('div');
+        notification.className = 'custom-notification';
+        notification.style.cssText = 'position: fixed; top: 80px; right: 20px; padding: 15px 25px; background: ' + (colors[type] || '#3498db') + '; color: white; border-radius: 10px; font-weight: bold; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 400px;';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(function() {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s';
+            setTimeout(function() { notification.remove(); }, 500);
+        }, 3000);
+    }
+
+    function exportData() {
+        var rows = (filteredNCRs && filteredNCRs.length) ? filteredNCRs : allNCRs;
+        if (!rows.length) {
+            showNotification('داده‌ای برای خروجی وجود ندارد.', 'warning');
+            return;
+        }
+
+        var headers = ['شماره', 'قطعه', 'موضوع', 'تاریخ', 'اولویت', 'مرحله', 'وضعیت', 'گزارش‌دهنده'];
+        var body = rows.map(function (ncr) {
+            return [
+                ncr.ncr_number || '',
+                ncr.part_name || '',
+                ncr.subject || '',
+                ncr.report_date || '',
+                ncr.priority || '',
+                getNCRCurrentStep(ncr),
+                ncr.final_status || ncr.status || '',
+                ncr.reporter_name || ''
+            ];
+        });
+
+        var stamp = new Date().toISOString().slice(0, 10);
+        window.ListTools.downloadCSV('ncr-list-' + stamp + '.csv', headers, body);
+    }
+
+    function printPage() {
+        window.print();
+    }
+
+    // صادرات به window
+    window.filterNCRs = filterNCRs;
+    window.resetFilters = resetFilters;
+    window.sortTable = sortTable;
+    window.changePage = changePage;
+    window.changePageSize = changePageSize;
+    window.viewNCR = viewNCR;
+    window.editNCR = editNCR;
+    window.deleteNCR = deleteNCR;
+    window.printNCRFromList = printNCRFromList;
+    window.getActionPermissions = getActionPermissions;
+
+    // با تغییر زبان، جدول دوباره رندر می‌شود
+    document.addEventListener('languagechange', function () {
+        if (typeof filterNCRs === 'function') filterNCRs();
+    });
+
+    console.log('✅ ncr-list.html loaded successfully');
+    </script>
 </body>
 </html>

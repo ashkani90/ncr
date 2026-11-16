@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>افزودن / ویرایش کاربر</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .add-user-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .page-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header h3 i {
+            color: #667eea;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px 20px;
+        }
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .form-group label .required {
+            color: #e74c3c;
+        }
+        .form-group input,
+        .form-group select {
+            padding: 10px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: #fafcff;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+        .form-group .hint {
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 4px;
+        }
+
+        /* ============================================ */
+        /* ⭐ درخت دسترسی‌ها (Permission Tree) */
+        /* ============================================ */
+        .permissions-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .permissions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .permissions-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .permissions-header h3 i {
+            color: #27ae60;
+        }
+        .permissions-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-sm-outline {
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-sm-outline:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f0f4ff;
+        }
+
+        /* Tree Styles */
+        .tree-container {
+            background: #fafcff;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .tree-search {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .tree-search input {
+            width: 100%;
+            padding: 10px 40px 10px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: inherit;
+            background: white;
+        }
+        .tree-search input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .tree-search i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+        }
+
+        .tree-node {
+            margin: 2px 0;
+        }
+        .tree-node-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .tree-node-header:hover {
+            background: #f0f4ff;
+        }
+        .tree-node-header.has-children {
+            font-weight: 600;
+        }
+        .tree-toggle {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 11px;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .tree-toggle.expanded {
+            transform: rotate(90deg);
+        }
+        .tree-toggle.leaf {
+            visibility: hidden;
+        }
+        .tree-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .tree-icon.page { background: #e3f2fd; color: #1976d2; }
+        .tree-icon.folder { background: #fff3e0; color: #f57c00; }
+        .tree-icon.form { background: #e8f5e9; color: #388e3c; }
+        .tree-icon.action { background: #fce4ec; color: #c62828; }
+        .tree-icon.report { background: #f3e5f5; color: #7b1fa2; }
+
+        .tree-label {
+            flex: 1;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        .tree-label small {
+            color: #95a5a6;
+            font-size: 11px;
+            margin-right: 8px;
+        }
+        .tree-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            background: #e9ecef;
+            color: #6c757d;
+        }
+        .tree-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #27ae60;
+            flex-shrink: 0;
+        }
+        .tree-checkbox:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .tree-children {
+            padding-right: 26px;
+            display: none;
+            margin-top: 2px;
+            border-right: 2px dashed #e9ecef;
+            margin-right: 12px;
+        }
+        .tree-children.expanded {
+            display: block;
+        }
+
+        .tree-node.selected > .tree-node-header {
+            background: #e8f5e9;
+            border-right: 3px solid #27ae60;
+        }
+
+        /* Summary Box */
+        .permissions-summary {
+            margin-top: 15px;
+            padding: 12px 16px;
+            background: #e8f8f5;
+            border-radius: 10px;
+            border: 2px solid #a3e4d7;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .permissions-summary strong {
+            color: #16a085;
+            font-size: 15px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        .btn-lg {
+            padding: 12px 28px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Toast */
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #2c3e50;
+            color: white;
+            padding: 16px 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            max-width: 420px;
+        }
+        .toast-message.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+        .toast-message.success { background: #27ae60; }
+        .toast-message.error { background: #e74c3c; }
+        .toast-message.info { background: #3498db; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 992px) {
+            .form-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .permissions-header { flex-direction: column; align-items: stretch; }
+            .action-buttons { flex-direction: column; }
+            .action-buttons .btn-lg { width: 100%; justify-content: center; }
+        }
+        /* تصویر کاربر */
+        .avatar-uploader {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .avatar-preview {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: #f1f3f9;
+            border: 2px dashed #d7dbe3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            font-size: 30px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .avatar-actions .hint {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-message" id="toastMessage">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastText">پیام</span>
+    </div>
+
+    <div class="app-container">
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" id="mainContent">
+
+            <!-- هدر صفحه -->
+            <div class="add-user-container">
+                <div class="page-header">
+                    <h3 id="pageTitle">
+                        <i class="fas fa-user-plus"></i>
+                        <span data-i18n="add_user_title">افزودن کاربر جدید</span>
+                    </h3>
+                    <button class="btn-sm-outline" onclick="goBack()">
+                        بازگشت به لیست کاربران <i class="fas fa-arrow-left"></i>
+                    </button>
+                </div>
+
+                <!-- فرم اطلاعات کاربر -->
+                <form id="userForm" onsubmit="saveUser(event)">
+                    <input type="hidden" id="editUserId" value="0">
+
+                    <!-- تصویر کاربر -->
+                    <div class="form-group full-width">
+                        <label data-i18n="user_photo">تصویر کاربر</label>
+                        <div class="avatar-uploader">
+                            <div class="avatar-preview" id="avatarPreview">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="avatar-actions">
+                                <label for="avatarFile" class="btn-sm-outline" style="cursor:pointer;">
+                                    <i class="fas fa-camera"></i> <span data-i18n="upload_photo">انتخاب تصویر</span>
+                                </label>
+                                <input type="file" id="avatarFile" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
+                                <button type="button" id="removeAvatarBtn" class="btn-sm-outline" onclick="removeAvatar()" style="display:none;">
+                                    <i class="fas fa-trash"></i> <span data-i18n="remove_photo">حذف تصویر</span>
+                                </button>
+                                <small class="hint" data-i18n="avatar_help">فرمت JPG/PNG - حداکثر ۲ مگابایت</small>
+                            </div>
+                        </div>
+                        <input type="hidden" id="avatarPath" value="">
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>نام کاربری <span class="required">*</span></label>
+                            <input type="text" id="username" placeholder="نام کاربری" required autocomplete="off">
+                        </div>
+                        <div class="form-group" id="passwordGroup">
+                            <label>رمز عبور <span class="required" id="passwordRequired">*</span></label>
+                            <input type="password" id="password" placeholder="رمز عبور" autocomplete="new-password">
+                            <small class="hint" id="passwordHint">حداقل 6 کاراکتر</small>
+                        </div>
+                        <div class="form-group">
+                            <label>نام کامل <span class="required">*</span></label>
+                            <input type="text" id="fullName" placeholder="نام و نام خانوادگی" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ایمیل</label>
+                            <input type="email" id="email" placeholder="example@domain.com" autocomplete="off" dir="ltr">
+                        </div>
+                        <div class="form-group">
+                            <label>نقش پایه <span class="required">*</span></label>
+                            <select id="role" required>
+                                <option value="">در حال بارگذاری...</option>
+                            </select>
+                            <small class="hint">نقش پایه به‌صورت خودکار دسترسی‌های پیش‌فرض را اعمال می‌کند</small>
+                        </div>
+                        <div class="form-group">
+                            <label>دپارتمان</label>
+                            <select id="department">
+                                <option value="">انتخاب کنید</option>
+                                <option value="مدیریت">مدیریت</option>
+                                <option value="کنترل کیفیت">کنترل کیفیت</option>
+                                <option value="تولید">تولید</option>
+                                <option value="انبار">انبار</option>
+                                <option value="مهندسی">مهندسی</option>
+                                <option value="خرید">خرید</option>
+                                <option value="خدمات پس از فروش">خدمات پس از فروش</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>زبان</label>
+                            <select id="language">
+                                <option value="fa">فارسی</option>
+                                <option value="en">English</option>
+                                <option value="zh">中文</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>وضعیت کاربر</label>
+                            <select id="status">
+                                <option value="active" selected>فعال</option>
+                                <option value="inactive">غیرفعال</option>
+                                <option value="suspended">تعلیق شده</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>شماره تماس</label>
+                            <input type="text" id="phone" placeholder="09123456789" dir="ltr">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>یادداشت / توضیحات</label>
+                            <input type="text" id="notes" placeholder="توضیحات اضافی در مورد این کاربر...">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- بخش درخت دسترسی‌ها -->
+            <div class="permissions-section">
+                <div class="permissions-header">
+                    <h3>
+                        <i class="fas fa-sitemap"></i>
+                        درخت دسترسی‌ها
+                        <span style="font-size:12px;color:#6c757d;font-weight:400;">
+                            (صفحات، فرم‌ها و عملیات مجاز)
+                        </span>
+                    </h3>
+                    <div class="permissions-actions">
+                        <button type="button" class="btn-sm-outline" onclick="expandAll()">
+                            <i class="fas fa-expand-alt"></i> باز کردن همه
+                        </button>
+                        <button type="button" class="btn-sm-outline" onclick="collapseAll()">
+                            <i class="fas fa-compress-alt"></i> بستن همه
+                        </button>
+                        <button type="button" class="btn-sm-outline" onclick="selectAll()">
+                            <i class="fas fa-check-double"></i> انتخاب همه
+                        </button>
+                        <button type="button" class="btn-sm-outline" onclick="deselectAll()">
+                            <i class="fas fa-times"></i> پاک کردن همه
+                        </button>
+                        <button type="button" class="btn-sm-outline" onclick="applyRoleDefaults()">
+                            <i class="fas fa-sync-alt"></i> اعمال پیش‌فرض نقش
+                        </button>
+                    </div>
+                </div>
+
+                <!-- جستجو -->
+                <div class="tree-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="treeSearch" placeholder="جستجو در دسترسی‌ها..." oninput="filterTree(this.value)">
+                </div>
+
+                <!-- درخت -->
+                <div class="tree-container" id="treeContainer">
+                    <div style="text-align:center;padding:40px;color:#95a5a6;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:24px;"></i>
+                        <p>در حال بارگذاری درخت دسترسی‌ها...</p>
+                    </div>
+                </div>
+
+                <!-- خلاصه انتخاب‌ها -->
+                <div class="permissions-summary">
+                    <div>
+                        <i class="fas fa-check-circle" style="color:#16a085;"></i>
+                        <strong id="selectedCount">0</strong> دسترسی انتخاب شده
+                    </div>
+                    <div>
+                        <i class="fas fa-list" style="color:#16a085;"></i>
+                        <strong id="totalCount">0</strong> دسترسی موجود
+                    </div>
+                </div>
+            </div>
+
+            <!-- دکمه‌های عملیات -->
+            <div class="add-user-container">
+                <div class="action-buttons">
+                    <button type="button" class="btn-lg btn-secondary" onclick="goBack()">
+                        <i class="fas fa-times"></i> انصراف
+                    </button>
+                    <button type="button" class="btn-lg btn-primary" onclick="saveUser(event)">
+                        <i class="fas fa-save"></i> ذخیره کاربر
+                    </button>
+                    <button type="button" class="btn-lg btn-success" onclick="saveUserAndClose(event)">
+                        <i class="fas fa-check-double"></i> ذخیره و بستن
+                    </button>
+                </div>
+            </div>
+
+            <div id="footerContainer"></div>
+        </main>
+    </div>
+
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
+    <script src="permissions.js?v=20261101"></script>
+    <script src="app.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+
+    <script>
+        // ============================================
+        // CONFIG
+        // ============================================
+        const API_BASE = window.NCR_API + '';
+        let availableRoles = [];
+        let treeData = [];
+        let selectedPermissions = new Set();
+        let editingUserId = 0;
+
+        // ============================================
+        // تعریف ساختار درخت دسترسی‌ها
+        // ============================================
+        const PERMISSION_TREE = [
+            {
+                id: 'group-dashboard',
+                label: 'داشبورد',
+                icon: 'fa-chart-pie',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'page-dashboard',
+                        label: 'مشاهده داشبورد',
+                        page: 'dashboard.html',
+                        icon: 'fa-home',
+                        type: 'page',
+                        permission: 'dashboard.view'
+                    },
+                    {
+                        id: 'dashboard-stats',
+                        label: 'مشاهده آمار و نمودارها',
+                        icon: 'fa-chart-bar',
+                        type: 'action',
+                        permission: 'dashboard.stats'
+                    },
+                    {
+                        id: 'dashboard-export',
+                        label: 'خروجی Excel',
+                        icon: 'fa-file-excel',
+                        type: 'action',
+                        permission: 'dashboard.export'
+                    }
+                ]
+            },
+            {
+                id: 'group-ncr',
+                label: 'مدیریت NCR',
+                icon: 'fa-clipboard-list',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'page-ncr-list',
+                        label: 'لیست NCRها',
+                        page: 'ncr-list.html',
+                        icon: 'fa-list',
+                        type: 'page',
+                        permission: 'ncr.list'
+                    },
+                    {
+                        id: 'page-new-ncr',
+                        label: 'ثبت NCR جدید',
+                        page: 'new-ncr.html',
+                        icon: 'fa-plus-circle',
+                        type: 'form',
+                        permission: 'ncr.create'
+                    },
+                    {
+                        id: 'ncr-view',
+                        label: 'مشاهده جزئیات NCR',
+                        icon: 'fa-eye',
+                        type: 'action',
+                        permission: 'ncr.view'
+                    },
+                    {
+                        id: 'ncr-edit',
+                        label: 'ویرایش NCR',
+                        icon: 'fa-edit',
+                        type: 'action',
+                        permission: 'ncr.edit'
+                    },
+                    {
+                        id: 'ncr-delete',
+                        label: 'حذف NCR',
+                        icon: 'fa-trash',
+                        type: 'action',
+                        permission: 'ncr.delete'
+                    },
+                    {
+                        id: 'ncr-submit-quality',
+                        label: 'ارسال به کیفیت',
+                        icon: 'fa-paper-plane',
+                        type: 'action',
+                        permission: 'ncr.submit_quality'
+                    },
+                    {
+                        id: 'ncr-approve-step2',
+                        label: 'تأیید مرحله ۲ (ارزیابی)',
+                        icon: 'fa-microscope',
+                        type: 'action',
+                        permission: 'ncr.approve_step2'
+                    },
+                    {
+                        id: 'ncr-approve-step3',
+                        label: 'تأیید مرحله ۳ (تعیین تکلیف)',
+                        icon: 'fa-gavel',
+                        type: 'action',
+                        permission: 'ncr.approve_step3'
+                    },
+                    {
+                        id: 'ncr-close',
+                        label: 'بستن NCR',
+                        icon: 'fa-lock',
+                        type: 'action',
+                        permission: 'ncr.close'
+                    }
+                ]
+            },
+            {
+                id: 'group-claim',
+                label: 'کلیم قطعه',
+                icon: 'fa-file-invoice',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'page-claim-form',
+                        label: 'فرم کلیم',
+                        page: 'claim-form.html',
+                        icon: 'fa-edit',
+                        type: 'form',
+                        permission: 'claim.create'
+                    },
+                    {
+                        id: 'page-claim-list',
+                        label: 'لیست کلیم‌ها',
+                        page: 'claim-list.html',
+                        icon: 'fa-list',
+                        type: 'page',
+                        permission: 'claim.list'
+                    },
+                    {
+                        id: 'claim-ceo-approve',
+                        label: 'تأیید مدیرعامل',
+                        icon: 'fa-user-tie',
+                        type: 'action',
+                        permission: 'claim.ceo_approve'
+                    },
+                    {
+                        id: 'claim-8d',
+                        label: 'ثبت 8D Report',
+                        icon: 'fa-file-alt',
+                        type: 'action',
+                        permission: 'claim.8d_report'
+                    }
+                ]
+            },
+            {
+                id: 'group-shortage',
+                label: 'عدم ارسال قطعه',
+                icon: 'fa-truck-loading',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'page-shortage',
+                        label: 'فرم Shortage',
+                        page: 'shortage-form.html',
+                        icon: 'fa-edit',
+                        type: 'form',
+                        permission: 'shortage.create'
+                    },
+                    {
+                        id: 'page-shortage-list',
+                        label: 'لیست Shortage',
+                        page: 'shortage-list.html',
+                        icon: 'fa-list',
+                        type: 'page',
+                        permission: 'shortage.list'
+                    },
+                    {
+                        id: 'shortage-scar',
+                        label: 'صدور SCAR',
+                        icon: 'fa-clipboard-check',
+                        type: 'action',
+                        permission: 'shortage.scar'
+                    }
+                ]
+            },
+            {
+                id: 'group-pr',
+                label: 'درخواست خرید',
+                icon: 'fa-shopping-cart',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'page-pr',
+                        label: 'فرم درخواست خرید',
+                        page: 'purchase-request.html',
+                        icon: 'fa-edit',
+                        type: 'form',
+                        permission: 'pr.create'
+                    },
+                    {
+                        id: 'page-pr-list',
+                        label: 'لیست درخواست‌ها',
+                        page: 'purchase-list.html',
+                        icon: 'fa-list',
+                        type: 'page',
+                        permission: 'pr.list'
+                    },
+                    {
+                        id: 'pr-supervisor-approve',
+                        label: 'تأیید سرپرست',
+                        icon: 'fa-user-check',
+                        type: 'action',
+                        permission: 'pr.supervisor_approve'
+                    },
+                    {
+                        id: 'pr-finance-approve',
+                        label: 'تأیید مالی',
+                        icon: 'fa-calculator',
+                        type: 'action',
+                        permission: 'pr.finance_approve'
+                    },
+                    {
+                        id: 'pr-procurement',
+                        label: 'انجام خرید',
+                        icon: 'fa-shopping-bag',
+                        type: 'action',
+                        permission: 'pr.procurement'
+                    }
+                ]
+            },
+            {
+                id: 'group-ca',
+                label: 'اقدام اصلاحی/پیشگیرانه',
+                icon: 'fa-tools',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'page-ca',
+                        label: 'فرم اقدام اصلاحی',
+                        page: 'corrective-action.html',
+                        icon: 'fa-edit',
+                        type: 'form',
+                        permission: 'ca.create'
+                    },
+                    {
+                        id: 'page-ca-list',
+                        label: 'لیست اقدامات اصلاحی',
+                        page: 'corrective-action-list.html',
+                        icon: 'fa-list',
+                        type: 'page',
+                        permission: 'ca.list'
+                    },
+                    {
+                        id: 'ca-approve',
+                        label: 'تأیید اقدام اصلاحی',
+                        icon: 'fa-check-circle',
+                        type: 'action',
+                        permission: 'ca.approve'
+                    },
+                    {
+                        id: 'ca-monitor',
+                        label: 'پایش اثربخشی',
+                        icon: 'fa-chart-line',
+                        type: 'action',
+                        permission: 'ca.monitor'
+                    }
+                ]
+            },
+            {
+                id: 'group-reports',
+                label: 'گزارشات',
+                icon: 'fa-chart-bar',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'report-ncr',
+                        label: 'گزارش NCRها',
+                        page: 'report-ncr.html',
+                        icon: 'fa-file-pdf',
+                        type: 'report',
+                        permission: 'report.ncr'
+                    },
+                    {
+                        id: 'report-supplier',
+                        label: 'گزارش عملکرد تأمین‌کننده',
+                        page: 'report-supplier.html',
+                        icon: 'fa-file-pdf',
+                        type: 'report',
+                        permission: 'report.supplier'
+                    },
+                    {
+                        id: 'report-kpi',
+                        label: 'گزارش KPI',
+                        page: 'report-kpi.html',
+                        icon: 'fa-chart-pie',
+                        type: 'report',
+                        permission: 'report.kpi'
+                    },
+                    {
+                        id: 'report-export',
+                        label: 'خروجی Excel/PDF',
+                        icon: 'fa-download',
+                        type: 'action',
+                        permission: 'report.export'
+                    }
+                ]
+            },
+            {
+                id: 'group-admin',
+                label: 'مدیریت سیستم',
+                icon: 'fa-cog',
+                type: 'folder',
+                children: [
+                    {
+                        id: 'page-users',
+                        label: 'مدیریت کاربران',
+                        page: 'users.html',
+                        icon: 'fa-users-cog',
+                        type: 'page',
+                        permission: 'user.manage'
+                    },
+                    {
+                        id: 'user-create',
+                        label: 'افزودن کاربر',
+                        icon: 'fa-user-plus',
+                        type: 'action',
+                        permission: 'user.create'
+                    },
+                    {
+                        id: 'user-edit',
+                        label: 'ویرایش کاربر',
+                        icon: 'fa-user-edit',
+                        type: 'action',
+                        permission: 'user.edit'
+                    },
+                    {
+                        id: 'user-delete',
+                        label: 'حذف کاربر',
+                        icon: 'fa-user-minus',
+                        type: 'action',
+                        permission: 'user.delete'
+                    },
+                    {
+                        id: 'user-permissions',
+                        label: 'مدیریت دسترسی‌ها',
+                        icon: 'fa-key',
+                        type: 'action',
+                        permission: 'user.permissions'
+                    },
+                    {
+                        id: 'page-settings',
+                        label: 'تنظیمات سیستم',
+                        page: 'settings.html',
+                        icon: 'fa-sliders-h',
+                        type: 'page',
+                        permission: 'settings.manage'
+                    },
+                    {
+                        id: 'page-notifications',
+                        label: 'اعلان‌ها',
+                        page: 'notifications.html',
+                        icon: 'fa-bell',
+                        type: 'page',
+                        permission: 'notifications.view'
+                    }
+                ]
+            }
+        ];
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            // بارگذاری کامپوننت‌ها
+            if (typeof window.loadAllComponents === 'function') {
+                try {
+                    await window.loadAllComponents();
+                } catch (e) {
+                    console.warn('⚠️ loadAllComponents error:', e);
+                }
+            }
+
+            // بارگذاری نقش‌ها
+            await loadRoles();
+
+            // بارگذاری درخت
+            renderTree(PERMISSION_TREE);
+
+            // بررسی حالت ویرایش
+            var urlParams = new URLSearchParams(window.location.search);
+            var userId = urlParams.get('id');
+            if (userId) {
+                editingUserId = parseInt(userId);
+                await loadUserForEdit(editingUserId);
+            }
+
+            // اعلان‌ها
+            if (typeof window.updateNotifications === 'function') {
+                window.updateNotifications();
+            }
+        });
+
+        // ============================================
+        // بارگذاری نقش‌ها
+        // ============================================
+        async function loadRoles() {
+            try {
+                const res = await fetch(API_BASE + '/get_user_permissions.php?user_id=1');
+                const result = await res.json();
+                if (result.success && result.roles) {
+                    availableRoles = result.roles;
+                } else {
+                    availableRoles = [
+                        { name: 'admin', description: 'مدیر سیستم' },
+                        { name: 'quality', description: 'کارشناس کنترل کیفیت' },
+                        { name: 'production', description: 'کارشناس تولید' },
+                        { name: 'purchasing', description: 'کارشناس خرید' },
+                        { name: 'warehouse', description: 'کارشناس انبار' },
+                        { name: 'engineering', description: 'کارشناس مهندسی' },
+                        { name: 'ceo', description: 'مدیرعامل' },
+                        { name: 'user', description: 'کاربر عادی' }
+                    ];
+                }
+                populateRoleSelect();
+            } catch (e) {
+                console.warn('⚠️ Load roles failed:', e);
+                availableRoles = [
+                    { name: 'admin', description: 'مدیر سیستم' },
+                    { name: 'quality', description: 'کارشناس کنترل کیفیت' },
+                    { name: 'production', description: 'کارشناس تولید' },
+                    { name: 'purchasing', description: 'کارشناس خرید' },
+                    { name: 'warehouse', description: 'کارشناس انبار' },
+                    { name: 'engineering', description: 'کارشناس مهندسی' },
+                    { name: 'ceo', description: 'مدیرعامل' },
+                    { name: 'user', description: 'کاربر عادی' }
+                ];
+                populateRoleSelect();
+            }
+        }
+
+        function populateRoleSelect() {
+            var select = document.getElementById('role');
+            if (!select) return;
+            select.innerHTML = '<option value="">انتخاب کنید</option>' +
+                availableRoles.map(function(role) {
+                    return '<option value="' + role.name + '">' + (role.description || role.name) + '</option>';
+                }).join('');
+        }
+
+        // ============================================
+        // رندر درخت دسترسی‌ها
+        // ============================================
+        function renderTree(data) {
+            var container = document.getElementById('treeContainer');
+            if (!container) return;
+
+            var html = '';
+            data.forEach(function(node) {
+                html += renderTreeNode(node, 0);
+            });
+
+            container.innerHTML = html;
+            updateCounters();
+        }
+
+        function renderTreeNode(node, level) {
+            var hasChildren = node.children && node.children.length > 0;
+            var nodeId = node.id;
+            var isChecked = selectedPermissions.has(node.permission || nodeId) ? 'checked' : '';
+
+            // ⭐ نقشه آیکن‌ها
+            var iconMap = {
+                'folder': 'fa-folder',
+                'page': 'fa-file',
+                'form': 'fa-file-alt',
+                'action': 'fa-bolt',
+                'report': 'fa-file-pdf'
+            };
+            var iconClass = iconMap[node.type] || 'fa-circle';
+
+            var html = '<div class="tree-node" data-node-id="' + nodeId + '">';
+            html += '<div class="tree-node-header ' + (hasChildren ? 'has-children' : '') + '" ' +
+                    'onclick="toggleNode(\'' + nodeId + '\', event)">';
+
+            // Toggle icon
+            if (hasChildren) {
+                html += '<span class="tree-toggle" data-toggle="' + nodeId + '">';
+                html += '<i class="fas fa-chevron-left"></i>';
+                html += '</span>';
+            } else {
+                html += '<span class="tree-toggle leaf"></span>';
+            }
+
+            // Checkbox
+            var permValue = node.permission || nodeId;
+            html += '<input type="checkbox" class="tree-checkbox" ' +
+                    'data-permission="' + permValue + '" ' +
+                    'data-node-id="' + nodeId + '" ' +
+                    'onclick="toggleCheckbox(this, event)" ' + isChecked + '>';
+
+            // Icon
+            html += '<span class="tree-icon ' + node.type + '">';
+            html += '<i class="fas ' + iconClass + '"></i>';
+            html += '</span>';
+
+            // Label
+            html += '<span class="tree-label">' + node.label;
+            if (node.page) {
+                html += ' <small>(' + node.page + ')</small>';
+            }
+            html += '</span>';
+
+            // Badge
+            if (node.permission) {
+                html += '<span class="tree-badge">' + node.permission + '</span>';
+            } else if (hasChildren) {
+                html += '<span class="tree-badge">' + node.children.length + ' مورد</span>';
+            }
+
+            html += '</div>'; // tree-node-header
+
+            // Children
+            if (hasChildren) {
+                html += '<div class="tree-children" data-children="' + nodeId + '">';
+                node.children.forEach(function(child) {
+                    html += renderTreeNode(child, level + 1);
+                });
+                html += '</div>';
+            }
+
+            html += '</div>'; // tree-node
+            return html;
+        }
+
+        // ============================================
+        // تعامل با درخت
+        // ============================================
+        function toggleNode(nodeId, event) {
+            // اگر روی چک‌باکس کلیک شده، کاری نکن
+            if (event.target.closest('.tree-checkbox')) return;
+
+            var children = document.querySelector('[data-children="' + nodeId + '"]');
+            var toggle = document.querySelector('[data-toggle="' + nodeId + '"]');
+            if (!children) return;
+
+            children.classList.toggle('expanded');
+            if (toggle) {
+                toggle.classList.toggle('expanded');
+            }
+        }
+
+        function toggleCheckbox(checkbox, event) {
+            event.stopPropagation();
+
+            var permValue = checkbox.dataset.permission;
+            var isChecked = checkbox.checked;
+
+            if (isChecked) {
+                selectedPermissions.add(permValue);
+            } else {
+                selectedPermissions.delete(permValue);
+            }
+
+            // ⭐ اگر پدر است، همه فرزندان رو هم تغییر بده
+            var node = checkbox.closest('.tree-node');
+            var children = node.querySelector('[data-children]');
+            if (children) {
+                children.querySelectorAll('.tree-checkbox').forEach(function(cb) {
+                    cb.checked = isChecked;
+                    var childPerm = cb.dataset.permission;
+                    if (isChecked) {
+                        selectedPermissions.add(childPerm);
+                    } else {
+                        selectedPermissions.delete(childPerm);
+                    }
+                });
+            }
+
+            // ⭐ اگر فرزند است، پدر رو بررسی کن
+            var parentChildren = node.parentElement;
+            if (parentChildren && parentChildren.classList.contains('tree-children')) {
+                var parentNode = parentChildren.closest('.tree-node');
+                var parentCheckbox = parentNode.querySelector(':scope > .tree-node-header > .tree-checkbox');
+                if (parentCheckbox) {
+                    var siblings = parentChildren.querySelectorAll(':scope > .tree-node > .tree-node-header > .tree-checkbox');
+                    var allChecked = Array.from(siblings).every(function(cb) { return cb.checked; });
+                    parentCheckbox.checked = allChecked;
+                    var parentPerm = parentCheckbox.dataset.permission;
+                    if (allChecked) {
+                        selectedPermissions.add(parentPerm);
+                    } else {
+                        selectedPermissions.delete(parentPerm);
+                    }
+                }
+            }
+
+            updateCounters();
+        }
+
+        // ============================================
+        // کنترل‌های کلی
+        // ============================================
+        function expandAll() {
+            document.querySelectorAll('.tree-children').forEach(function(el) {
+                el.classList.add('expanded');
+            });
+            document.querySelectorAll('.tree-toggle').forEach(function(el) {
+                if (!el.classList.contains('leaf')) el.classList.add('expanded');
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.tree-children').forEach(function(el) {
+                el.classList.remove('expanded');
+            });
+            document.querySelectorAll('.tree-toggle').forEach(function(el) {
+                el.classList.remove('expanded');
+            });
+        }
+
+        function selectAll() {
+            document.querySelectorAll('.tree-checkbox').forEach(function(cb) {
+                cb.checked = true;
+                selectedPermissions.add(cb.dataset.permission);
+            });
+            updateCounters();
+        }
+
+        function deselectAll() {
+            document.querySelectorAll('.tree-checkbox').forEach(function(cb) {
+                cb.checked = false;
+                selectedPermissions.delete(cb.dataset.permission);
+            });
+            updateCounters();
+        }
+
+        function filterTree(query) {
+            query = query.trim().toLowerCase();
+            document.querySelectorAll('.tree-node').forEach(function(node) {
+                var label = node.querySelector('.tree-label');
+                if (!label) return;
+                var text = label.textContent.toLowerCase();
+                if (!query || text.indexOf(query) !== -1) {
+                    node.style.display = '';
+                } else {
+                    // بررسی فرزندان
+                    var hasVisibleChild = Array.from(node.querySelectorAll('.tree-node')).some(function(child) {
+                        return child.style.display !== 'none';
+                    });
+                    node.style.display = hasVisibleChild ? '' : 'none';
+                }
+            });
+        }
+
+        function updateCounters() {
+            var total = document.querySelectorAll('.tree-checkbox').length;
+            var selected = document.querySelectorAll('.tree-checkbox:checked').length;
+
+            document.getElementById('selectedCount').textContent = selected;
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        // ============================================
+        // پیش‌فرض‌های نقش
+        // ============================================
+        function applyRoleDefaults() {
+            var role = document.getElementById('role').value;
+            if (!role) {
+                showToast('لطفاً ابتدا نقش کاربر را انتخاب کنید.', 'error');
+                return;
+            }
+
+            var defaults = getRoleDefaults(role);
+            selectedPermissions.clear();
+
+            document.querySelectorAll('.tree-checkbox').forEach(function(cb) {
+                var perm = cb.dataset.permission;
+                var isChecked = defaults.indexOf(perm) !== -1;
+                cb.checked = isChecked;
+                if (isChecked) selectedPermissions.add(perm);
+            });
+
+            updateCounters();
+            showToast('دسترسی‌های پیش‌فرض نقش "' + role + '" اعمال شد.', 'success');
+        }
+
+        function getRoleDefaults(role) {
+            var roleMap = {
+                'admin': [
+                    'dashboard.view', 'dashboard.stats', 'dashboard.export',
+                    'ncr.list', 'ncr.create', 'ncr.view', 'ncr.edit', 'ncr.delete',
+                    'ncr.submit_quality', 'ncr.approve_step2', 'ncr.approve_step3', 'ncr.close',
+                    'claim.create', 'claim.list', 'claim.ceo_approve', 'claim.8d_report',
+                    'shortage.create', 'shortage.list', 'shortage.scar',
+                    'pr.create', 'pr.list', 'pr.supervisor_approve', 'pr.finance_approve', 'pr.procurement',
+                    'ca.create', 'ca.list', 'ca.approve', 'ca.monitor',
+                    'report.ncr', 'report.supplier', 'report.kpi', 'report.export',
+                    'user.manage', 'user.create', 'user.edit', 'user.delete', 'user.permissions',
+                    'settings.manage', 'notifications.view'
+                ],
+                'quality': [
+                    'dashboard.view', 'dashboard.stats',
+                    'ncr.list', 'ncr.create', 'ncr.view', 'ncr.edit',
+                    'ncr.submit_quality', 'ncr.approve_step2', 'ncr.approve_step3', 'ncr.close',
+                    'claim.create', 'claim.list', 'claim.8d_report',
+                    'shortage.create', 'shortage.list', 'shortage.scar',
+                    'ca.create', 'ca.list', 'ca.approve', 'ca.monitor',
+                    'report.ncr', 'report.supplier', 'report.kpi', 'report.export',
+                    'notifications.view'
+                ],
+                'production': [
+                    'dashboard.view',
+                    'ncr.list', 'ncr.create', 'ncr.view',
+                    'shortage.create', 'shortage.list',
+                    'pr.create', 'pr.list',
+                    'notifications.view'
+                ],
+                'purchasing': [
+                    'dashboard.view',
+                    'ncr.list', 'ncr.view',
+                    'claim.list',
+                    'shortage.list', 'shortage.scar',
+                    'pr.create', 'pr.list', 'pr.procurement',
+                    'report.supplier',
+                    'notifications.view'
+                ],
+                'warehouse': [
+                    'dashboard.view',
+                    'ncr.list', 'ncr.create', 'ncr.view',
+                    'shortage.create', 'shortage.list',
+                    'pr.create', 'pr.list',
+                    'notifications.view'
+                ],
+                'engineering': [
+                    'dashboard.view', 'dashboard.stats',
+                    'ncr.list', 'ncr.view', 'ncr.edit', 'ncr.approve_step3',
+                    'ca.create', 'ca.list', 'ca.approve', 'ca.monitor',
+                    'report.ncr', 'report.kpi',
+                    'notifications.view'
+                ],
+                'ceo': [
+                    'dashboard.view', 'dashboard.stats', 'dashboard.export',
+                    'ncr.list', 'ncr.view', 'ncr.approve_step2', 'ncr.approve_step3', 'ncr.close',
+                    'claim.list', 'claim.ceo_approve',
+                    'pr.list', 'pr.finance_approve',
+                    'ca.list', 'ca.approve',
+                    'report.ncr', 'report.supplier', 'report.kpi', 'report.export',
+                    'notifications.view'
+                ],
+                'user': [
+                    'dashboard.view',
+                    'ncr.list', 'ncr.view',
+                    'notifications.view'
+                ]
+            };
+            return roleMap[role] || [];
+        }
+
+        // ============================================
+        // ذخیره کاربر
+        // ============================================
+        async function saveUser(event) {
+            event.preventDefault();
+
+            var id = parseInt(document.getElementById('editUserId').value) || 0;
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value.trim();
+            var fullName = document.getElementById('fullName').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var role = document.getElementById('role').value;
+            var department = document.getElementById('department').value;
+            var language = document.getElementById('language').value;
+            var status = document.getElementById('status').value;
+            var phone = document.getElementById('phone').value.trim();
+            var notes = document.getElementById('notes').value.trim();
+
+            // اعتبارسنجی
+            if (!username || !fullName || !role) {
+                showToast('لطفاً فیلدهای الزامی را تکمیل کنید.', 'error');
+                return;
+            }
+            if (id === 0 && !password) {
+                showToast('رمز عبور برای کاربر جدید الزامی است.', 'error');
+                return;
+            }
+            if (password && password.length < 6) {
+                showToast('رمز عبور باید حداقل 6 کاراکتر باشد.', 'error');
+                return;
+            }
+
+            var permissions = Array.from(selectedPermissions);
+
+            var data = {
+                username: username,
+                full_name: fullName,
+                email: email,
+                role: role,
+                department: department,
+                language: language,
+                status: status,
+                phone: phone,
+                notes: notes,
+                avatar: document.getElementById('avatarPath').value || '',
+                permissions: JSON.stringify(permissions)
+            };
+
+            if (id > 0) {
+                data.id = id;
+            } else {
+                data.password = password;
+            }
+
+            try {
+                var method = id > 0 ? 'PUT' : 'POST';
+                var response = await fetch(API_BASE + '/get_users.php', {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                var result = await response.json();
+
+                if (result.success) {
+                    // ذخیره دسترسی‌ها در جدول user_permissions (اختیاری)
+                    if (result.id || id) {
+                        var targetId = result.id || id;
+                        await saveUserPermissions(targetId, permissions);
+                    }
+
+                    // اگر کاربر جاری ویرایش شد، اطلاعات هدر هم به‌روزرسانی شود
+                    try {
+                        var currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+                        if (currentUser && (String(currentUser.id) === String(id) || currentUser.username === username)) {
+                            currentUser.avatar = data.avatar;
+                            currentUser.full_name = fullName;
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                            if (window.updateHeaderAvatar) window.updateHeaderAvatar(currentUser);
+                            var headerName = document.getElementById('userName');
+                            if (headerName) headerName.textContent = fullName;
+                        }
+                    } catch (e) { /* ignore */ }
+
+                    showToast('کاربر با موفقیت ذخیره شد.', 'success');
+
+                    setTimeout(function() {
+                        window.location.href = 'users.html';
+                    }, 1500);
+                } else {
+                    showToast(result.error || 'خطا در ذخیره کاربر.', 'error');
+                }
+            } catch (error) {
+                console.error('❌ Save user error:', error);
+                showToast('خطا در ارتباط با سرور!', 'error');
+            }
+        }
+
+        async function saveUserPermissions(userId, permissions) {
+            try {
+                await fetch(API_BASE + '/save_user_permissions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        permissions: permissions
+                    })
+                });
+            } catch (e) {
+                console.warn('⚠️ Save user permissions failed:', e);
+            }
+        }
+
+        function saveUserAndClose(event) {
+            saveUser(event);
+        }
+
+        // ============================================
+        // بارگذاری کاربر برای ویرایش
+        // ============================================
+        async function loadUserForEdit(userId) {
+            try {
+                var response = await fetch(API_BASE + '/get_users.php');
+                var result = await response.json();
+
+                if (result.success && result.data) {
+                    var user = result.data.find(function(u) { return String(u.id) === String(userId); });
+                    if (!user) {
+                        showToast('کاربر یافت نشد.', 'error');
+                        return;
+                    }
+
+                    document.getElementById('pageTitle').innerHTML =
+                        '<i class="fas fa-user-edit"></i> ' +
+                        (window.t ? window.t('edit_user_title') : 'ویرایش کاربر') +
+                        ': ' + (user.full_name || '');
+
+                    document.getElementById('editUserId').value = user.id;
+                    document.getElementById('username').value = user.username;
+                    document.getElementById('username').disabled = true;
+                    document.getElementById('passwordGroup').style.display = 'none';
+                    document.getElementById('passwordRequired').style.display = 'none';
+                    document.getElementById('fullName').value = user.full_name || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('role').value = user.role || '';
+                    document.getElementById('department').value = user.department || '';
+                    document.getElementById('language').value = user.language || 'fa';
+                    document.getElementById('status').value = user.status || 'active';
+                    document.getElementById('phone').value = user.phone || '';
+                    document.getElementById('notes').value = user.notes || '';
+                    setAvatarPreview(user.avatar || '');
+
+                    // بارگذاری دسترسی‌های کاربر
+                    await loadEditableUserPermissions(user.id);
+                }
+            } catch (error) {
+                console.error('❌ Load user error:', error);
+                showToast('خطا در بارگذاری کاربر.', 'error');
+            }
+        }
+
+        // بارگذاری دسترسی‌های سفارشی کاربر (در صورت نبود، دسترسی‌های پیش‌فرض نقش)
+        async function loadEditableUserPermissions(userId) {
+            var perms = [];
+
+            try {
+                var res = await fetch(API_BASE + '/get_user_permission_codes.php?user_id=' + encodeURIComponent(userId));
+                var result = await res.json();
+                if (result && result.success && Array.isArray(result.permissions)) {
+                    perms = result.permissions;
+                }
+            } catch (e) {
+                console.warn('⚠️ Load custom permissions failed:', e);
+            }
+
+            if (!perms.length) {
+                try {
+                    var res2 = await fetch(API_BASE + '/get_user_permissions.php?user_id=' + encodeURIComponent(userId));
+                    var result2 = await res2.json();
+                    if (result2 && result2.success && Array.isArray(result2.permissions)) {
+                        perms = result2.permissions;
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Load role permissions failed:', e);
+                }
+            }
+
+            selectedPermissions = new Set(perms);
+            applyPermissionsToTree();
+        }
+
+        function applyPermissionsToTree() {
+            document.querySelectorAll('.tree-checkbox').forEach(function(cb) {
+                cb.checked = selectedPermissions.has(cb.dataset.permission);
+            });
+            updateCounters();
+        }
+
+        // ============================================
+        // بازگشت
+        // ============================================
+        function goBack() {
+            if (confirm('آیا از بازگشت مطمئن هستید؟ تغییرات ذخیره نشده از بین می‌رود.')) {
+                window.location.href = 'users.html';
+            }
+        }
+
+        // ============================================
+        // Toast
+        // ============================================
+        function showToast(message, type) {
+            var toast = document.getElementById('toastMessage');
+            var text = document.getElementById('toastText');
+            var icon = document.getElementById('toastIcon');
+            text.textContent = message;
+            toast.className = 'toast-message show';
+            if (type === 'success') { toast.classList.add('success'); icon.className = 'fas fa-check-circle'; }
+            else if (type === 'error') { toast.classList.add('error'); icon.className = 'fas fa-exclamation-circle'; }
+            else { toast.classList.add('info'); icon.className = 'fas fa-info-circle'; }
+            setTimeout(function() { toast.classList.remove('show'); }, 4000);
+        }
+
+        // Expose
+        window.toggleNode = toggleNode;
+        window.toggleCheckbox = toggleCheckbox;
+        window.expandAll = expandAll;
+        window.collapseAll = collapseAll;
+        window.selectAll = selectAll;
+        window.deselectAll = deselectAll;
+        window.filterTree = filterTree;
+        window.applyRoleDefaults = applyRoleDefaults;
+        // ============================================
+        // تصویر کاربر
+        // ============================================
+        function setAvatarPreview(path) {
+            var preview = document.getElementById('avatarPreview');
+            var hidden = document.getElementById('avatarPath');
+            var removeBtn = document.getElementById('removeAvatarBtn');
+            if (!preview || !hidden) return;
+
+            hidden.value = path || '';
+
+            if (path) {
+                var src = /^(https?:|data:|\/)/.test(path) ? path : ((window.NCR_ROOT || '') + path);
+                preview.innerHTML = '<img src="' + src + '" alt="avatar">';
+                if (removeBtn) removeBtn.style.display = 'inline-flex';
+            } else {
+                preview.innerHTML = '<i class="fas fa-user"></i>';
+                if (removeBtn) removeBtn.style.display = 'none';
+            }
+        }
+
+        function removeAvatar() {
+            setAvatarPreview('');
+            var input = document.getElementById('avatarFile');
+            if (input) input.value = '';
+        }
+
+        async function uploadAvatarFile() {
+            var input = document.getElementById('avatarFile');
+            if (!input || !input.files || !input.files[0]) return;
+
+            var file = input.files[0];
+            if (!/^image\//.test(file.type)) {
+                showToast('فقط فایل تصویری مجاز است.', 'error');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('حجم تصویر نباید بیشتر از ۲ مگابایت باشد.', 'error');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('avatar', file);
+
+            try {
+                var response = await fetch(API_BASE + '/upload_avatar.php', { method: 'POST', body: formData });
+                var result = await response.json();
+                if (result.success) {
+                    setAvatarPreview(result.path);
+                    showToast('تصویر کاربر بارگذاری شد.', 'success');
+                } else {
+                    showToast(result.error || 'خطا در بارگذاری تصویر.', 'error');
+                }
+            } catch (e) {
+                console.error('❌ Avatar upload failed:', e);
+                showToast('خطا در ارتباط با سرور.', 'error');
+            }
+        }
+
+        window.removeAvatar = removeAvatar;
+        window.setAvatarPreview = setAvatarPreview;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var input = document.getElementById('avatarFile');
+            if (input) input.addEventListener('change', uploadAvatarFile);
+        });
+
+        window.saveUser = saveUser;
+        window.saveUserAndClose = saveUserAndClose;
+        window.goBack = goBack;
+    </script>
+
+</body>
+</html>

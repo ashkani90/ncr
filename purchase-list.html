@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="purchase_list_title">لیست درخواست‌های خرید</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="list-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" id="mainContent">
+            <!-- فیلترها -->
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label data-i18n="search">جستجو</label>
+                        <input type="text" id="searchInput" placeholder="جستجو در شماره، قطعه، موضوع..." data-i18n-placeholder="search_placeholder" oninput="applyFilters()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="status">وضعیت</label>
+                        <select id="statusFilter" onchange="applyFilters()">
+                            <option value="" data-i18n="all_statuses">همه وضعیت‌ها</option>
+                            <option value="pending" data-i18n="status_pending">در انتظار</option>
+                            <option value="in_progress" data-i18n="status_in_progress">در حال بررسی</option>
+                            <option value="completed" data-i18n="status_completed">تکمیل شده</option>
+                            <option value="rejected" data-i18n="status_rejected">رد شده</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="urgency">فوریت</label>
+                        <select id="urgencyFilter" onchange="applyFilters()">
+                            <option value="" data-i18n="all_urgencies">همه فوریت‌ها</option>
+                            <option value="critical" data-i18n="urgency_critical">بحرانی</option>
+                            <option value="high" data-i18n="urgency_high">بالا</option>
+                            <option value="normal" data-i18n="urgency_normal">معمولی</option>
+                            <option value="low" data-i18n="urgency_low">کم</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="date_from">تاریخ از</label>
+                        <input type="date" id="dateFrom" onchange="applyFilters()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="date_to">تاریخ تا</label>
+                        <input type="date" id="dateTo" onchange="applyFilters()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="department">دپارتمان</label>
+                        <select id="departmentFilter" onchange="applyFilters()">
+                            <option value="">همه دپارتمان‌ها</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()"><i class="fas fa-undo"></i> <span data-i18n="reset">بازنشانی</span></button>
+                    <button class="btn btn-success" onclick="exportData()"><i class="fas fa-file-excel"></i> <span data-i18n="export_excel">خروجی اکسل</span></button>
+                    <button class="btn btn-warning" onclick="printPage()"><i class="fas fa-print"></i> <span data-i18n="print">چاپ</span></button>
+                </div>
+            </div>
+
+            <!-- جدول درخواست‌های خرید -->
+            <div class="table-container">
+                <div class="print-only">
+                    <h2 data-i18n="purchase_list_title">لیست درخواست‌های خرید</h2>
+                    <p id="printMeta"></p>
+                </div>
+                <div class="table-header">
+                    <h3><i class="fas fa-shopping-cart"></i> <span data-i18n="list_purchases_full">لیست کامل درخواست‌های خرید</span></h3>
+                    <span class="table-count" id="recordCount" data-i18n="count_label">تعداد</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="pr_number"><span data-i18n="request_number">شماره درخواست</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="request_date"><span data-i18n="table_date">تاریخ</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="requester_name"><span data-i18n="requester">درخواست‌کننده</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="requester_department"><span data-i18n="department">دپارتمان</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="part_name"><span data-i18n="table_part">قطعه</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="quantity"><span data-i18n="quantity">تعداد</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="urgency"><span data-i18n="urgency">فوریت</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="final_status"><span data-i18n="table_status">وضعیت</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th class="no-print"><span data-i18n="table_actions">عملیات</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="9" class="loading-row"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">در حال بارگذاری...</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <div class="pagination">
+                        <button onclick="listPage.prev()" aria-label="previous"><i class="fas fa-chevron-right"></i></button>
+                        <span id="pageInfo" data-i18n="page_info">صفحه</span>
+                        <button onclick="listPage.next()" aria-label="next"><i class="fas fa-chevron-left"></i></button>
+                    </div>
+                    <div class="page-size">
+                        <label data-i18n="per_page">تعداد در صفحه</label>
+                        <select id="pageSize" onchange="listPage.setPageSize(this.value)">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footerContainer"></div>
+        </main>
+    </div>
+
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
+    <script src="permissions.js?v=20261101"></script>
+    <script src="app.js"></script>
+    <script src="list-tools.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+    <script>
+    // ============================================
+    // لیست درخواست‌های خرید
+    // ============================================
+    var esc = window.ListTools.esc;
+    var badge = window.ListTools.badge;
+    var tr = window.ListTools.tr;
+
+    var STATUS_MAP = {
+        pending: { key: 'status_pending', type: 'warning' },
+        in_progress: { key: 'status_in_progress', type: 'info' },
+        completed: { key: 'status_completed', type: 'success' },
+        rejected: { key: 'status_rejected', type: 'secondary' }
+    };
+
+    var URGENCY_MAP = {
+        critical: { key: 'urgency_critical', type: 'danger' },
+        high: { key: 'urgency_high', type: 'danger' },
+        normal: { key: 'urgency_normal', type: 'warning' },
+        low: { key: 'urgency_low', type: 'info' }
+    };
+
+    var listPage = window.ListPage({
+        tableId: 'dataTable',
+        tbodyId: 'tableBody',
+        countId: 'recordCount',
+        defaultSort: 'request_date',
+        defaultSortDir: 'desc',
+        columns: [
+            {
+                key: 'pr_number',
+                label: 'request_number',
+                render: function (row) {
+                    var num = row.pr_number || '-';
+                    return '<a class="link-primary" href="purchase-request.html?pr=' + encodeURIComponent(num) + '">' + esc(num) + '</a>';
+                },
+                text: function (row) { return row.pr_number || ''; }
+            },
+            { key: 'request_date', label: 'table_date', render: function (row) { return esc(row.request_date || '-'); } },
+            { key: 'requester_name', label: 'requester', render: function (row) { return esc(row.requester_name || '-'); } },
+            { key: 'requester_department', label: 'department', render: function (row) { return esc(row.requester_department || '-'); } },
+            { key: 'part_name', label: 'table_part', render: function (row) { return esc(row.part_name || '-'); } },
+            {
+                key: 'quantity',
+                label: 'quantity',
+                sortValue: function (row) { return parseFloat(row.quantity) || 0; },
+                render: function (row) { return esc(row.quantity !== null && row.quantity !== undefined ? row.quantity : '-'); }
+            },
+            {
+                key: 'urgency',
+                label: 'urgency',
+                render: function (row) {
+                    var item = URGENCY_MAP[row.urgency];
+                    return item ? badge(tr(item.key, row.urgency), item.type) : esc(row.urgency || '-');
+                },
+                text: function (row) {
+                    var item = URGENCY_MAP[row.urgency];
+                    return item ? tr(item.key, row.urgency) : (row.urgency || '');
+                }
+            },
+            {
+                key: 'final_status',
+                label: 'table_status',
+                render: function (row) {
+                    var item = STATUS_MAP[row.final_status];
+                    return item ? badge(tr(item.key, row.final_status), item.type) : esc(row.final_status || '-');
+                },
+                text: function (row) {
+                    var item = STATUS_MAP[row.final_status];
+                    return item ? tr(item.key, row.final_status) : (row.final_status || '');
+                }
+            },
+            {
+                label: 'table_actions',
+                noExport: true,
+                cellClass: 'no-print',
+                render: function (row) {
+                    var num = row.pr_number || '';
+                    return '<div class="action-buttons">' +
+                        '<a class="btn btn-primary btn-sm" title="' + esc(tr('view', 'مشاهده')) + '" href="purchase-request.html?pr=' + encodeURIComponent(num) + '"><i class="fas fa-eye"></i></a>' +
+                        '</div>';
+                }
+            }
+        ]
+    });
+
+    var allPurchases = [];
+
+    function filterValue(id) {
+        var el = document.getElementById(id);
+        return el ? String(el.value || '') : '';
+    }
+
+    function populateDepartments() {
+        var select = document.getElementById('departmentFilter');
+        if (!select) return;
+
+        var current = select.value;
+        var departments = [];
+        allPurchases.forEach(function (row) {
+            var dept = (row.requester_department || '').trim();
+            if (dept && departments.indexOf(dept) === -1) departments.push(dept);
+        });
+        departments.sort();
+
+        var html = '<option value="">' + esc(tr('all_departments', 'همه دپارتمان‌ها')) + '</option>';
+        departments.forEach(function (dept) {
+            html += '<option value="' + esc(dept) + '">' + esc(dept) + '</option>';
+        });
+        select.innerHTML = html;
+
+        if (departments.indexOf(current) !== -1) select.value = current;
+    }
+
+    function applyFilters() {
+        var search = filterValue('searchInput').trim().toLowerCase();
+        var status = filterValue('statusFilter');
+        var urgency = filterValue('urgencyFilter');
+        var dateFrom = filterValue('dateFrom');
+        var dateTo = filterValue('dateTo');
+        var department = filterValue('departmentFilter');
+
+        var filtered = allPurchases.filter(function (row) {
+            var searchable = [
+                row.pr_number, row.part_name, row.part_code, row.requester_name,
+                row.supplier_name, row.ncr_number, row.reason
+            ];
+
+            var matchSearch = !search || searchable.some(function (field) {
+                return String(field || '').toLowerCase().indexOf(search) !== -1;
+            });
+
+            var matchStatus = !status || (row.final_status || '') === status;
+            var matchUrgency = !urgency || (row.urgency || '') === urgency;
+            var matchDepartment = !department || (row.requester_department || '') === department;
+
+            var date = row.request_date || '';
+            var matchDate = (!dateFrom || (date && date >= dateFrom)) &&
+                            (!dateTo || (date && date <= dateTo));
+
+            return matchSearch && matchStatus && matchUrgency && matchDepartment && matchDate;
+        });
+
+        listPage.setData(filtered);
+        updatePrintMeta(filtered.length);
+    }
+
+    function updatePrintMeta(total) {
+        var meta = document.getElementById('printMeta');
+        if (!meta) return;
+        var now = new Date();
+        var lang = localStorage.getItem('userLanguage') || 'fa';
+        var locale = lang === 'fa' ? 'fa-IR' : (lang === 'zh' ? 'zh-CN' : 'en-GB');
+        var stamp = now.toLocaleDateString(locale) + ' - ' + now.toLocaleTimeString(locale);
+        var count = total === undefined ? allPurchases.length : total;
+        meta.textContent = tr('records_count', 'تعداد رکوردها') + ': ' + count + ' | ' + tr('print_date', 'تاریخ چاپ') + ': ' + stamp;
+    }
+
+    function resetFilters() {
+        ['searchInput', 'statusFilter', 'urgencyFilter', 'dateFrom', 'dateTo', 'departmentFilter'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        applyFilters();
+        if (typeof window.showNotification === 'function') {
+            window.showNotification(tr('reset', 'بازنشانی') + ' ✓', 'info');
+        }
+    }
+
+    function exportData() {
+        var stamp = new Date().toISOString().slice(0, 10);
+        listPage.exportCSV('purchase-requests-' + stamp + '.csv');
+    }
+
+    function printPage() {
+        updatePrintMeta();
+        window.print();
+    }
+
+    async function loadPurchases() {
+        try {
+            var response = await fetch(window.NCR_API + '/get_purchases.php', { cache: 'no-store' });
+            var text = await response.text();
+            var result = JSON.parse(text);
+
+            if (result && result.success && Array.isArray(result.data)) {
+                allPurchases = result.data;
+            } else {
+                throw new Error(result && result.error ? result.error : 'Invalid response');
+            }
+        } catch (error) {
+            console.warn('⚠️ دریافت درخواست‌های خرید از API ناموفق بود؛ استفاده از localStorage:', error);
+            try {
+                allPurchases = JSON.parse(localStorage.getItem('purchase_requests') || '[]');
+            } catch (e) {
+                allPurchases = [];
+            }
+        }
+
+        populateDepartments();
+        applyFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadPurchases();
+    });
+
+    document.addEventListener('languagechange', function () {
+        populateDepartments();
+        applyFilters();
+    });
+    </script>
+</body>
+</html>

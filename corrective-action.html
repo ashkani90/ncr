@@ -1,0 +1,2925 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرم اقدام اصلاحی و بهبود - CA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <style>
+        .ca-container { margin: 0 auto; padding: 20px; }
+
+        /* هدر پویا */
+        .dynamic-header {
+            display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: stretch; gap: 15px;
+            border: 2px solid #2c3e50; border-radius: 8px; padding: 12px 18px;
+            margin-bottom: 25px; background: #77ecac; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        #dynamicHeader.dynamic-header .header-left {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 6px !important;
+            font-size: 12px;
+            color: #2c3e50;
+            border-top: none !important;
+            border-bottom: none !important;
+            border-right: 1px solid #067cf2;
+            border-left: none;
+            padding-right: 15px;
+            padding-left: 0;
+            text-align: center !important;
+        }
+        html[dir="ltr"] #dynamicHeader.dynamic-header .header-left,
+        html.ltr #dynamicHeader.dynamic-header .header-left,
+        [dir="ltr"] #dynamicHeader.dynamic-header .header-left {
+            border-right: none !important;
+            padding-right: 0 !important;
+            border-left: 1px solid #067cf2 !important;
+            padding-left: 15px !important;
+        }
+        #dynamicHeader.dynamic-header .header-left .code-line {
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+            font-weight: 700;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        #dynamicHeader.dynamic-header .header-left .code-line span { color: #667eea; }
+        .dynamic-header .header-center { text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .dynamic-header .header-center .main-title { font-size: 20px; font-weight: 800; color: #1e293b; margin: 0 0 6px 0; line-height: 1.3; }
+        .dynamic-header .header-center .standard-line { font-size: 11.5px; color: #475569; font-weight: 500; line-height: 1.5; }
+        #dynamicHeader.dynamic-header .header-right {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: 1px solid #067cf2;
+            border-right: none;
+            padding-left: 15px;
+            padding-right: 0;
+            text-align: center !important;
+        }
+        html[dir="ltr"] #dynamicHeader.dynamic-header .header-right,
+        html.ltr #dynamicHeader.dynamic-header .header-right,
+        [dir="ltr"] #dynamicHeader.dynamic-header .header-right {
+            border-left: none !important;
+            padding-left: 0 !important;
+            border-right: 1px solid #067cf2 !important;
+            padding-right: 15px !important;
+        }
+        .dynamic-header .header-right .logo-box { width: 100%; max-width: 160px; height: 65px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .dynamic-header .header-right .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .dynamic-header .header-right .logo-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border: 1px dashed #a5b4fc; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6366f1; font-size: 11px; font-weight: 600; }
+        .dynamic-header .header-right .company-name { font-size: 12.5px; font-weight: 800; color: #1e293b; margin: 0; line-height: 1.4; }
+        .dynamic-header .header-right .company-sub { font-size: 10.5px; color: #475569; font-weight: 500; line-height: 1.4; }
+        .dynamic-header .header-right .company-sub2 { font-size: 10px; color: #64748b; line-height: 1.4; }
+
+        .ca-section { background: white; border-radius: 12px; padding: 22px 25px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #e9ecef; }
+        .ca-section h3 { color: #2c3e50; margin: 0 0 18px 0; padding-right: 12px; border-right: 4px solid #667eea; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+        .ca-section h3 i { color: #667eea; }
+        .ca-section h3 .iso-ref { font-size: 11px; color: #667eea; background: #eef2ff; padding: 3px 10px; border-radius: 10px; font-weight: 600; margin-right: auto; }
+
+        /* بخش‌های مراحل قبلی: فقط خواندنی */
+        .section-readonly {
+            position: relative;
+            background: #fbfcff;
+        }
+        .section-readonly::after {
+            content: 'فقط خواندنی';
+            position: absolute;
+            top: 16px;
+            left: 18px;
+            background: #eef2ff;
+            color: #4c6ef5;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+        .section-readonly h3 {
+            opacity: 0.85;
+        }
+        .section-readonly input,
+        .section-readonly select,
+        .section-readonly textarea {
+            background: #f4f6fa !important;
+            color: #4b5563 !important;
+            cursor: default;
+        }
+
+        .section-readonly:has(.ca-readonly-summary)::after {
+            display: none;
+        }
+
+        /* جمع‌بندی خواندنی مراحل قبلی (مشابه فرم NCR) */
+        .section-readonly > *:not(h3):not(.ca-readonly-summary) {
+            display: none !important;
+        }
+        .ca-readonly-summary {
+            margin-top: 4px;
+            background: #f8faff;
+            border: 1px solid #dbe4f7;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+        .ca-readonly-summary .ro-head {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 12.5px;
+            color: #3b4a63;
+            margin-bottom: 6px;
+        }
+        .ca-readonly-summary .ro-head i {
+            color: #667eea;
+        }
+        .ca-readonly-summary .ro-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px 14px;
+            font-size: 12.5px;
+        }
+        .ca-readonly-summary .ro-item {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            padding: 3px 0;
+            border-bottom: 1px dashed #e3e9f7;
+        }
+        .ca-readonly-summary .ro-item.ro-full {
+            grid-column: 1 / -1;
+        }
+        .ca-readonly-summary .ro-label {
+            color: #5b6b85;
+            min-width: 78px;
+            flex-shrink: 0;
+        }
+        .ca-readonly-summary .ro-value {
+            color: #1f2d3d;
+            font-weight: 600;
+            flex: 1;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .ca-readonly-summary .ro-fishbone-box {
+            width: 100%;
+            background: #fff;
+            border: 1px solid #e3e9f7;
+            border-radius: 8px;
+            padding: 6px 8px;
+            margin-top: 2px;
+            font-size: 12px;
+        }
+        .ca-readonly-summary .ro-fishbone-box .ro-cat {
+            padding: 3px 0;
+            border-bottom: 1px dotted #e3e9f7;
+        }
+        .ca-readonly-summary .ro-fishbone-box .ro-cat:last-child {
+            border-bottom: none;
+        }
+        .ca-readonly-summary .ro-fishbone-box .ro-cat b {
+            color: #b91c1c;
+        }
+        .ca-readonly-summary .ro-actions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+        .ca-readonly-summary .ro-actions-table th,
+        .ca-readonly-summary .ro-actions-table td {
+            border: 1px solid #e3e9f7;
+            padding: 5px 6px;
+            text-align: right;
+        }
+        .ca-readonly-summary .ro-actions-table th {
+            background: #eef2fb;
+            color: #3b4a63;
+            font-weight: 700;
+        }
+        @media (max-width: 1200px) {
+            .ca-readonly-summary .ro-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 992px) {
+            .ca-readonly-summary .ro-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .ca-readonly-summary .ro-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* فشرده‌سازی بخش‌های خواندنی برای صرفه‌جویی در فضا */
+        .section-readonly {
+            padding: 16px 18px;
+        }
+        .section-readonly h3 {
+            margin-bottom: 8px !important;
+            font-size: 15px;
+        }
+        .section-readonly .ca-readonly-summary {
+            margin-top: 0;
+        }
+
+        .ca-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px 20px; }
+        .ca-grid .full-width { grid-column: 1 / -1; }
+        .ca-grid .half-width { grid-column: span 2; }
+
+        .ca-field { display: flex; flex-direction: column; }
+        .ca-field label { font-weight: 600; font-size: 13px; color: #2c3e50; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+        .ca-field label .required { color: #e74c3c; }
+        .ca-field input, .ca-field select, .ca-field textarea { padding: 10px 14px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 14px; font-family: inherit; transition: all 0.3s; background: #fafcff; width: 100%; }
+        .ca-field input:focus, .ca-field select:focus, .ca-field textarea:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: white; }
+        .ca-field textarea { min-height: 80px; resize: vertical; }
+        .ca-field .hint { font-size: 11px; color: #95a5a6; font-weight: 400; }
+
+        .readonly-field, .locked { background: #f0f2f7 !important; cursor: not-allowed !important; color: #6c757d !important; font-weight: 600; pointer-events: none; }
+
+        .ok-manager { display: flex; flex-direction: row; align-items: center; gap: 15px; }
+        .ok-manager label { margin-bottom: 0; white-space: nowrap; min-width: 140px; }
+        .ok-manager select { flex: 1; max-width: 300px; }
+
+        .radio-group, .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 6px 0; }
+        .radio-group label, .checkbox-group label { display: flex; align-items: center; gap: 6px; font-weight: 400; font-size: 13px; cursor: pointer; padding: 6px 12px; border-radius: 8px; border: 2px solid #e9ecef; background: #fafcff; transition: all 0.2s; }
+        .radio-group label:hover, .checkbox-group label:hover { border-color: #667eea; background: #f0f4ff; }
+        .radio-group input, .checkbox-group input { width: 16px; height: 16px; cursor: pointer; }
+
+        .doc-checkbox-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; width: 100%; }
+        .doc-checkbox-item { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; border-radius: 10px; border: 2px solid #e9ecef; background: #fafcff; transition: all 0.2s; min-height: 60px; justify-content: center; }
+        .doc-checkbox-item.checked { border-color: #667eea; background: #eef2ff; }
+        .doc-checkbox-item .doc-check-label { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 13px; cursor: pointer; color: #2c3e50; white-space: nowrap; }
+        .doc-checkbox-item .doc-check-label input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: #667eea; flex-shrink: 0; }
+        .doc-checkbox-item .doc-number-field { display: none; align-items: center; gap: 6px; width: 100%; }
+        .doc-checkbox-item .doc-number-field.visible { display: flex; }
+        .doc-checkbox-item .doc-number-field .doc-num-label { font-size: 11px; color: #667eea; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+        .doc-checkbox-item .doc-number-field input[type="text"] { flex: 1; padding: 6px 10px; border: 2px solid #d0d9f5; border-radius: 6px; font-size: 12px; font-family: inherit; background: #fff; min-width: 0; transition: all 0.2s; }
+
+        .actions-table-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #e9ecef; }
+        .actions-table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        .actions-table thead { background: linear-gradient(135deg, #f0f4ff 0%, #e8edf5 100%); }
+        .actions-table th { padding: 12px 10px; text-align: right; font-size: 12px; font-weight: 700; color: #2c3e50; border-bottom: 2px solid #d0d9f5; white-space: nowrap; }
+        .actions-table td { padding: 8px 6px; vertical-align: middle; }
+        .actions-table td input, .actions-table td select, .actions-table td textarea { width: 100%; padding: 8px 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 12.5px; font-family: inherit; background: white; transition: all 0.2s; min-width: 80px; }
+        .actions-table .action-num { text-align: center; font-weight: 800; color: #667eea; font-size: 14px; background: #f0f4ff; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; }
+        .actions-table .row-actions { display: flex; gap: 4px; justify-content: center; }
+        .actions-table .btn-row { width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.2s; }
+        .actions-table .btn-row.btn-remove { background: #fde8e8; color: #e74c3c; }
+        .actions-table .btn-row.btn-remove:hover { background: #e74c3c; color: white; transform: scale(1.05); }
+        .actions-table .btn-row.btn-duplicate { background: #e0f2fe; color: #0284c7; }
+        .actions-table .btn-row.btn-duplicate:hover { background: #0284c7; color: white; transform: scale(1.05); }
+
+        .actions-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px; }
+        .btn-add-action { padding: 10px 22px; background: linear-gradient(135deg, #27ae60 0%, #219a52 100%); color: white; border: none; border-radius: 10px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.25); }
+        .actions-count { font-size: 13px; color: #6c757d; font-weight: 600; }
+
+        .status-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .status-badge.draft { background: #fff3cd; color: #856404; }
+        .status-badge.pending { background: #cce5ff; color: #004085; }
+        .status-badge.in-progress { background: #d1ecf1; color: #0c5460; }
+        .status-badge.done { background: #d4edda; color: #155724; }
+        .status-badge.rejected { background: #f8d7da; color: #721c24; }
+
+        .workflow-bar { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 14px 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; flex-wrap: wrap; gap: 10px; }
+        .workflow-bar .stage { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .workflow-bar .stage .dot { width: 12px; height: 12px; border-radius: 50%; background: #dee2e6; }
+        .workflow-bar .stage.active .dot { background: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.2); }
+        .workflow-bar .stage.done .dot { background: #27ae60; }
+        .workflow-bar .stage .label { color: #6c757d; }
+        .workflow-bar .stage.active .label { color: #2c3e50; font-weight: 700; }
+        .workflow-bar .stage.done .label { color: #27ae60; }
+
+        .info-box { background: #eef2ff; padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #2c3e50; border-right: 4px solid #667eea; margin-top: 10px; }
+        .warning-box { background: #fff3cd; padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #856404; border: 1px solid #ffe69b; margin-top: 10px; }
+
+        .ca-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef; }
+        .ca-actions .btn { padding: 11px 26px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; transform: translateY(-2px); }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #219a52; transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-print { background: #8e44ad; color: white; }
+        .btn-print:hover { background: #7d3c98; }
+
+        .toast-message { position: fixed; bottom: 30px; left: 30px; background: #2c3e50; color: white; padding: 16px 28px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); font-size: 14px; display: none; align-items: center; gap: 12px; z-index: 9999; max-width: 420px; }
+        .toast-message.show { display: flex; animation: slideUp 0.3s ease; }
+        .toast-message.success { background: #27ae60; }
+        .toast-message.error { background: #e74c3c; }
+        .toast-message.info { background: #3498db; }
+
+        .file-preview-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f0f4ff; border: 1px solid #d0d9f5; border-radius: 8px; font-size: 12px; max-width: 260px; }
+        .file-preview-item .file-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .file-preview-item .file-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+        .file-preview-item .file-name { font-weight: 600; color: #2c3e50; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-preview-item .file-size { font-size: 11px; color: #95a5a6; }
+        .file-preview-item .file-remove { background: #e74c3c; color: white; border: none; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+        .fishbone-container { margin: 10px 0; }
+        .fishbone-category { background: #f8faff; border: 1px solid #e9ecef; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
+        .fishbone-category .category-header { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .fishbone-category .category-header input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .fishbone-category .category-header .category-label { font-weight: 600; font-size: 14px; color: #2c3e50; flex: 1; }
+        .fishbone-category .sub-items { margin-top: 8px; padding-right: 28px; display: none; }
+        .fishbone-category .sub-items.expanded { display: block; }
+        .fishbone-category .sub-items .sub-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; color: #2c3e50; border-bottom: 1px dashed #e9ecef; }
+        .fishbone-category .sub-items .sub-item .remove-sub { color: #e74c3c; cursor: pointer; font-size: 14px; opacity: 0.6; }
+        .fishbone-category .add-sub { display: flex; gap: 6px; margin-top: 6px; }
+        .fishbone-category .add-sub input { flex: 1; padding: 4px 10px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 13px; font-family: inherit; }
+        .fishbone-diagram-container { margin-top: 25px; padding: 20px; background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; overflow-x: auto; }
+        .fishbone-svg-wrapper { width: 100%; min-width: 860px; background: #fafcff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 10px; }
+        .fishbone-svg-wrapper svg { width: 100%; height: auto; display: block; }
+        .nested-section { background: #f8faff; border-radius: 10px; padding: 16px 20px; border: 1px solid #e8edf5; margin-top: 5px; }
+        .nested-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+
+        @media (max-width: 992px) { .ca-grid { grid-template-columns: 1fr 1fr; } .nested-grid { grid-template-columns: 1fr 1fr; } .dynamic-header { grid-template-columns: 1fr 1fr; } .dynamic-header .header-center { grid-column: 1 / -1; order: -1; } }
+        @media (max-width: 768px) {
+            .ca-grid { grid-template-columns: 1fr; }
+            .dynamic-header { grid-template-columns: 1fr; text-align: center; }
+            #dynamicHeader.dynamic-header .header-left,
+            #dynamicHeader.dynamic-header .header-right,
+            html[dir="ltr"] #dynamicHeader.dynamic-header .header-left,
+            html[dir="ltr"] #dynamicHeader.dynamic-header .header-right,
+            html.ltr #dynamicHeader.dynamic-header .header-left,
+            html.ltr #dynamicHeader.dynamic-header .header-right,
+            [dir="ltr"] #dynamicHeader.dynamic-header .header-left,
+            [dir="ltr"] #dynamicHeader.dynamic-header .header-right {
+                border: none !important;
+                padding: 0 !important;
+            }
+            .ca-actions { flex-direction: column; }
+            .ca-actions .btn { width: 100%; justify-content: center; }
+            .nested-grid { grid-template-columns: 1fr; }
+            .ok-manager { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-message" id="toastMessage">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastText">پیام</span>
+    </div>
+
+    <div class="app-container">
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" id="mainContent">
+            <div class="ca-container">
+
+                <!-- هدر پویا -->
+                <div class="dynamic-header" id="dynamicHeader">
+                    <div class="header-right">
+                        <div class="logo-box" id="hdrLogoBox">
+                            <div class="logo-placeholder"><i class="fas fa-image"></i>&nbsp; لوگو</div>
+                        </div>
+                        <div class="company-name" id="hdrCompanyName">شرکت سروش موتور مبنا</div>
+                        <div class="company-sub" id="hdrCompanySub">تولیدکننده انواع خودرو</div>
+                        <div class="company-sub2" id="hdrCompanySub2">(سهامی خاص)</div>
+                    </div>
+                    <div class="header-center">
+                        <h1 class="main-title" id="hdrFormTitle">فرم اقدام اصلاحی و بهبود (CA / CAR)</h1>
+                        <div class="standard-line" id="hdrStandard">مطابق بند 10.2 استاندارد ISO 9001:2015 و بند 10.2.3 IATF</div>
+                    </div>
+                    <div class="header-left">
+                        <div class="code-line" dir="auto">کد فرم: <span id="hdrFormCode">FM-CA01/00</span></div>
+                        <div class="code-line" dir="auto">تاریخ ایجاد: <span id="hdrCreatedAt">-</span></div>
+                    </div>                    
+                </div>
+
+                <!-- نوار workflow -->
+                <div class="workflow-bar" id="workflowBar">
+                    <div class="stage active" data-stage="draft"><span class="dot"></span><span class="label">ایجاد</span></div>
+                    <div class="stage" data-stage="review"><span class="dot"></span><span class="label">بررسی (مدیر)</span></div>
+                    <div class="stage" data-stage="approve"><span class="dot"></span><span class="label">تأیید (کیفیت)</span></div>
+                    <div class="stage" data-stage="implement"><span class="dot"></span><span class="label">اجرا (سرپرست)</span></div>
+                    <div class="stage" data-stage="verify"><span class="dot"></span><span class="label">پایش (کیفیت)</span></div>
+                    <div class="stage" data-stage="closed"><span class="dot"></span><span class="label">بسته</span></div>
+                    <div style="margin-right:auto;">
+                        وضعیت: <span id="caStatusBadge" class="status-badge draft">پیش‌نویس</span>
+                    </div>
+                </div>
+
+                <!-- بخش ۱ -->
+                <div class="ca-section section-lockable" id="section1Ref">
+                    <h3><i class="fas fa-link"></i> ۱. اطلاعات مرجع <span class="iso-ref">ISO 9001 - 7.5</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field"><label>مبنا: <span id="sourceRefLabel">-</span></label><input type="text" id="linkedNCRNumber" class="readonly-field" readonly placeholder="NCR-YYYY-XXXX"></div>
+                        <div class="ca-field"><label>شماره فرم اقدام اصلاحی <span class="required">*</span></label><input type="text" id="actionNumber" placeholder="CA-2026-0001"></div>
+                        <div class="ca-field"><label>تاریخ صدور <span class="required">*</span></label><input type="date" id="issueDate"></div>
+                        <div class="ca-field"><label>صادرکننده <span class="required">*</span></label><input type="text" id="issuerName" class="readonly-field" readonly></div>
+                        <div class="ca-field"><label>دپارتمان صادرکننده <span class="required">*</span></label><input type="text" id="issuerDepartment" class="readonly-field" readonly></div>
+                        <div class="ca-field"><label>سمت صادرکننده</label><input type="text" id="issuerPosition" class="readonly-field" readonly></div>
+                        <div class="ca-field"><label>مشتری</label><input type="text" id="customerName" class="readonly-field" readonly></div>
+                        <div class="ca-field">
+                            <label>منبع/مرجع صدور</label>
+                            <select id="sourceRef">
+                                <option value="ncr">NCR (عدم انطباق)</option>
+                                <option value="audit">ممیزی داخلی</option>
+                                <option value="customer">شکایت مشتری</option>
+                                <option value="internal">درخواست داخلی</option>
+                                <option value="other">سایر</option>
+                            </select>
+                        </div>
+                        <div class="ca-field">
+                            <label>نوع اقدام</label>
+                            <select id="actionType">
+                                <option value="corrective">اصلاحی (Corrective)</option>
+                                <option value="preventive">پیشگیرانه (Preventive)</option>
+                                <option value="improvement">بهبود (Improvement)</option>
+                            </select>
+                        </div>
+                        <div class="ca-field">
+                            <label>اولویت</label>
+                            <select id="priority">
+                                <option value="low">کم</option>
+                                <option value="medium" selected>متوسط</option>
+                                <option value="high">بالا</option>
+                                <option value="critical">بحرانی</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بخش ۲ -->
+                <div class="ca-section section-lockable" id="section2Source">
+                    <h3><i class="fas fa-info-circle"></i> ۲. اطلاعات منبع <span class="iso-ref">ISO 9001 - 10.2.1.a</span></h3>
+                    <div id="ncrSourceFullView" style="display:none;">
+                        <div class="info-box" style="background:#eef2ff; margin-bottom:15px;">
+                            <div style="font-weight:700; color:#2c3e50; margin-bottom:10px;"><i class="fas fa-search"></i> اطلاعات شناسایی عدم انطباق (مرحله ۱)</div>
+                            <div id="ncrStep1Summary" class="ca-grid" style="gap:8px 20px; font-size:13px;"></div>
+                        </div>
+                        <div class="info-box" style="background:#fff8e1; margin-bottom:15px;">
+                            <div style="font-weight:700; color:#2c3e50; margin-bottom:10px;"><i class="fas fa-microscope"></i> اطلاعات ارزیابی و تحلیل (مرحله ۲)</div>
+                            <div id="ncrStep2Summary" class="ca-grid" style="gap:8px 20px; font-size:13px;"></div>
+                        </div>
+                    </div>
+                    <div id="manualSourceView">
+                        <div class="warning-box"><i class="fas fa-exclamation-triangle"></i> اطلاعاتی از منبع یافت نشد. لطفاً اطلاعات را در بخش ۳ به صورت دستی پر کنید.</div>
+                    </div>
+                </div>
+
+                <!-- بخش ۳ -->
+                <div class="ca-section section-lockable" id="section3Problem">
+                    <h3><i class="fas fa-exclamation-triangle"></i> ۳. تشریح مسئله/ پیشنهاد <span class="iso-ref">ISO 9001 - 10.2.1 | IATF - 10.2.3</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field full-width"><label>موضوع اقدام اصلاحی/ پیشگیرانه/ بهبود <span class="required">*</span></label><input type="text" id="subject" placeholder="موضوع خلاصه اقدام اصلاحی..."></div>
+                        <div class="ca-field" id="problemDescriptionField"><label>شرح عدم انطباق / مشکل <span class="required">*</span></label><textarea id="problemDescription" rows="3" placeholder="شرح کامل مشکل..."></textarea></div>
+                        <div class="ca-field" id="rootCauseField"><label>ریشه‌یابی (Root Cause) <span class="required">*</span></label><textarea id="rootCause" rows="3" placeholder="ریشه اصلی مشکل..."></textarea></div>
+                        <div class="ca-field" id="standardRefField"><label>مرجع استاندارد</label><input type="text" id="standardRef" placeholder="ISO 9001 / IATF 16949 ..."></div>
+                        <div class="ca-field" id="problemDescriptionReadonlyField" style="display: none;"><label>شرح عدم انطباق / مشکل</label><textarea id="problemDescriptionReadonly" rows="3" class="readonly-field" readonly></textarea></div>
+                        <div class="ca-field" id="rootCauseReadonlyField" style="display: none;"><label>ریشه‌یابی (Root Cause)</label><textarea id="rootCauseReadonly" rows="3" class="readonly-field" readonly></textarea></div>
+                        <div class="ca-field" id="standardRefReadonlyField" style="display: none;"><label>مرجع استاندارد</label><input type="text" id="standardRefReadonly" class="readonly-field" readonly></div>
+                    </div>
+                </div>
+
+                <!-- بخش ۴ -->
+                <div class="ca-section section-lockable" id="section4BeforeAttachments">
+                    <h3><i class="fas fa-paperclip"></i> ۴. پیوست‌های قبل از اقدام اصلاحی <span class="iso-ref">ISO 9001 - 7.5.3</span></h3>
+                    <div class="ca-field">
+                        <label>مستندات و تصاویر قبل از اصلاح</label>
+                        <input type="file" id="beforeAttachments" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleBeforeFileSelection(this)">
+                        <small class="hint">حداکثر 5 مگابایت برای هر فایل - فرمت‌های مجاز: jpg, png, pdf, doc, xlsx</small>
+                        <div id="beforeFilesPreview" style="margin-top:12px; display:none;">
+                            <div style="font-weight:700; color:#2c3e50; margin-bottom:8px; font-size:13px;"><i class="fas fa-paperclip"></i> فایل‌های انتخاب شده (<span id="beforeFilesCount">0</span>):</div>
+                            <div id="beforeFilesList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بخش ۵ (تایید اولیه - مدیر مستقیم) -->
+                <div class="ca-section section-lockable" id="section5Manager">
+                    <h3><i class="fas fa-user-check"></i> ۵. تأیید اولیه (مدیر مستقیم) <span class="iso-ref">ISO 9001 - 7.5.2</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field full-width">
+                            <div class="ok-manager">
+                                <label>تأیید مدیر مستقیم <span class="required">*</span></label>
+                                <select id="managerApproval" onchange="toggleManagerNotes()">
+                                    <option value="pending">در انتظار بررسی</option>
+                                    <option value="approved">تأیید شد</option>
+                                    <option value="rejected">رد شد</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ca-field full-width" id="managerNotesField" style="display: none;">
+                            <label>توضیحات در مورد رد بودن</label>
+                            <textarea id="approvalNotes" rows="2" placeholder="دلایل رد یا توضیحات..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بخش ۶ (تایید ثانویه - مدیر کیفیت) -->
+                <div class="ca-section section-lockable" id="section6Quality">
+                    <h3><i class="fas fa-user-shield"></i> ۶. تأیید ثانویه (مدیر کنترل کیفیت) <span class="iso-ref">ISO 9001 - 7.5.2 | 10.2.1.a</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field full-width">
+                            <label>ارزیابی نیاز به اقدام اصلاحی <span class="required">*</span> (ISO 9001 بند 10.2.1.a)</label>
+                            <div class="radio-group">
+                                <label><input type="radio" id="needActionYes" name="needAction" value="yes" onchange="toggleNeedActionSubs()"> بله، نیاز به اقدام اصلاحی وجود دارد</label>
+                                <label><input type="radio" id="needActionNo"  name="needAction" value="no" onchange="toggleNeedActionSubs()"> خیر، اقدام فوری کافی بوده است</label>
+                            </div>
+                        </div>
+                        <div class="ca-field full-width" id="subNoAction" style="display: none;">
+                            <label>دلیل عدم نیاز به اقدام اصلاحی</label>
+                            <textarea id="noActionReason" rows="2" placeholder="دلیل کافی بودن اقدام فوری..."></textarea>
+                            <div class="info-box"><i class="fas fa-info-circle"></i> با انتخاب این گزینه، فرم با وضعیت "بسته" ثبت خواهد شد.</div>
+                        </div>
+                        <div class="ca-field full-width" id="effectsField" style="display: none;">
+                            <label>پیامدهای بالقوه (Effect) - ISO 9001 بند 10.2.1.a</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" class="effect-checkbox" value="quality"> اثر بر کیفیت محصول</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="safety"> اثر بر ایمنی</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="customer"> اثر بر مشتری</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="cost"> اثر مالی / هزینه</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="delivery"> تأخیر در تحویل</label>
+                                <label><input type="checkbox" class="effect-checkbox" value="environment"> اثر زیست‌محیطی</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بخش ۷ (CFT) -->
+                <div class="ca-section section-lockable" id="section7CFT">
+                    <h3><i class="fas fa-users"></i> ۷. تیم حل مسئله (CFT) <span class="iso-ref">IATF 16949 - 10.2.3.1</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field"><label>سرپرست تیم (Team Leader) <span class="required">*</span></label><input type="text" id="teamLeader" placeholder="نام سرپرست تیم"></div>
+                        <div class="ca-field"><label>اعضای تیم</label><input type="text" id="teamMembers" placeholder="نام اعضا (با کاما جدا کنید)"></div>
+                        <div class="ca-field"><label>تاریخ تشکیل جلسه</label><input type="date" id="teamMeetingDate"></div>
+                        <div class="ca-field full-width">
+                            <label>روش تحلیل ریشه‌ای استفاده‌شده <span class="required">*</span></label>
+                            <select id="cftAnalysisMethod" onchange="toggleCftAnalysisSubs()">
+                                <option value="">انتخاب کنید</option>
+                                <option value="fishbone">نمودار علت و معلول (Fishbone)</option>
+                                <option value="5why">پنج چرا (5 Why)</option>
+                                <option value="8d" disabled>روش 8 گام حل مسئله (8D)</option>
+                                <option value="FMEA" disabled>تحلیل حالات خرابی (FMEA)</option>
+                                <option value="pareto" disabled>نمودار پارتو (Pareto chart)</option>
+                                <option value="سایر">سایر</option>
+                            </select>
+                        </div>
+                        <div class="ca-field full-width sub-field" id="cftSubFishbone" style="display:none;">
+                            <label>دسته‌بندی Fishbone <span class="hint">(انتخاب کنید و زیرشاخه اضافه کنید)</span></label>
+                            <div class="fishbone-container" id="cftFishboneContainer"></div>
+                            <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
+                                <button type="button" class="btn btn-info" onclick="renderCftFishboneDiagram()"><i class="fas fa-rotate"></i> بروزرسانی نمودار</button>
+                                <button type="button" class="btn btn-secondary no-print" onclick="printCftFishboneDiagram()"><i class="fas fa-print"></i> چاپ نمودار</button>
+                            </div>
+                            <div class="fishbone-diagram-container" id="cftFishboneDiagramContainer" style="display:none;">
+                                <div class="diagram-title"><i class="fas fa-diagram-project" style="color:#667eea;"></i> نمودار علت و معلول (Ishikawa)</div>
+                                <div class="fishbone-svg-wrapper"><svg id="cftFishboneSvg" viewBox="0 0 1250 560" preserveAspectRatio="xMidYMid meet"></svg></div>
+                            </div>
+                        </div>
+                        <div class="ca-field full-width sub-field" id="cftSub5Why" style="display:none;">
+                            <label>تحلیل 5 Why</label>
+                            <div class="nested-section" style="margin-top:0;">
+                                <div class="nested-grid">
+                                    <div class="ca-field"><label>چرا ۱:</label><input type="text" id="cftWhy1" placeholder="علت اول"></div>
+                                    <div class="ca-field"><label>چرا ۲:</label><input type="text" id="cftWhy2" placeholder="علت دوم"></div>
+                                    <div class="ca-field"><label>چرا ۳:</label><input type="text" id="cftWhy3" placeholder="علت سوم"></div>
+                                    <div class="ca-field"><label>چرا ۴:</label><input type="text" id="cftWhy4" placeholder="علت چهارم"></div>
+                                    <div class="ca-field"><label>چرا ۵:</label><input type="text" id="cftWhy5" placeholder="علت پنجم (ریشه‌ای)"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ca-field full-width"><label>نتیجه‌گیری تحلیل ریشه‌ای</label><textarea id="cftAnalysisConclusion" rows="2" placeholder="نتیجه‌گیری نهایی..."></textarea></div>
+                    </div>
+                </div>
+
+                <!-- بخش ۸ (اقدامات - سرپرست تیم) -->
+                <div class="ca-section section-lockable" id="section8Actions">
+                    <h3><i class="fas fa-clipboard-list"></i> ۸. اقدامات اصلاحی پیشنهادی <span class="iso-ref">ISO 9001 - 10.2.1.c</span></h3>
+                    <div class="actions-table-wrapper">
+                        <table class="actions-table" id="actionsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:45px;text-align:center;">#</th>
+                                    <th style="min-width:220px;">شرح اقدام اصلاحی <span class="required">*</span></th>
+                                    <th style="min-width:130px;">مسئول اجرا <span class="required">*</span></th>
+                                    <th style="min-width:140px;">دپارتمان</th>
+                                    <th style="min-width:130px;">مهلت اجرا <span class="required">*</span></th>
+                                    <th style="min-width:120px;">وضعیت</th>
+                                    <th style="min-width:150px;">توضیحات</th>
+                                    <th style="width:80px;text-align:center;">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="actionsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="actions-footer">
+                        <button type="button" class="btn-add-action" onclick="addActionRow()"><i class="fas fa-plus-circle"></i> افزودن اقدام</button>
+                        <div class="actions-count">تعداد اقدامات: <strong id="actionsCount">0</strong></div>
+                    </div>
+                </div>
+
+                <!-- بخش ۹ (انتشار افقی - سرپرست تیم) -->
+                <div class="ca-section section-lockable" id="section9Horizontal">
+                    <h3><i class="fas fa-share-alt"></i> ۹. انتشار افقی (Horizontal Deployment) <span class="iso-ref">IATF 16949 - 10.2.3.1</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field full-width">
+                            <label>آیا اقدامات در سایر خطوط/محصولات اعمال شد؟</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="horizontalDeploy" value="yes"> بله</label>
+                                <label><input type="radio" name="horizontalDeploy" value="no"> خیر</label>
+                                <label><input type="radio" name="horizontalDeploy" value="na"> کاربرد ندارد</label>
+                            </div>
+                        </div>
+                        <div class="ca-field full-width"><label>جزئیات</label><textarea id="horizontalDeployDetails" rows="2" placeholder="نام خطوط..."></textarea></div>
+                    </div>
+                </div>
+
+                <!-- بخش ۱۰ (مستندات - سرپرست تیم) -->
+                <div class="ca-section section-lockable" id="section10Documents">
+                    <h3><i class="fas fa-file-alt"></i> ۱۰. به‌روزرسانی مستندات <span class="iso-ref">ISO 9001 - 10.2.1.e</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field full-width">
+                            <label>مستندات به‌روزرسانی شده</label>
+                            <div class="doc-checkbox-list" id="docCheckboxList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بخش ۱۱ (پایش اثربخشی - مدیر کیفیت) -->
+                <div class="ca-section section-lockable" id="section11Verification">
+                    <h3><i class="fas fa-chart-line"></i> ۱۱. پایش اثربخشی <span class="iso-ref">ISO 9001 - 10.2.1.f</span></h3>
+                    <div class="ca-grid">
+                        <div class="ca-field"><label>تاریخ پایش</label><input type="date" id="verificationDate"></div>
+                        <div class="ca-field"><label>مسئول پایش</label><input type="text" id="verifier" placeholder="نام مسئول پایش"></div>
+                        <div class="ca-field">
+                            <label>نتیجه پایش</label>
+                            <select id="verificationResult">
+                                <option value="">انتخاب کنید</option>
+                                <option value="effective">اثربخش</option>
+                                <option value="partially">تا حدی اثربخش</option>
+                                <option value="ineffective">غیراثربخش</option>
+                                <option value="pending">در انتظار</option>
+                            </select>
+                        </div>
+                        <div class="ca-field">
+                            <label>روش تأیید اثربخشی</label>
+                            <select id="verificationMethod">
+                                <option value="">انتخاب کنید</option>
+                                <option value="audit">ممیزی</option>
+                                <option value="inspection">بازرسی مجدد</option>
+                                <option value="data_analysis">تحلیل داده</option>
+                                <option value="test">تست</option>
+                            </select>
+                        </div>
+                        <div class="ca-field"><label>مدت پایش (ماه)</label><input type="number" id="monitoringPeriod" placeholder="3" min="1"></div>
+                        <div class="ca-field"><label>تاریخ بستن فرم</label><input type="date" id="closureDate"></div>
+                        <div class="ca-field full-width"><label>یادداشت پایش</label><textarea id="verificationNotes" rows="2" placeholder="توضیحات..."></textarea></div>
+                        <div class="ca-field full-width" id="subIneffective" style="display:none;">
+                            <div class="warning-box"><i class="fas fa-exclamation-triangle"></i> اقدامات اثربخش نبوده است. لطفاً فرم جدید باز کنید.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بخش ۱۲ (پیوست بعد - مدیر کیفیت) -->
+                <div class="ca-section section-lockable" id="section12AfterAttachments">
+                    <h3><i class="fas fa-paperclip"></i> ۱۲. پیوست‌های بعد از اقدام اصلاحی <span class="iso-ref">ISO 9001 - 7.5.3</span></h3>
+                    <div class="ca-field">
+                        <label>مستندات و تصاویر بعد از اصلاح</label>
+                        <input type="file" id="afterAttachments" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleAfterFileSelection(this)">
+                        <div id="afterFilesPreview" style="margin-top:12px; display:none;">
+                            <div style="font-weight:700; color:#2c3e50; margin-bottom:8px; font-size:13px;"><i class="fas fa-paperclip"></i> فایل‌های انتخاب شده (<span id="afterFilesCount">0</span>):</div>
+                            <div id="afterFilesList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های عملیات -->
+                <div class="ca-actions no-print">
+                    <button type="button" class="btn btn-secondary" onclick="goBack()"><i class="fas fa-arrow-right"></i> بازگشت</button>
+                    <button type="button" class="btn btn-print" onclick="printForm()"><i class="fas fa-print"></i> چاپ</button>
+                    <button type="button" class="btn btn-secondary" id="btnSaveDraft" onclick="saveDraft()"><i class="fas fa-save"></i> ذخیره پیش‌نویس</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmit" onclick="submitForm()"><i class="fas fa-paper-plane"></i> ثبت نهایی</button>
+                </div>
+
+            </div>
+            <div id="footerContainer"></div>
+        </main>
+    </div>
+
+    <script src="database.js?v=20261101"></script>
+    <script src="app.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+
+    <script>
+        // ============================================
+        // CONFIG & VARIABLES
+        // ============================================
+        const CA_API_BASE = window.NCR_API + '';
+        const STORAGE_KEY = 'corrective_actions';
+        const DRAFT_KEY = 'ca_drafts';
+
+        const DEFAULT_ORG_SETTINGS = {
+            company_name: 'شرکت سروش موتور مبنا',
+            company_subtitle: 'تولیدکننده انواع خودرو',
+            company_subtitle2: '(سهامی خاص)',
+            company_logo: '',
+            form_code: 'FM-CA01/00',
+            form_title: 'فرم اقدام اصلاحی و بهبود (CA / CAR)',
+            form_standard: 'مطابق بند 10.2 استاندارد ISO 9001:2015 و بند 10.2.3 IATF'
+        };
+
+        // ⭐ فرض بر این است که currentUser شامل role باشد (admin, quality, production, supervisor, ...)
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { id: 2, full_name: 'مدیر کیفیت', username: 'quality', role: 'quality', department: 'کنترل کیفیت' };
+        
+        let caData = {};
+        let beforeSelectedFiles = [];
+        let afterSelectedFiles = [];
+        let linkedNCR = null;
+        let actionRowCounter = 0;
+        let orgSettings = { ...DEFAULT_ORG_SETTINGS };
+        let currentStatus = 'draft'; // وضعیت فرم
+
+        let cftFishboneData = {
+            categories: [
+                { id: 'man', label: 'MAN', checked: false, subItems: [] },
+                { id: 'machine', label: 'MACHINE', checked: false, subItems: [] },
+                { id: 'method', label: 'METHOD', checked: false, subItems: [] },
+                { id: 'material', label: 'MATERIAL', checked: false, subItems: [] },
+                { id: 'environment', label: 'ENVIRONMENT', checked: false, subItems: [] },
+                { id: 'measurement', label: 'MEASUREMENT', checked: false, subItems: [] }
+            ]
+        };
+
+        const DOC_ITEMS = [
+            { id: 'pfmea', label: 'PFMEA به‌روزرسانی شد' },
+            { id: 'dfmea', label: 'DFMEA به‌روزرسانی شد' },
+            { id: 'control_plan', label: 'Control Plan اصلاح شد' },
+            { id: 'work_instruction', label: 'دستورالعمل کاری اصلاح شد' },
+            { id: 'procedure', label: 'رویه‌ها به‌روزرسانی شد' },
+            { id: 'training', label: 'آموزش‌های لازم انجام شد' },
+            { id: 'lessons_learned', label: 'Lessons Learned ثبت شد' },
+            { id: 'standards', label: 'استانداردهای داخلی به‌روزرسانی شد' }
+        ];
+        let docNumbersData = {};
+
+        // ============================================
+        // UTILITIES
+        // ============================================
+        function showToast(message, type) {
+            var toast = document.getElementById('toastMessage');
+            var text = document.getElementById('toastText');
+            var icon = document.getElementById('toastIcon');
+            text.textContent = message;
+            toast.className = 'toast-message show';
+            if (type === 'success') { toast.classList.add('success'); icon.className = 'fas fa-check-circle'; }
+            else if (type === 'error') { toast.classList.add('error'); icon.className = 'fas fa-exclamation-circle'; }
+            else { toast.classList.add('info'); icon.className = 'fas fa-info-circle'; }
+            setTimeout(function() { toast.classList.remove('show'); }, 4000);
+        }
+
+        function getToday() {
+            var d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        function formatPersianDate(dateStr) {
+            if (!dateStr) return '-';
+            var parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            var months = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+            return parseInt(parts[2]) + ' ' + months[parseInt(parts[1]) - 1] + ' ' + parts[0];
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function getCheckedValues(className) {
+            var arr = [];
+            document.querySelectorAll('.' + className + ':checked').forEach(function(el) { arr.push(el.value); });
+            return arr;
+        }
+
+        function setCheckedValues(className, values) {
+            if (!Array.isArray(values)) values = [];
+            document.querySelectorAll('.' + className).forEach(function(el) { el.checked = (values.indexOf(el.value) !== -1); });
+        }
+
+        // ============================================
+        // ⭐ NEW: WORKFLOW PERMISSIONS (مدیریت دسترسی و مخفی‌سازی)
+        // ============================================
+        function applyWorkflowPermissions() {
+            // ۱. ابتدا همه بخش‌ها را نمایش می‌دهیم و فیلدها را فعال می‌کنیم (ریست اولیه)
+            const allSections = ['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments', 'section5Manager', 'section6Quality', 'section7CFT', 'section8Actions', 'section9Horizontal', 'section10Documents', 'section11Verification', 'section12AfterAttachments'];
+            
+            allSections.forEach(id => {
+                const sec = document.getElementById(id);
+                if(sec) {
+                    sec.style.display = 'block'; // نمایش مجدد
+                    sec.style.opacity = '1';
+                    sec.querySelectorAll('input, select, textarea, button').forEach(el => {
+                        if (!el.classList.contains('btn-row') && !el.classList.contains('btn-add-action')) {
+                            el.disabled = false;
+                            el.readOnly = false;
+                            el.classList.remove('readonly-field');
+                        }
+                    });
+                }
+            });
+
+            // تابع کمکی برای مخفی کردن یک بخش
+            function hideSection(sectionId) {
+                const section = document.getElementById(sectionId);
+                if(section) section.style.display = 'none';
+            }
+
+            // تابع کمکی برای مخفی کردن یک لیست از بخش‌ها
+            function hideSections(sectionIds) {
+                sectionIds.forEach(id => hideSection(id));
+            }
+
+            let isCreator = (currentUser.username === caData.creatorUsername || currentUser.full_name === caData.issuerName);
+            let isManager = (currentUser.role === 'supervisor' || currentUser.role === 'manager' || currentUser.role === 'production'); 
+            let isQuality = (currentUser.role === 'quality' || currentUser.role === 'admin');
+            let isTeamLeader = (currentUser.full_name === caData.teamLeader || currentUser.username === caData.teamLeader);
+            
+            // ============================================
+            // اعمال قوانین بر اساس وضعیت فرم (currentStatus) - مخفی‌سازی
+            // ============================================
+            
+            if (currentStatus === 'draft' || currentStatus === 'rejected') {
+                // ۱. مرحله ایجاد: فقط تا بند ۴ باز است (بندهای ۵ تا ۱۲ مخفی شوند)
+                hideSections(['section5Manager', 'section6Quality', 'section7CFT', 'section8Actions', 'section9Horizontal', 'section10Documents', 'section11Verification', 'section12AfterAttachments']);
+                
+                document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-paper-plane"></i> ثبت و ارسال به مدیر';
+                document.getElementById('btnSubmit').style.display = (isCreator || isQuality) ? 'flex' : 'none';
+                document.getElementById('btnSaveDraft').style.display = (isCreator || isQuality) ? 'flex' : 'none';
+            } 
+            else if (currentStatus === 'pending_manager') {
+                // ۲. مرحله بررسی (مدیر): فقط بند ۵ باز است. (بقیه مخفی)
+                hideSections(['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments', 'section6Quality', 'section7CFT', 'section8Actions', 'section9Horizontal', 'section10Documents', 'section11Verification', 'section12AfterAttachments']);
+                
+                // بند ۵ نیاز به نمایش دارد
+                document.getElementById('section5Manager').style.display = 'block';
+                
+                // دکمه ثبت را برای مدیر فعال می‌کنیم
+                document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-check"></i> ثبت تأیید مدیر';
+                document.getElementById('btnSubmit').style.display = 'flex';
+                document.getElementById('btnSubmit').disabled = false; // اطمینان از فعال بودن
+                document.getElementById('btnSaveDraft').style.display = 'none';
+                
+                // نمایش هشدار فقط اگر کسی غیر از مدیر وارد شده باشد
+                const isManager = (currentUser.role === 'supervisor' || currentUser.role === 'manager' || currentUser.role === 'admin');
+                if (!isManager) {
+                    showToast('شما دسترسی ثبت در این مرحله را ندارید.', 'error');
+                }
+            }
+            else if (currentStatus === 'pending_quality') {
+                // ۳. مرحله تأیید کیفیت: فقط بندهای ۶ و ۷ باز است. (بقیه مخفی)
+                hideSections(['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments', 'section5Manager', 'section8Actions', 'section9Horizontal', 'section10Documents', 'section11Verification', 'section12AfterAttachments']);
+                
+                document.getElementById('section6Quality').style.display = 'block';
+                document.getElementById('section7CFT').style.display = 'block';
+
+                document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-check-double"></i> تأیید کیفیت و ارسال به اجرا';
+                document.getElementById('btnSubmit').style.display = isQuality ? 'flex' : 'none';
+                document.getElementById('btnSaveDraft').style.display = 'none';
+                
+                if (!isQuality) showToast('فقط مدیر کنترل کیفیت مجاز به ثبت این مرحله است.', 'error');
+            }
+            else if (currentStatus === 'pending_implementation') {
+                // ۴. مرحله اجرا (سرپرست تیم): فقط بندهای ۸، ۹، ۱۰ باز است. (بقیه مخفی)
+                hideSections(['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments', 'section5Manager', 'section6Quality', 'section7CFT', 'section11Verification', 'section12AfterAttachments']);
+                
+                document.getElementById('section8Actions').style.display = 'block';
+                document.getElementById('section9Horizontal').style.display = 'block';
+                document.getElementById('section10Documents').style.display = 'block';
+
+                document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-paper-plane"></i> ثبت اجرا و ارسال به کیفیت';
+                document.getElementById('btnSubmit').style.display = (isTeamLeader || currentUser.role === 'admin') ? 'flex' : 'none';
+                document.getElementById('btnSaveDraft').style.display = 'none';
+                
+                if (!isTeamLeader && currentUser.role !== 'admin') showToast('فقط سرپرست تیم مجاز به ثبت این مرحله است.', 'error');
+            }
+            else if (currentStatus === 'pending_verification') {
+                // ۵. مرحله پایش (کیفیت): فقط بندهای ۱۱ و ۱۲ باز است. (بقیه مخفی)
+                hideSections(['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments', 'section5Manager', 'section6Quality', 'section7CFT', 'section8Actions', 'section9Horizontal', 'section10Documents']);
+                
+                document.getElementById('section11Verification').style.display = 'block';
+                document.getElementById('section12AfterAttachments').style.display = 'block';
+
+                document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-archive"></i> ثبت پایش و بستن فرم';
+                document.getElementById('btnSubmit').style.display = isQuality ? 'flex' : 'none';
+                document.getElementById('btnSaveDraft').style.display = 'none';
+                
+                if (!isQuality) showToast('فقط مدیر کنترل کیفیت مجاز به بستن فرم است.', 'error');
+            }
+            else if (currentStatus === 'closed' || currentStatus === 'done') {
+                // ۶. بسته شده: تمام بخش‌ها مخفی می‌شوند تا فقط اطلاعات در صورت نیاز چاپ شود (یا می‌توانید همه را قفل کنید)
+                hideSections(allSections);
+                document.getElementById('btnSubmit').style.display = 'none';
+                document.getElementById('btnSaveDraft').style.display = 'none';
+                showToast('این فرم بسته شده است و قابل ویرایش نیست.', 'info');
+            }
+
+            // ⭐ نمایش مراحل قبلی به‌صورت فقط‌خواندنی تا نفر بعدی اطلاعات قبلی را ببیند
+            applyPreviousStagesReadOnly();
+
+            updateWorkflowBar();
+        }
+
+        // ============================================
+        // نمایش مراحل طی‌شده به‌صورت خواندنی و فقط مرحله جاری قابل ویرایش
+        // ============================================
+        // ============================================
+        // ساخت خلاصه خواندنی هر بخش (مشابه فرم NCR)
+        // ============================================
+        function roText(value) {
+            if (value === undefined || value === null) return '-';
+            var text = String(value).trim();
+            return text === '' ? '-' : text;
+        }
+
+        function roItem(label, value, full) {
+            return '<div class="ro-item' + (full ? ' ro-full' : '') + '">' +
+                '<span class="ro-label">' + label + ':</span>' +
+                '<span class="ro-value">' + escapeHtml(roText(value)) + '</span>' +
+                '</div>';
+        }
+
+        function roBox(title, itemsHtml) {
+            return '<div class="ca-readonly-summary">' +
+                '<div class="ro-head"><i class="fas fa-lock"></i> ' + title + ' <span style="font-weight:400;color:#7b8aa5;font-size:11px;">(فقط خواندنی)</span></div>' +
+                '<div class="ro-grid">' + itemsHtml + '</div>' +
+                '</div>';
+        }
+
+        function buildReadonlySummary(sectionId, ca) {
+            ca = ca || {};
+            var effectsText = (ca.effects || []).map(function (e) { return CA_EFFECT_LABELS[e] || e; }).join('، ') || '-';
+            var priorityText = CA_PRIORITY_LABELS[ca.priority] || roText(ca.priority);
+            var needText = ca.needAction === 'yes' ? 'بله، نیاز به اقدام اصلاحی وجود دارد' :
+                (ca.needAction === 'no' ? 'خیر، اقدام فوری کافی بوده است' : '-');
+            var managerText = { pending: 'در انتظار بررسی', approved: 'تأیید شد', rejected: 'رد شد' }[ca.managerApproval] || '-';
+            var verificationText = { effective: 'اثربخش', partially: 'تا حدی اثربخش', ineffective: 'غیراثربخش', pending: 'در انتظار' }[ca.verificationResult] || '-';
+            var horizontalText = { yes: 'بله', no: 'خیر', na: 'کاربرد ندارد' }[ca.horizontalDeploy] || '-';
+            var methodText = ca.cftAnalysisMethod ? (CA_METHOD_LABELS[ca.cftAnalysisMethod] || ca.cftAnalysisMethod) : '-';
+            var sourceText = ca.linkedNCRNumber ? ('NCR ' + ca.linkedNCRNumber) : roText(ca.sourceRef);
+
+            var docsText = '-';
+            if (ca.updatedDocuments && ca.updatedDocuments.length) {
+                docsText = ca.updatedDocuments.map(function (docId) {
+                    var label = CA_DOC_LABELS[docId] || docId;
+                    var num = (ca.docNumbers && ca.docNumbers[docId]) ? ca.docNumbers[docId] : '';
+                    return num ? (label + ' (' + num + ')') : label;
+                }).join('، ');
+            }
+
+            var html = '';
+
+            if (sectionId === 'section1Ref') {
+                html = roItem('شماره فرم', ca.actionNumber) +
+                    roItem('تاریخ صدور', ca.issueDate ? formatPersianDate(ca.issueDate) : '-') +
+                    roItem('مبنا', sourceText) +
+                    roItem('صادرکننده', ca.issuerName) +
+                    roItem('دپارتمان', ca.issuerDepartment) +
+                    roItem('سمت', ca.issuerPosition) +
+                    roItem('اولویت', priorityText) +
+                    roItem('موضوع', ca.subject, true);
+                return roBox('اطلاعات مرجع', html);
+            }
+
+            if (sectionId === 'section2Source') {
+                html = roItem('شرح مشکل', ca.problemDescription, true) +
+                    roItem('ریشه اصلی', ca.rootCause, true) +
+                    roItem('مرجع استاندارد', ca.standardRef, true);
+                return roBox('اطلاعات منبع', html);
+            }
+
+            if (sectionId === 'section3Problem') {
+                html = roItem('شرح عدم انطباق', ca.problemDescription, true) +
+                    roItem('ریشه اصلی', ca.rootCause, true) +
+                    roItem('پیامدهای بالقوه', effectsText, true) +
+                    roItem('نیاز به اقدام اصلاحی', needText, true) +
+                    (ca.noActionReason ? roItem('دلیل عدم نیاز به اقدام', ca.noActionReason, true) : '');
+                return roBox('تشریح مسئله / پیشنهاد', html);
+            }
+
+            if (sectionId === 'section4BeforeAttachments') {
+                html = roItem('تعداد فایل‌های پیوست', beforeSelectedFiles.length + ' فایل', true);
+                return roBox('پیوست‌های قبل از اقدام اصلاحی', html);
+            }
+
+            if (sectionId === 'section5Manager') {
+                html = roItem('تأیید مدیر مستقیم', managerText) +
+                    (ca.approvalNotes ? roItem('توضیحات', ca.approvalNotes, true) : '');
+                return roBox('تأیید اولیه (مدیر مستقیم)', html);
+            }
+
+            if (sectionId === 'section6Quality') {
+                html = roItem('ارزیابی نیاز به اقدام', needText, true) +
+                    roItem('پیامدهای بالقوه', effectsText, true);
+                return roBox('تأیید ثانویه (مدیر کنترل کیفیت)', html);
+            }
+
+            if (sectionId === 'section7CFT') {
+                html = roItem('سرپرست تیم', ca.teamLeader) +
+                    roItem('تاریخ جلسه', ca.teamMeetingDate ? formatPersianDate(ca.teamMeetingDate) : '-') +
+                    roItem('روش تحلیل', methodText) +
+                    roItem('اعضا', ca.teamMembers, true);
+
+                if (ca.cftAnalysisMethod === 'fishbone') {
+                    var subs = ca.cftFishboneSubItems || {};
+                    var checked = ca.cftFishboneChecked || [];
+                    var catParts = [];
+                    Object.keys(CA_FISHBONE_CATS).forEach(function (catId) {
+                        var items = subs[catId] || [];
+                        if (checked.indexOf(catId) !== -1 || items.length) {
+                            catParts.push('<div class="ro-cat"><b>' + CA_FISHBONE_CATS[catId].fa + ' (' + CA_FISHBONE_CATS[catId].en + '):</b> ' +
+                                escapeHtml(items.length ? items.join('، ') : '—') + '</div>');
+                        }
+                    });
+                    if (catParts.length) {
+                        html += '<div class="ro-item ro-full"><span class="ro-label">دسته‌بندی‌ها:</span>' +
+                            '<span class="ro-value"><div class="ro-fishbone-box">' + catParts.join('') + '</div></span></div>';
+                    }
+                } else if (ca.cftAnalysisMethod === '5why') {
+                    var whyRows = '';
+                    [ca.cftWhy1, ca.cftWhy2, ca.cftWhy3, ca.cftWhy4, ca.cftWhy5].forEach(function (w, idx) {
+                        whyRows += '<div class="ro-cat"><b>چرا ' + (idx + 1) + ':</b> ' + escapeHtml(roText(w)) + '</div>';
+                    });
+                    html += '<div class="ro-item ro-full"><span class="ro-label">تحلیل 5 چرا:</span>' +
+                        '<span class="ro-value"><div class="ro-fishbone-box">' + whyRows + '</div></span></div>';
+                }
+
+                if (ca.cftAnalysisConclusion) {
+                    html += roItem('نتیجه‌گیری تحلیل', ca.cftAnalysisConclusion, true);
+                }
+
+                return roBox('تیم حل مسئله (CFT)', html);
+            }
+
+            if (sectionId === 'section8Actions') {
+                var actions = (ca.actions || []).filter(function (a) { return a && (a.description || a.responsible); });
+                if (!actions.length) {
+                    return roBox('اقدامات اصلاحی', roItem('اقدامات ثبت‌شده', 'اقدامی ثبت نشده است', true));
+                }
+
+                var statusMap = { pending: 'در انتظار', in_progress: 'در حال اجرا', done: 'تکمیل شده', cancelled: 'لغو شده' };
+                var table = '<table class="ro-actions-table"><thead><tr>' +
+                    '<th>#</th><th>شرح اقدام</th><th>مسئول</th><th>دپارتمان</th><th>مهلت</th><th>وضعیت</th><th>توضیحات</th>' +
+                    '</tr></thead><tbody>';
+
+                actions.forEach(function (a, idx) {
+                    table += '<tr>' +
+                        '<td>' + (idx + 1) + '</td>' +
+                        '<td>' + escapeHtml(roText(a.description)) + '</td>' +
+                        '<td>' + escapeHtml(roText(a.responsible)) + '</td>' +
+                        '<td>' + escapeHtml(roText(a.department)) + '</td>' +
+                        '<td>' + escapeHtml(a.deadline ? formatPersianDate(a.deadline) : '-') + '</td>' +
+                        '<td>' + escapeHtml(statusMap[a.status] || '-') + '</td>' +
+                        '<td>' + escapeHtml(roText(a.notes)) + '</td>' +
+                        '</tr>';
+                });
+
+                table += '</tbody></table>';
+
+                return roBox('اقدامات اصلاحی', '<div class="ro-item ro-full"><span class="ro-value">' + table + '</span></div>');
+            }
+
+            if (sectionId === 'section9Horizontal') {
+                html = roItem('انتشار در سایر خطوط', horizontalText) +
+                    roItem('جزئیات', ca.horizontalDeployDetails, true);
+                return roBox('انتشار افقی', html);
+            }
+
+            if (sectionId === 'section10Documents') {
+                html = roItem('مستندات به‌روزرسانی‌شده', docsText, true);
+                return roBox('به‌روزرسانی مستندات', html);
+            }
+
+            if (sectionId === 'section11Verification') {
+                html = roItem('تاریخ پایش', ca.verificationDate ? formatPersianDate(ca.verificationDate) : '-') +
+                    roItem('مسئول پایش', ca.verifier) +
+                    roItem('نتیجه', verificationText) +
+                    roItem('یادداشت پایش', ca.verificationNotes, true);
+                return roBox('پایش اثربخشی', html);
+            }
+
+            if (sectionId === 'section12AfterAttachments') {
+                html = roItem('تعداد فایل‌های پیوست', afterSelectedFiles.length + ' فایل', true);
+                return roBox('پیوست‌های بعد از اقدام اصلاحی', html);
+            }
+
+            return '';
+        }
+
+        // ============================================
+        // قوانین ویرایش مرحله جاری و مرحله قبلی
+        // ============================================
+        function caRoleIsManager() {
+            return ['supervisor', 'manager', 'admin'].indexOf(currentUser.role) !== -1;
+        }
+
+        function caRoleIsQuality() {
+            return ['quality', 'admin'].indexOf(currentUser.role) !== -1;
+        }
+
+        function caIsCreator(ca) {
+            ca = ca || {};
+            return (currentUser.username && currentUser.username === ca.creatorUsername) ||
+                (currentUser.full_name && currentUser.full_name === ca.issuerName);
+        }
+
+        function caIsTeamLeaderUser(ca) {
+            ca = ca || {};
+            return (ca.teamLeader && currentUser.full_name === ca.teamLeader) ||
+                (ca.teamLeader && currentUser.username === ca.teamLeader);
+        }
+
+        // آیا کاربر جاری صاحب مرحله جاری است؟ (فقط او می‌تواند مرحله را ارسال/تکمیل کند)
+        function caIsCurrentStageOwner(status, ca) {
+            switch (status) {
+                case 'draft':
+                case 'rejected':
+                    return caIsCreator(ca) || caRoleIsQuality();
+                case 'pending_manager':
+                    return caRoleIsManager();
+                case 'pending_quality':
+                    return caRoleIsQuality();
+                case 'pending_implementation':
+                    return caIsTeamLeaderUser(ca) || currentUser.role === 'admin';
+                case 'pending_verification':
+                    return caRoleIsQuality();
+                default:
+                    return false;
+            }
+        }
+
+        // بخش‌هایی که صاحب مرحله قبلی تا تکمیل‌نشدن مرحله بعد می‌تواند ویرایش کند
+        function caPreviousEditableSections(status, ca) {
+            switch (status) {
+                case 'pending_manager':
+                    return (caIsCreator(ca) || caRoleIsQuality())
+                        ? ['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments'] : [];
+                case 'pending_quality':
+                    return caRoleIsManager() ? ['section5Manager'] : [];
+                case 'pending_implementation':
+                    return caRoleIsQuality() ? ['section6Quality', 'section7CFT'] : [];
+                case 'pending_verification':
+                    return (caIsTeamLeaderUser(ca) || currentUser.role === 'admin')
+                        ? ['section8Actions', 'section9Horizontal', 'section10Documents'] : [];
+                default:
+                    return [];
+            }
+        }
+
+        function applyPreviousStagesReadOnly() {
+            var order = [
+                'section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments',
+                'section5Manager', 'section6Quality', 'section7CFT', 'section8Actions',
+                'section9Horizontal', 'section10Documents', 'section11Verification', 'section12AfterAttachments'
+            ];
+
+            var cutoffMap = {
+                'draft': 4, 'rejected': 4,
+                'pending_manager': 5,
+                'pending_quality': 7,
+                'pending_implementation': 10,
+                'pending_verification': 12,
+                'closed': 12, 'done': 12
+            };
+
+            var editableMap = {
+                'draft': ['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments'],
+                'rejected': ['section1Ref', 'section2Source', 'section3Problem', 'section4BeforeAttachments'],
+                'pending_manager': ['section5Manager'],
+                'pending_quality': ['section6Quality', 'section7CFT'],
+                'pending_implementation': ['section8Actions', 'section9Horizontal', 'section10Documents'],
+                'pending_verification': ['section11Verification', 'section12AfterAttachments'],
+                'closed': [],
+                'done': []
+            };
+
+            var cutoff = cutoffMap[currentStatus] !== undefined ? cutoffMap[currentStatus] : 4;
+
+            // مرحله جاری فقط برای صاحب همان مرحله قابل ویرایش است،
+            // و مرحله قبلی تا زمانی که مرحله جاری تکمیل نشده برای صاحبش قابل ویرایش می‌ماند.
+            var isOwner = caIsCurrentStageOwner(currentStatus, caData || {});
+            var currentEditable = isOwner ? (editableMap[currentStatus] || []) : [];
+            var previousEditable = caPreviousEditableSections(currentStatus, caData || {});
+            var editable = currentEditable.concat(previousEditable);
+            var roData = null;
+
+            order.forEach(function (sectionId, index) {
+                var section = document.getElementById(sectionId);
+                if (!section) return;
+
+                var visible = index < cutoff;
+                var isEditable = visible && editable.indexOf(sectionId) !== -1;
+
+                section.style.display = visible ? 'block' : 'none';
+
+                if (!visible) return;
+
+                if (isEditable) {
+                    section.classList.remove('section-readonly');
+                    var oldSummary = section.querySelector('.ca-readonly-summary');
+                    if (oldSummary) oldSummary.remove();
+                    section.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+                        el.disabled = false;
+                    });
+                    return;
+                }
+
+                // بخش‌های مراحل قبلی: فقط خواندنی با نمایش خلاصه متنی
+                if (roData === null) {
+                    try {
+                        roData = collectData();
+                    } catch (e) {
+                        console.warn('⚠️ collectData for readonly summary failed:', e);
+                        roData = caData || {};
+                    }
+                }
+
+                section.classList.add('section-readonly');
+                var summaryHtml = buildReadonlySummary(sectionId, roData);
+                var summary = section.querySelector('.ca-readonly-summary');
+
+                if (summary) {
+                    summary.outerHTML = summaryHtml;
+                } else if (summaryHtml) {
+                    section.insertAdjacentHTML('beforeend', summaryHtml);
+                }
+
+                section.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+                    el.disabled = true;
+                });
+            });
+
+            // تنظیم دکمه ارسال/ذخیره بر اساس مالکیت مرحله
+            var submitBtn = document.getElementById('btnSubmit');
+            var draftBtn = document.getElementById('btnSaveDraft');
+            if (!submitBtn) return;
+
+            if (currentStatus === 'closed' || currentStatus === 'done') {
+                submitBtn.style.display = 'none';
+                if (draftBtn) draftBtn.style.display = 'none';
+            } else if (isOwner) {
+                // متن و نمایش دکمه در منطق اصلی applyWorkflowPermissions تنظیم شده است
+            } else if (previousEditable.length) {
+                submitBtn.style.display = 'flex';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> ذخیره تغییرات من';
+                if (draftBtn) draftBtn.style.display = 'none';
+            } else {
+                submitBtn.style.display = 'none';
+                if (draftBtn) draftBtn.style.display = 'none';
+            }
+        }
+
+        function updateWorkflowBar() {
+            document.querySelectorAll('.workflow-bar .stage').forEach(el => el.classList.remove('active', 'done'));
+            const stages = {
+                'draft': 'draft', 'rejected': 'draft',
+                'pending_manager': 'review',
+                'pending_quality': 'approve',
+                'pending_implementation': 'implement',
+                'pending_verification': 'verify',
+                'closed': 'closed', 'done': 'closed'
+            };
+            const activeStage = stages[currentStatus] || 'draft';
+            document.querySelector(`.workflow-bar .stage[data-stage="${activeStage}"]`).classList.add('active');
+            
+            // پر کردن دات‌های قبلی با رنگ سبز
+            let foundActive = false;
+            document.querySelectorAll('.workflow-bar .stage').forEach(el => {
+                if (el.dataset.stage === activeStage) foundActive = true;
+                else if (!foundActive) el.classList.add('done');
+            });
+
+            const statusMap = {
+                'draft': { text: 'پیش‌نویس (ایجاد)', cls: 'draft' },
+                'rejected': { text: 'رد شده', cls: 'rejected' },
+                'pending_manager': { text: 'در انتظار تأیید مدیر', cls: 'pending' },
+                'pending_quality': { text: 'در انتظار تأیید کیفیت', cls: 'pending' },
+                'pending_implementation': { text: 'در حال اجرا', cls: 'in-progress' },
+                'pending_verification': { text: 'در انتظار پایش', cls: 'in-progress' },
+                'closed': { text: 'بسته شده', cls: 'done' },
+                'done': { text: 'تکمیل شده', cls: 'done' }
+            };
+            const s = statusMap[currentStatus] || statusMap['draft'];
+            const badge = document.getElementById('caStatusBadge');
+            badge.textContent = s.text;
+            badge.className = 'status-badge ' + s.cls;
+        }
+
+        // ============================================
+        // DATA LOADING & POPULATION
+        // ============================================
+        async function loadOrgSettings() {
+            try {
+                const res = await fetch(CA_API_BASE + '/get_organization_settings.php', { cache: 'no-store' });
+                const result = await res.json();
+                if (result.success && result.settings) orgSettings = { ...DEFAULT_ORG_SETTINGS, ...result.settings };
+            } catch (e) { console.warn('⚠️ API failed, using default header'); }
+            try {
+                const cached = localStorage.getItem('org_settings_cache');
+                if (cached) orgSettings = { ...DEFAULT_ORG_SETTINGS, ...JSON.parse(cached) };
+            } catch (err) {}
+        }
+
+        function renderDynamicHeader() {
+            document.getElementById('hdrFormCode').textContent = orgSettings.form_code || 'FM-CA01/00';
+            document.getElementById('hdrFormTitle').textContent = orgSettings.form_title || 'فرم اقدام اصلاحی و بهبود (CA / CAR)';
+            document.getElementById('hdrStandard').textContent = orgSettings.form_standard || '';
+            document.getElementById('hdrCompanyName').textContent = orgSettings.company_name || '';
+            document.getElementById('hdrCompanySub').textContent = orgSettings.company_subtitle || '';
+            document.getElementById('hdrCompanySub2').textContent = orgSettings.company_subtitle2 || '';
+            const logoBox = document.getElementById('hdrLogoBox');
+            if (orgSettings.company_logo) {
+                logoBox.innerHTML = `<img src="${escapeHtml(orgSettings.company_logo)}" alt="لوگو" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="logo-placeholder" style="display:none;"><i class="fas fa-image"></i> لوگو</div>`;
+            } else {
+                logoBox.innerHTML = `<div class="logo-placeholder"><i class="fas fa-image"></i> لوگو</div>`;
+            }
+        }
+
+        async function loadCA(actionNumber) {
+            try {
+                var cas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var ca = cas.find(function(c) { return c.actionNumber === actionNumber; });
+                if (ca) { populateForm(ca); return; }
+                var res = await fetch(CA_API_BASE + '/get_corrective_action.php?action_number=' + encodeURIComponent(actionNumber));
+                var result = await res.json();
+                if (result.success && result.data) { populateForm(result.data); }
+            } catch (e) { console.warn('⚠️ Load CA failed:', e); }
+        }
+
+        function populateForm(ca) {
+            caData = ca;
+            currentStatus = ca.status || 'draft';
+            
+            document.getElementById('actionNumber').value = ca.actionNumber || '';
+            document.getElementById('issueDate').value = ca.issueDate || '';
+            document.getElementById('hdrCreatedAt').textContent = formatPersianDate(ca.issueDate || getToday());
+            document.getElementById('linkedNCRNumber').value = ca.linkedNCRNumber || '';
+            document.getElementById('issuerName').value = ca.issuerName || '';
+            document.getElementById('issuerDepartment').value = ca.issuerDepartment || '';
+            document.getElementById('issuerPosition').value = ca.issuerPosition || '';
+            document.getElementById('customerName').value = ca.customerName || '';
+            document.getElementById('sourceRef').value = ca.sourceRef || 'internal';
+            document.getElementById('actionType').value = ca.actionType || 'corrective';
+            document.getElementById('priority').value = ca.priority || 'medium';
+            document.getElementById('subject').value = ca.subject || '';
+            
+            if (ca.linkedNCRNumber) {
+                // ⭐ NCR exists: lock sourceRef
+                document.getElementById('sourceRef').value = 'ncr';
+                document.getElementById('sourceRef').disabled = true;
+                document.getElementById('sourceRef').classList.add('readonly-field');
+            }
+
+            document.getElementById('problemDescription').value = ca.problemDescription || '';
+            document.getElementById('rootCause').value = ca.rootCause || '';
+            document.getElementById('standardRef').value = ca.standardRef || '';
+
+            setCheckedValues('effect-checkbox', ca.effects);
+            if (ca.needAction) {
+                var el = document.querySelector('input[name="needAction"][value="' + ca.needAction + '"]');
+                if (el) el.checked = true;
+            }
+            document.getElementById('noActionReason').value = ca.noActionReason || '';
+            toggleNeedActionSubs();
+
+            document.getElementById('managerApproval').value = ca.managerApproval || 'pending';
+            document.getElementById('approvalNotes').value = ca.approvalNotes || '';
+            toggleManagerNotes();
+
+            document.getElementById('teamLeader').value = ca.teamLeader || '';
+            document.getElementById('teamMembers').value = ca.teamMembers || '';
+            document.getElementById('teamMeetingDate').value = ca.teamMeetingDate || '';
+            document.getElementById('cftAnalysisMethod').value = ca.cftAnalysisMethod || '';
+            if (ca.cftWhy1) document.getElementById('cftWhy1').value = ca.cftWhy1;
+            if (ca.cftWhy2) document.getElementById('cftWhy2').value = ca.cftWhy2;
+            if (ca.cftWhy3) document.getElementById('cftWhy3').value = ca.cftWhy3;
+            if (ca.cftWhy4) document.getElementById('cftWhy4').value = ca.cftWhy4;
+            if (ca.cftWhy5) document.getElementById('cftWhy5').value = ca.cftWhy5;
+            if (ca.cftAnalysisConclusion) document.getElementById('cftAnalysisConclusion').value = ca.cftAnalysisConclusion;
+            
+            if (ca.cftFishboneChecked || ca.cftFishboneSubItems) {
+                loadCftFishboneData({ checked: ca.cftFishboneChecked || [], subItems: ca.cftFishboneSubItems || {} });
+            }
+            toggleCftAnalysisSubs();
+
+            var tbody = document.getElementById('actionsTableBody');
+            tbody.innerHTML = '';
+            actionRowCounter = 0;
+            var actions = ca.actions || [];
+            if (typeof actions === 'string') { try { actions = JSON.parse(actions); } catch (e) { actions = []; } }
+            if (Array.isArray(actions) && actions.length > 0) {
+                actions.forEach(function(a) { addActionRow(a); });
+            } else {
+                addActionRow();
+            }
+
+            if (ca.horizontalDeploy) {
+                var el = document.querySelector('input[name="horizontalDeploy"][value="' + ca.horizontalDeploy + '"]');
+                if (el) el.checked = true;
+            }
+            document.getElementById('horizontalDeployDetails').value = ca.horizontalDeployDetails || '';
+
+            var docsArray = ca.updatedDocuments || [];
+            if (typeof docsArray === 'string') { try { docsArray = JSON.parse(docsArray); } catch (e) { docsArray = []; } }
+            var numbersObj = ca.docNumbers || {};
+            if (typeof numbersObj === 'string') { try { numbersObj = JSON.parse(numbersObj); } catch (e) { numbersObj = {}; } }
+            caData.updatedDocuments = docsArray;
+            caData.docNumbers = numbersObj;
+            renderDocCheckboxes();
+
+            document.getElementById('verificationDate').value = ca.verificationDate || '';
+            document.getElementById('verifier').value = ca.verifier || '';
+            document.getElementById('verificationResult').value = ca.verificationResult || '';
+            document.getElementById('verificationMethod').value = ca.verificationMethod || '';
+            document.getElementById('monitoringPeriod').value = ca.monitoringPeriod || '';
+            document.getElementById('closureDate').value = ca.closureDate || '';
+            document.getElementById('verificationNotes').value = ca.verificationNotes || '';
+
+            if (ca.verificationResult === 'ineffective') document.getElementById('subIneffective').style.display = 'flex';
+
+            if (ca.linkedNCRNumber) {
+                loadNCRInfo(ca.linkedNCRNumber);
+            } else {
+                document.getElementById('manualSourceView').style.display = 'block';
+                document.getElementById('ncrSourceFullView').style.display = 'none';
+                document.getElementById('problemDescriptionField').style.display = 'flex';
+                document.getElementById('rootCauseField').style.display = 'flex';
+                document.getElementById('standardRefField').style.display = 'flex';
+                document.getElementById('problemDescriptionReadonlyField').style.display = 'none';
+                document.getElementById('rootCauseReadonlyField').style.display = 'none';
+                document.getElementById('standardRefReadonlyField').style.display = 'none';
+                document.getElementById('subject').readOnly = false;
+                document.getElementById('subject').classList.remove('readonly-field');
+            }
+            
+            // ⭐ اعمال دسترسی‌ها پس از لود کامل
+            applyWorkflowPermissions();
+        }
+
+        // ============================================
+        // SUBMIT & SAVE
+        // ============================================
+        function collectData() {
+            var needAction = document.querySelector('input[name="needAction"]:checked');
+            var horizontalDeploy = document.querySelector('input[name="horizontalDeploy"]:checked');
+            var isFullView = document.getElementById('ncrSourceFullView') && document.getElementById('ncrSourceFullView').style.display !== 'none';
+            
+            var problemDesc = isFullView ? document.getElementById('problemDescriptionReadonly').value.trim() : document.getElementById('problemDescription').value.trim();
+            var rootCauseVal = isFullView ? document.getElementById('rootCauseReadonly').value.trim() : document.getElementById('rootCause').value.trim();
+            var standardRefVal = isFullView ? document.getElementById('standardRefReadonly').value.trim() : document.getElementById('standardRef').value.trim();
+            
+            var cftFishboneObj = getCftFishboneData();
+            var docsData = getUpdatedDocumentsWithNumbers();
+            
+            return {
+                actionNumber: document.getElementById('actionNumber').value.trim(),
+                issueDate: document.getElementById('issueDate').value,
+                linkedNCRNumber: document.getElementById('linkedNCRNumber').value.trim(),
+                issuerName: document.getElementById('issuerName').value.trim(),
+                issuerDepartment: document.getElementById('issuerDepartment').value.trim(),
+                issuerPosition: document.getElementById('issuerPosition').value.trim(),
+                customerName: document.getElementById('customerName').value.trim(),
+                sourceRef: document.getElementById('sourceRef').value,
+                actionType: document.getElementById('actionType').value,
+                priority: document.getElementById('priority').value,
+                subject: document.getElementById('subject').value.trim(),
+                problemDescription: problemDesc,
+                rootCause: rootCauseVal,
+                standardRef: standardRefVal,
+                creatorUsername: caData.creatorUsername || currentUser.username,
+
+                effects: getCheckedValues('effect-checkbox'),
+                needAction: needAction ? needAction.value : '',
+                noActionReason: document.getElementById('noActionReason').value.trim(),
+
+                managerApproval: document.getElementById('managerApproval').value,
+                approvalNotes: document.getElementById('approvalNotes').value.trim(),
+
+                teamLeader: document.getElementById('teamLeader').value.trim(),
+                teamMembers: document.getElementById('teamMembers').value.trim(),
+                teamMeetingDate: document.getElementById('teamMeetingDate').value,
+                cftAnalysisMethod: document.getElementById('cftAnalysisMethod').value,
+                cftFishboneChecked: cftFishboneObj.checked,
+                cftFishboneSubItems: cftFishboneObj.subItems,
+                cftWhy1: document.getElementById('cftWhy1').value.trim(),
+                cftWhy2: document.getElementById('cftWhy2').value.trim(),
+                cftWhy3: document.getElementById('cftWhy3').value.trim(),
+                cftWhy4: document.getElementById('cftWhy4').value.trim(),
+                cftWhy5: document.getElementById('cftWhy5').value.trim(),
+                cftAnalysisConclusion: document.getElementById('cftAnalysisConclusion').value.trim(),
+
+                actions: getActionsData(),
+
+                horizontalDeploy: horizontalDeploy ? horizontalDeploy.value : '',
+                horizontalDeployDetails: document.getElementById('horizontalDeployDetails').value.trim(),
+
+                updatedDocuments: docsData.docs,
+                docNumbers: docsData.numbers,
+
+                verificationDate: document.getElementById('verificationDate').value,
+                verifier: document.getElementById('verifier').value.trim(),
+                verificationResult: document.getElementById('verificationResult').value,
+                verificationMethod: document.getElementById('verificationMethod').value,
+                monitoringPeriod: document.getElementById('monitoringPeriod').value || 3,
+                closureDate: document.getElementById('closureDate').value,
+                verificationNotes: document.getElementById('verificationNotes').value.trim()
+            };
+        }
+
+        // ذخیره تغییرات مرحله قبلی بدون تغییر وضعیت گردش کار
+        async function saveStageEditsOnly() {
+            var data = collectData();
+            data.status = currentStatus;
+            data.updatedAt = new Date().toISOString();
+
+            var cas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            var idx = cas.findIndex(function (c) { return c.actionNumber === data.actionNumber; });
+            if (idx !== -1) cas[idx] = data;
+            else cas.push(data);
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cas));
+            caData = data;
+
+            showToast('تغییرات شما در این مرحله ذخیره شد.', 'success');
+            setTimeout(function () { window.location.reload(); }, 1200);
+        }
+
+        async function submitForm() {
+            // اگر کاربر صاحب مرحله جاری نیست ولی مرحله قبلی را در اختیار دارد،
+            // فقط تغییرات مرحله خودش ذخیره می‌شود و گردش کار جلو نمی‌رود.
+            if (!caIsCurrentStageOwner(currentStatus, caData || {}) &&
+                caPreviousEditableSections(currentStatus, caData || {}).length) {
+                await saveStageEditsOnly();
+                return;
+            }
+
+            caData = collectData();
+            let nextStatus = currentStatus;
+
+            // ⭐ تعیین وضعیت بعدی بر اساس مرحله فعلی
+            if (currentStatus === 'draft' || currentStatus === 'rejected') {
+                if (!caData.actionNumber || !caData.subject || !caData.problemDescription || !caData.rootCause) {
+                    showToast('لطفاً فیلدهای الزامی بندهای ۱ تا ۴ را پر کنید.', 'error');
+                    return;
+                }
+                nextStatus = 'pending_manager';
+            } else if (currentStatus === 'pending_manager') {
+                if (caData.managerApproval === 'pending') {
+                    showToast('لطفاً وضعیت تأیید را مشخص کنید.', 'error');
+                    return;
+                }
+                if (caData.managerApproval === 'approved') nextStatus = 'pending_quality';
+                else nextStatus = 'rejected'; // برگشت به مرحله قبل
+            } else if (currentStatus === 'pending_quality') {
+                if (!caData.needAction) {
+                    showToast('لطفاً ارزیابی نیاز به اقدام اصلاحی را مشخص کنید.', 'error');
+                    return;
+                }
+                if (caData.needAction === 'no') nextStatus = 'closed';
+                else if (caData.needAction === 'yes') {
+                    if (!caData.teamLeader) {
+                        showToast('لطفاً سرپرست تیم را مشخص کنید.', 'error');
+                        return;
+                    }
+                    nextStatus = 'pending_implementation';
+                }
+            } else if (currentStatus === 'pending_implementation') {
+                if (!caData.cftAnalysisMethod) {
+                    showToast('لطفاً روش تحلیل ریشه‌ای را در بند ۷ مشخص کنید.', 'error');
+                    return;
+                }
+                if (caData.actions.length === 0) {
+                    showToast('حداقل یک اقدام اصلاحی باید در بند ۸ ثبت شود.', 'error');
+                    return;
+                }
+                nextStatus = 'pending_verification';
+            } else if (currentStatus === 'pending_verification') {
+                if (!caData.verificationResult) {
+                    showToast('لطفاً نتیجه پایش را در بند ۱۱ مشخص کنید.', 'error');
+                    return;
+                }
+                nextStatus = 'closed';
+            }
+
+            caData.status = nextStatus;
+            caData.submittedAt = new Date().toISOString();
+
+            var btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ثبت...';
+
+            try {
+                // ارسال به بک‌اند (در صورت وجود API)
+                var payload = {
+                    action_number: caData.actionNumber,
+                    status: caData.status,
+                    manager_approval: caData.managerApproval,
+                    // ... سایر فیلدها ...
+                };
+                
+                // ⭐ در اینجا می‌توانید منطق ارسال نوتیفیکیشن به نقش بعدی را اضافه کنید
+                console.log('فرم ثبت شد. وضعیت جدید:', nextStatus);
+
+                // ذخیره در لوکال استوریج (برای شبیه‌سازی)
+                var cas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var existingIdx = cas.findIndex(function(c) { return c.actionNumber === caData.actionNumber; });
+                if (existingIdx !== -1) cas[existingIdx] = caData;
+                else cas.push(caData);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cas));
+
+                // ⭐ ارسال اعلان برای مرحله بعدی گردش کار
+                await notifyCAStage(nextStatus, caData);
+
+                // ⭐ تعیین نام شخص یا نقش مرحله بعد برای نمایش در پیام
+                let nextRecipient = 'مرحله بعد';
+                
+                if (nextStatus === 'pending_manager') {
+                    nextRecipient = 'مدیر مستقیم شما';
+                    let managerFound = false;
+
+                    try {
+                        // ۱. بررسی دیتابیس محلی (database.js) - چون در سیستم شما وجود دارد
+                        if (typeof db !== 'undefined' && db.users) {
+                            let manager = db.users.find(u => 
+                                u.department === currentUser.department && 
+                                (u.role === 'supervisor' || u.role === 'manager' || u.role === 'admin')
+                            );
+                            if (manager && manager.full_name) {
+                                nextRecipient = manager.full_name;
+                                managerFound = true;
+                            }
+                        }
+                        
+                        // ۲. بررسی LocalStorage (اگر از دیتابیس محلی پیدا نشد)
+                        if (!managerFound) {
+                            let usersList = JSON.parse(localStorage.getItem('users') || '[]');
+                            if (usersList.length > 0) {
+                                let manager = usersList.find(u => 
+                                    u.department === currentUser.department && 
+                                    (u.role === 'supervisor' || u.role === 'manager' || u.role === 'admin')
+                                );
+                                if (manager && manager.full_name) {
+                                    nextRecipient = manager.full_name;
+                                    managerFound = true;
+                                }
+                            }
+                        }
+
+                        // ۳. اگر هیچکدام پیدا نشد، از API می‌خواهیم
+                        if (!managerFound) {
+                            const managerRes = await fetch(CA_API_BASE + '/get_department_manager.php?department=' + encodeURIComponent(currentUser.department));
+                            const managerData = await managerRes.json();
+                            if (managerData.success && managerData.manager_name) {
+                                nextRecipient = managerData.manager_name; 
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('خطا در دریافت نام مدیر:', e);
+                    }
+
+                    // اگر هیچ روشی جواب نداد، نام دپارتمان را نشان بده
+                    if (nextRecipient === 'مدیر مستقیم شما') {
+                        nextRecipient = 'مدیر واحد ' + (currentUser.department || '');
+                    }
+
+                } else if (nextStatus === 'pending_quality') {
+                    // نام کامل مدیر کنترل کیفیت
+                    nextRecipient = 'فاطمه محمدی (مدیر کیفیت)'; 
+                } else if (nextStatus === 'pending_implementation') {
+                    nextRecipient = caData.teamLeader ? caData.teamLeader : 'سرپرست تیم';
+                } else if (nextStatus === 'pending_verification') {
+                    nextRecipient = 'فاطمه محمدی (مدیر کیفیت - پایش)';
+                } else if (nextStatus === 'closed') {
+                    nextRecipient = 'پایان گردش کار (فرم بسته شد)';
+                } else if (nextStatus === 'rejected') {
+                    nextRecipient = 'صادرکننده فرم (به دلیل رد شدن)';
+                }
+
+                showToast(`✅ فرم با موفقیت ثبت و برای ${nextRecipient} ارسال گردید.`, 'success');
+
+                setTimeout(function() {
+                    window.location.reload(); // رفرش برای اعمال قوانین جدید قفل/باز
+                }, 2500); // زمان را کمی بیشتر کردیم تا کاربر پیام را بخواند
+
+            } catch (error) {
+                console.error('❌ Submit error:', error);
+                showToast('خطا در ثبت فرم!', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> ثبت نهایی';
+            }
+        }
+
+        function saveDraft() {
+            caData = collectData();
+            caData.status = currentStatus;
+            var drafts = JSON.parse(localStorage.getItem(DRAFT_KEY) || '[]');
+            var idx = drafts.findIndex(function(d) { return d.actionNumber === caData.actionNumber; });
+            if (idx !== -1) drafts[idx] = caData;
+            else drafts.push(caData);
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+            showToast('پیش‌نویس ذخیره شد', 'success');
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadOrgSettings();
+            renderDynamicHeader();
+            document.getElementById('issueDate').value = getToday();
+            
+            document.getElementById('issuerName').value = currentUser.full_name || currentUser.username || 'کاربر';
+            document.getElementById('issuerDepartment').value = currentUser.department || 'کنترل کیفیت';
+            document.getElementById('issuerPosition').value = currentUser.position || 'کارشناس';
+            document.getElementById('customerName').value = currentUser.full_name || currentUser.username || 'کاربر';
+            
+            addActionRow();
+            renderDocCheckboxes();
+            toggleManagerNotes();
+
+            var urlParams = new URLSearchParams(window.location.search);
+            var caNumber = urlParams.get('ca');
+            var ncrNumber = urlParams.get('ncr');
+
+            if (caNumber) {
+                await loadCA(caNumber); // تابع populateForm خودش applyWorkflowPermissions را صدا می‌زند
+            } else {
+                // ⭐ فرم جدید: وضعیت پیش‌فرض
+                currentStatus = 'draft';
+                caData.creatorUsername = currentUser.username;
+                
+                var newNum = 'CA-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+                document.getElementById('actionNumber').value = newNum;
+                document.getElementById('hdrCreatedAt').textContent = formatPersianDate(getToday());
+
+                if (ncrNumber) {
+                    document.getElementById('linkedNCRNumber').value = ncrNumber;
+                    document.getElementById('sourceRefLabel').textContent = 'عدم انطباق';
+                    document.getElementById('sourceRef').value = 'ncr';
+                    document.getElementById('sourceRef').disabled = true;
+                    document.getElementById('sourceRef').classList.add('readonly-field');
+                    await loadNCRInfo(ncrNumber);
+                } else {
+                    document.getElementById('manualSourceView').style.display = 'block';
+                    document.getElementById('ncrSourceFullView').style.display = 'none';
+                    document.getElementById('problemDescriptionField').style.display = 'flex';
+                    document.getElementById('rootCauseField').style.display = 'flex';
+                    document.getElementById('standardRefField').style.display = 'flex';
+                    document.getElementById('subject').readOnly = false;
+                }
+                
+                // ⭐ اعمال دسترسی‌ها برای فرم جدید
+                applyWorkflowPermissions();
+            }
+
+            renderCftFishbone();
+
+            // چاپ از لیست: همین تب به پیش‌نمایش چاپی تبدیل می‌شود (با دکمه‌های چاپ/بستن)
+            if (urlParams.get('print') === '1' && caNumber) {
+                setTimeout(function () {
+                    try {
+                        var printHtml = buildCAPrintHtml(caData);
+                        document.open();
+                        document.write(printHtml);
+                        document.close();
+                    } catch (e) {
+                        console.warn('⚠️ Auto print preview failed:', e);
+                    }
+                }, 900);
+            }
+        });
+
+        // ============================================
+        // OTHER FUNCTIONS (NCR, Actions, Docs, Fishbone)
+        // ============================================
+        async function loadNCRInfo(ncrNumber) {
+            try {
+                const res = await fetch(CA_API_BASE + '/get_ncr.php?number=' + encodeURIComponent(ncrNumber));
+                const result = await res.json();
+                if (result.success && result.data) {
+                    linkedNCR = result.data;
+                    displayFullNCRInfo(linkedNCR);
+                }
+            } catch (e) {
+                var ncrs = JSON.parse(localStorage.getItem('ncrs') || '[]');
+                var ncr = ncrs.find(function(n) { return n.ncr_number === ncrNumber; });
+                if (ncr) { linkedNCR = ncr; displayFullNCRInfo(ncr); }
+            }
+        }
+
+        function displayFullNCRInfo(ncr) {
+            document.getElementById('ncrSourceFullView').style.display = 'block';
+            document.getElementById('manualSourceView').style.display = 'none';
+            document.getElementById('problemDescriptionField').style.display = 'none';
+            document.getElementById('rootCauseField').style.display = 'none';
+            document.getElementById('standardRefField').style.display = 'none';
+            document.getElementById('problemDescriptionReadonlyField').style.display = 'flex';
+            document.getElementById('rootCauseReadonlyField').style.display = 'flex';
+            document.getElementById('standardRefReadonlyField').style.display = 'flex';
+            
+            var subjectEl = document.getElementById('subject');
+            if (subjectEl) { subjectEl.readOnly = true; subjectEl.classList.add('readonly-field'); }
+
+            var step1Html = `
+                <div class="summary-item"><span class="label">شماره NCR:</span><span class="value">${ncr.ncr_number || '-'}</span></div>
+                <div class="summary-item"><span class="label">تاریخ گزارش:</span><span class="value">${formatPersianDate(ncr.report_date)}</span></div>
+                <div class="summary-item"><span class="label">گزارش‌دهنده:</span><span class="value">${ncr.reporter_name || '-'}</span></div>
+                <div class="summary-item full-width"><span class="label">شرح عدم انطباق:</span><span class="value">${ncr.description || '-'}</span></div>
+            `;
+            document.getElementById('ncrStep1Summary').innerHTML = step1Html;
+            document.getElementById('problemDescriptionReadonly').value = ncr.description || '';
+            document.getElementById('rootCauseReadonly').value = ncr.analysis_conclusion || '';
+            document.getElementById('standardRefReadonly').value = ncr.standard_ref || '';
+            
+            var subjectEl2 = document.getElementById('subject');
+            if (subjectEl2 && !subjectEl2.value) {
+                subjectEl2.value = 'اقدام اصلاحی برای ' + (ncr.part_name || 'NCR ' + ncr.ncr_number);
+            }
+        }
+
+        function toggleManagerNotes() {
+            var managerApproval = document.getElementById('managerApproval');
+            var notesField = document.getElementById('managerNotesField');
+            if (managerApproval.value === 'rejected') notesField.style.display = 'flex';
+            else notesField.style.display = 'none';
+        }
+
+        function toggleNeedActionSubs() {
+            var el = document.querySelector('input[name="needAction"]:checked');
+            var subNoAction = document.getElementById('subNoAction');
+            var effectsField = document.getElementById('effectsField');
+            if (el && el.value === 'no') {
+                subNoAction.style.display = 'flex';
+            } else {
+                subNoAction.style.display = 'none';
+            }
+            if (el && el.value === 'yes') effectsField.style.display = 'flex';
+            else effectsField.style.display = 'none';
+        }
+
+        // Actions Table
+        function addActionRow(data) {
+            data = data || {};
+            actionRowCounter++;
+            var rowId = 'action-row-' + actionRowCounter;
+            var tbody = document.getElementById('actionsTableBody');
+            var row = document.createElement('tr');
+            row.id = rowId;
+            row.dataset.rowId = actionRowCounter;
+            row.innerHTML = `
+                <td style="text-align:center;"><span class="action-num">${actionRowCounter}</span></td>
+                <td><textarea class="action-desc" rows="2">${escapeHtml(data.description || '')}</textarea></td>
+                <td><input type="text" class="action-responsible" value="${escapeHtml(data.responsible || '')}"></td>
+                <td>
+                    <select class="action-dept">
+                        <option value="تولید" ${data.department === 'تولید' ? 'selected' : ''}>تولید</option>
+                        <option value="کنترل کیفیت" ${data.department === 'کنترل کیفیت' ? 'selected' : ''}>کنترل کیفیت</option>
+                        <option value="مهندسی" ${data.department === 'مهندسی' ? 'selected' : ''}>مهندسی</option>
+                    </select>
+                </td>
+                <td><input type="date" class="action-deadline" value="${data.deadline || ''}"></td>
+                <td>
+                    <select class="action-status">
+                        <option value="pending" ${data.status === 'pending' ? 'selected' : ''}>در انتظار</option>
+                        <option value="in_progress" ${data.status === 'in_progress' ? 'selected' : ''}>در حال اجرا</option>
+                        <option value="done" ${data.status === 'done' ? 'selected' : ''}>تکمیل شده</option>
+                    </select>
+                </td>
+                <td><textarea class="action-notes" rows="2">${escapeHtml(data.notes || '')}</textarea></td>
+                <td>
+                    <div class="row-actions">
+                        <button type="button" class="btn-row btn-duplicate" onclick="duplicateActionRow('${rowId}')"><i class="fas fa-copy"></i></button>
+                        <button type="button" class="btn-row btn-remove" onclick="removeActionRow('${rowId}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+            updateActionsCount();
+            updateActionRowNumbers();
+        }
+
+        function removeActionRow(rowId) {
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            if (document.querySelectorAll('#actionsTableBody tr').length <= 1) {
+                showToast('حداقل یک اقدام باید وجود داشته باشد.', 'error'); return;
+            }
+            row.remove(); updateActionsCount(); updateActionRowNumbers();
+        }
+
+        function duplicateActionRow(rowId) {
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            var data = {
+                description: row.querySelector('.action-desc').value,
+                responsible: row.querySelector('.action-responsible').value,
+                department: row.querySelector('.action-dept').value,
+                deadline: row.querySelector('.action-deadline').value,
+                status: row.querySelector('.action-status').value,
+                notes: row.querySelector('.action-notes').value
+            };
+            addActionRow(data);
+        }
+
+        function updateActionRowNumbers() {
+            document.querySelectorAll('#actionsTableBody tr').forEach(function(row, idx) {
+                row.querySelector('.action-num').textContent = idx + 1;
+            });
+        }
+
+        function updateActionsCount() {
+            document.getElementById('actionsCount').textContent = document.querySelectorAll('#actionsTableBody tr').length;
+        }
+
+        function getActionsData() {
+            var actions = [];
+            document.querySelectorAll('#actionsTableBody tr').forEach(function(row) {
+                var desc = row.querySelector('.action-desc').value.trim();
+                var responsible = row.querySelector('.action-responsible').value.trim();
+                var dept = row.querySelector('.action-dept').value;
+                var deadline = row.querySelector('.action-deadline').value;
+                var status = row.querySelector('.action-status').value;
+                var notes = row.querySelector('.action-notes').value.trim();
+                if (desc || responsible || dept || deadline || notes) {
+                    actions.push({ description: desc, responsible: responsible, department: dept, deadline: deadline, status: status, notes: notes });
+                }
+            });
+            return actions;
+        }
+
+        // Docs
+        function renderDocCheckboxes() {
+            var container = document.getElementById('docCheckboxList');
+            var initialDocs = (caData && caData.updatedDocuments) ? caData.updatedDocuments : [];
+            var initialNumbers = (caData && caData.docNumbers) ? caData.docNumbers : {};
+            var html = '';
+            DOC_ITEMS.forEach(function(item) {
+                var isChecked = initialDocs.indexOf(item.id) !== -1;
+                var docNum = initialNumbers[item.id] || '';
+                html += `<div class="doc-checkbox-item ${isChecked ? 'checked' : ''}" data-doc-id="${item.id}">
+                    <label class="doc-check-label">
+                        <input type="checkbox" class="doc-checkbox" value="${item.id}" ${isChecked ? 'checked' : ''} onchange="onDocCheckboxChange('${item.id}')">
+                        ${item.label}
+                    </label>
+                    <div class="doc-number-field ${isChecked ? 'visible' : ''}" id="docNumberField_${item.id}">
+                        <span class="doc-num-label">شماره:</span>
+                        <input type="text" id="docNumber_${item.id}" oninput="onDocNumberInput('${item.id}', this.value)" value="${escapeHtml(docNum)}">
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            docNumbersData = { ...initialNumbers };
+        }
+
+        function onDocCheckboxChange(docId) {
+            var checkbox = document.querySelector(`.doc-checkbox[value="${docId}"]`);
+            var field = document.getElementById('docNumberField_' + docId);
+            var wrapper = checkbox.closest('.doc-checkbox-item');
+            if (checkbox.checked) { field.classList.add('visible'); wrapper.classList.add('checked'); }
+            else { field.classList.remove('visible'); wrapper.classList.remove('checked'); document.getElementById('docNumber_' + docId).value = ''; delete docNumbersData[docId]; }
+        }
+
+        function onDocNumberInput(docId, value) {
+            if (value.trim()) docNumbersData[docId] = value.trim();
+            else delete docNumbersData[docId];
+        }
+
+        function getUpdatedDocumentsWithNumbers() {
+            var result = { docs: [], numbers: {} };
+            DOC_ITEMS.forEach(function(item) {
+                var checkbox = document.querySelector(`.doc-checkbox[value="${item.id}"]`);
+                if (checkbox && checkbox.checked) {
+                    result.docs.push(item.id);
+                    if (docNumbersData[item.id]) result.numbers[item.id] = docNumbersData[item.id];
+                }
+            });
+            return result;
+        }
+
+        // Fishbone
+        function renderCftFishbone() {
+            var container = document.getElementById('cftFishboneContainer');
+            if (!container) return;
+            var html = '';
+            cftFishboneData.categories.forEach(function(cat) {
+                var subItemsHtml = '';
+                cat.subItems.forEach(function(item, index) {
+                    subItemsHtml += `<div class="sub-item"><span class="sub-item-text">${item}</span><span class="remove-sub" onclick="removeCftSubItem('${cat.id}', ${index})"><i class="fas fa-times-circle"></i></span></div>`;
+                });
+                var subItemsClass = cat.subItems.length > 0 ? 'expanded' : '';
+                html += `<div class="fishbone-category" data-category="${cat.id}">
+                    <div class="category-header" onclick="toggleCftCategoryExpand('${cat.id}')">
+                        <input type="checkbox" ${cat.checked ? 'checked' : ''} onchange="toggleCftFishboneCheck('${cat.id}')" onclick="event.stopPropagation();">
+                        <span class="category-label">${cat.label}</span>
+                    </div>
+                    <div class="sub-items ${subItemsClass}" id="cftSubItems_${cat.id}">
+                        ${subItemsHtml}
+                        <div class="add-sub">
+                            <input type="text" id="cftSubInput_${cat.id}" placeholder="زیرشاخه..." onkeydown="if(event.key==='Enter'){event.preventDefault();addCftSubItem('${cat.id}');}">
+                            <button type="button" class="btn btn-sm btn-success" onclick="addCftSubItem('${cat.id}')"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleCftFishboneCheck(categoryId) {
+            var cat = cftFishboneData.categories.find(function(c) { return c.id === categoryId; });
+            if (cat) { cat.checked = !cat.checked; renderCftFishboneDiagram(); }
+        }
+
+        function toggleCftCategoryExpand(categoryId) {
+            var subItems = document.getElementById('cftSubItems_' + categoryId);
+            if (subItems) subItems.classList.toggle('expanded');
+        }
+
+        function addCftSubItem(categoryId) {
+            var input = document.getElementById('cftSubInput_' + categoryId);
+            var value = input.value.trim();
+            if (!value) return;
+            var cat = cftFishboneData.categories.find(function(c) { return c.id === categoryId; });
+            if (cat && cat.subItems.indexOf(value) === -1) {
+                cat.subItems.push(value);
+                cat.checked = true;
+                input.value = '';
+                renderCftFishbone();
+                renderCftFishboneDiagram();
+            }
+        }
+
+        function removeCftSubItem(categoryId, index) {
+            var cat = cftFishboneData.categories.find(function(c) { return c.id === categoryId; });
+            if (cat) {
+                cat.subItems.splice(index, 1);
+                renderCftFishbone();
+                renderCftFishboneDiagram();
+            }
+        }
+
+        function getCftFishboneData() {
+            var result = { checked: [], subItems: {} };
+            cftFishboneData.categories.forEach(function(cat) {
+                if (cat.checked) result.checked.push(cat.id);
+                if (cat.subItems.length > 0) result.subItems[cat.id] = cat.subItems;
+            });
+            return result;
+        }
+
+        function loadCftFishboneData(data) {
+            if (!data) return;
+            if (data.checked) cftFishboneData.categories.forEach(c => { if(data.checked.includes(c.id)) c.checked = true; });
+            if (data.subItems) cftFishboneData.categories.forEach(c => { if(data.subItems[c.id]) c.subItems = data.subItems[c.id]; });
+            renderCftFishbone();
+            renderCftFishboneDiagram();
+        }
+
+        function toggleCftAnalysisSubs() {
+            var val = document.getElementById('cftAnalysisMethod').value;
+            document.getElementById('cftSubFishbone').style.display = val === 'fishbone' ? 'flex' : 'none';
+            document.getElementById('cftSub5Why').style.display = val === '5why' ? 'flex' : 'none';
+
+            var diagram = document.getElementById('cftFishboneDiagramContainer');
+            if (diagram) {
+                diagram.style.display = val === 'fishbone' ? 'block' : 'none';
+            }
+
+            if (val === 'fishbone') renderCftFishboneDiagram();
+        }
+
+        // ============================================
+        // نمودار استخوان ماهی (Fishbone / Ishikawa)
+        // ============================================
+        var CA_EFFECT_LABELS = {
+            quality: 'اثر بر کیفیت محصول', safety: 'اثر بر ایمنی', customer: 'اثر بر مشتری',
+            cost: 'اثر مالی / هزینه', delivery: 'تأخیر در تحویل', environment: 'اثر زیست‌محیطی'
+        };
+        var CA_PRIORITY_LABELS = { low: 'کم', medium: 'متوسط', high: 'بالا', critical: 'بحرانی' };
+        var CA_METHOD_LABELS = {
+            fishbone: 'Fishbone (Ishikawa)', '5why': '5 Why', '8d': '8D',
+            FMEA: 'FMEA', pareto: 'Pareto', 'سایر': 'سایر'
+        };
+        var CA_DOC_LABELS = {
+            pfmea: 'PFMEA', dfmea: 'DFMEA', control_plan: 'Control Plan',
+            work_instruction: 'دستورالعمل کاری', procedure: 'رویه‌ها', training: 'آموزش',
+            lessons_learned: 'Lessons Learned', standards: 'استانداردها'
+        };
+        var CA_FISHBONE_CATS = {
+            man: { en: 'MAN', fa: 'نیروی انسانی' },
+            machine: { en: 'MACHINE', fa: 'ماشین' },
+            method: { en: 'METHOD', fa: 'روش' },
+            material: { en: 'MATERIAL', fa: 'مواد' },
+            environment: { en: 'ENVIRONMENT', fa: 'محیط' },
+            measurement: { en: 'MEASUREMENT', fa: 'اندازه‌گیری' }
+        };
+
+        function buildCftFishboneSvg(problemText, checkedCategories, subItems) {
+            checkedCategories = checkedCategories || [];
+            subItems = subItems || {};
+
+            var svgWidth = 900;
+            var svgHeight = 420;
+            var spineY = 210;
+            var spineStartX = 60;
+            var spineEndX = 680;
+
+            var branchConfigs = [
+                { id: 'material', isTop: true, startX: 160, startY: 60, spineX: 260 },
+                { id: 'method', isTop: true, startX: 360, startY: 60, spineX: 460 },
+                { id: 'measurement', isTop: true, startX: 560, startY: 60, spineX: 660 },
+                { id: 'environment', isTop: false, startX: 160, startY: 360, spineX: 260 },
+                { id: 'machine', isTop: false, startX: 360, startY: 360, spineX: 460 },
+                { id: 'man', isTop: false, startX: 560, startY: 360, spineX: 660 }
+            ];
+
+            var svg = '<defs><filter id="fbShadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.1" /></filter></defs>';
+
+            svg += '<line x1="' + spineStartX + '" y1="' + spineY + '" x2="' + spineEndX + '" y2="' + spineY + '" stroke="#1e293b" stroke-width="3" stroke-linecap="round" />';
+            svg += '<circle cx="' + spineStartX + '" cy="' + spineY + '" r="4" fill="#1e293b" />';
+
+            branchConfigs.forEach(function (cfg) {
+                var isChecked = checkedCategories.indexOf(cfg.id) !== -1;
+                var subs = subItems[cfg.id] || [];
+                var isActive = isChecked || subs.length > 0;
+
+                var boneColor = isActive ? '#dc2626' : '#94a3b8';
+                var textColor = isActive ? '#b91c1c' : '#475569';
+                var strokeWidth = isActive ? '2.5' : '1.5';
+
+                svg += '<line x1="' + cfg.startX + '" y1="' + cfg.startY + '" x2="' + cfg.spineX + '" y2="' + spineY + '" stroke="' + boneColor + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" />';
+                svg += '<circle cx="' + cfg.spineX + '" cy="' + spineY + '" r="' + (isActive ? '4.5' : '3') + '" fill="' + boneColor + '" stroke="#fff" stroke-width="1" />';
+
+                var badgeWidth = 90;
+                var badgeHeight = 22;
+                var badgeX = cfg.startX - (badgeWidth / 2);
+                var badgeY = cfg.isTop ? cfg.startY - badgeHeight - 4 : cfg.startY + 4;
+                var badgeBg = isActive ? '#ef4444' : '#f1f5f9';
+                var badgeTextFill = isActive ? '#ffffff' : '#334155';
+                var badgeBorder = isActive ? '#dc2626' : '#cbd5e1';
+                var catLabel = CA_FISHBONE_CATS[cfg.id] ? CA_FISHBONE_CATS[cfg.id].en : cfg.id;
+
+                svg += '<g filter="' + (isActive ? 'url(#fbShadow)' : 'none') + '">';
+                svg += '<rect x="' + badgeX + '" y="' + badgeY + '" width="' + badgeWidth + '" height="' + badgeHeight + '" rx="4" fill="' + badgeBg + '" stroke="' + badgeBorder + '" stroke-width="1" />';
+                svg += '<text x="' + (badgeX + badgeWidth / 2) + '" y="' + (badgeY + 15) + '" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="9" fill="' + badgeTextFill + '">' + catLabel + '</text>';
+                svg += '</g>';
+
+                if (subs.length > 0) {
+                    var totalSubs = subs.length;
+                    subs.forEach(function (subText, idx) {
+                        var t = 0.25 + (idx + 1) * (0.55 / (totalSubs + 1));
+                        var jointX = cfg.startX + t * (cfg.spineX - cfg.startX);
+                        var jointY = cfg.startY + t * (spineY - cfg.startY);
+                        var ribLength = 35;
+                        var ribEndX = jointX - ribLength;
+                        var ribEndY = jointY;
+
+                        svg += '<line x1="' + jointX + '" y1="' + jointY + '" x2="' + ribEndX + '" y2="' + ribEndY + '" stroke="' + boneColor + '" stroke-width="1.5" stroke-linecap="round" />';
+                        svg += '<circle cx="' + jointX + '" cy="' + jointY + '" r="2.5" fill="' + boneColor + '" />';
+
+                        var circleX = ribEndX - 10;
+                        var textX = circleX - 125;
+
+                        svg += '<circle cx="' + circleX + '" cy="' + ribEndY + '" r="7" fill="#fee2e2" stroke="' + boneColor + '" stroke-width="1" />';
+                        svg += '<text x="' + circleX + '" y="' + (ribEndY + 2.5) + '" text-anchor="middle" font-size="8" font-weight="700" fill="' + textColor + '" font-family="Arial, sans-serif">' + (idx + 1) + '</text>';
+
+                        var maxChars = 25;
+                        var line1 = String(subText || '');
+                        var line2 = '';
+                        if (line1.length > maxChars) {
+                            var splitIdx = line1.lastIndexOf(' ', maxChars);
+                            if (splitIdx === -1 || splitIdx < maxChars * 0.5) splitIdx = maxChars;
+                            line2 = line1.substring(splitIdx).trim();
+                            line1 = line1.substring(0, splitIdx).trim();
+                            if (line2.length > maxChars) line2 = line2.substring(0, maxChars - 3) + '...';
+                        }
+
+                        var line1Y = ribEndY + (line2 ? -2 : 3);
+                        var line2Y = ribEndY + 10;
+                        svg += '<text x="' + textX + '" y="' + line1Y + '" text-anchor="end" font-size="9" font-weight="600" fill="#1e293b" font-family="Vazirmatn, Tahoma, sans-serif">' + escapeHtml(line1) + '</text>';
+                        if (line2) {
+                            svg += '<text x="' + textX + '" y="' + line2Y + '" text-anchor="end" font-size="9" font-weight="600" fill="#1e293b" font-family="Vazirmatn, Tahoma, sans-serif">' + escapeHtml(line2) + '</text>';
+                        }
+                    });
+                }
+            });
+
+            var headLength = 60;
+            var headHeight = 45;
+            var headTipX = spineEndX + headLength;
+            var headBaseX = spineEndX;
+
+            svg += '<polygon points="' + headBaseX + ',' + (spineY - headHeight) + ' ' + headTipX + ',' + spineY + ' ' + headBaseX + ',' + (spineY + headHeight) + '" fill="#1e293b" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round" />';
+            svg += '<circle cx="' + (headBaseX + 15) + '" cy="' + (spineY - 10) + '" r="3.5" fill="#ffffff" opacity="0.9" />';
+            svg += '<circle cx="' + (headBaseX + 15) + '" cy="' + (spineY - 10) + '" r="1.8" fill="#0f172a" />';
+
+            var boxX = headTipX + 15;
+            var boxY = spineY - 45;
+            var boxW = 200;
+            var boxH = 90;
+
+            var displayProblem = String(problemText || 'شرح مشکل');
+            var problemLine1 = displayProblem;
+            var problemLine2 = '';
+            if (displayProblem.length > 25) {
+                var pSplit = displayProblem.lastIndexOf(' ', 25);
+                if (pSplit === -1) pSplit = 25;
+                problemLine2 = displayProblem.substring(pSplit).trim();
+                problemLine1 = displayProblem.substring(0, pSplit).trim();
+                if (problemLine2.length > 28) problemLine2 = problemLine2.substring(0, 25) + '...';
+            }
+
+            svg += '<rect x="' + boxX + '" y="' + boxY + '" width="' + boxW + '" height="' + boxH + '" rx="8" fill="#ef4444" stroke="#dc2626" stroke-width="1.5" />';
+            svg += '<text x="' + (boxX + boxW / 2) + '" y="' + (boxY + 22) + '" text-anchor="middle" font-family="Vazirmatn, Tahoma, sans-serif" font-weight="800" font-size="10" fill="#ffffff">معلول / شرح مشکل</text>';
+            svg += '<line x1="' + (boxX + 12) + '" y1="' + (boxY + 30) + '" x2="' + (boxX + boxW - 12) + '" y2="' + (boxY + 30) + '" stroke="#fca5a5" stroke-width="1" />';
+            svg += '<text x="' + (boxX + boxW / 2) + '" y="' + (boxY + 50) + '" text-anchor="middle" font-family="Vazirmatn, Tahoma, sans-serif" font-weight="700" font-size="9.5" fill="#ffffff">' + escapeHtml(problemLine1) + '</text>';
+            if (problemLine2) {
+                svg += '<text x="' + (boxX + boxW / 2) + '" y="' + (boxY + 68) + '" text-anchor="middle" font-family="Vazirmatn, Tahoma, sans-serif" font-weight="700" font-size="9.5" fill="#ffffff">' + escapeHtml(problemLine2) + '</text>';
+            }
+
+            return '<svg viewBox="0 0 ' + svgWidth + ' ' + svgHeight + '" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;max-height:320px;">' + svg + '</svg>';
+        }
+
+        function buildCftFishboneListHtml(checkedCategories, subItems) {
+            checkedCategories = checkedCategories || [];
+            subItems = subItems || {};
+
+            var html = '<div class="fishbone-list-print"><div class="fishbone-list-print-title">دسته‌بندی‌های Fishbone:</div><div class="fishbone-cat-print">';
+            var hasAny = false;
+
+            ['man', 'machine', 'method', 'material', 'environment', 'measurement'].forEach(function (catId) {
+                var isChecked = checkedCategories.indexOf(catId) !== -1;
+                var subs = subItems[catId] || [];
+                if (isChecked || subs.length > 0) {
+                    hasAny = true;
+                    html += '<div class="fishbone-cat-item-print">';
+                    html += '<div class="cat-name">✓ ' + (CA_FISHBONE_CATS[catId].fa) + ' (' + CA_FISHBONE_CATS[catId].en + ')</div>';
+                    if (subs.length > 0) {
+                        html += '<ul>';
+                        subs.forEach(function (s) { html += '<li>' + escapeHtml(s) + '</li>'; });
+                        html += '</ul>';
+                    }
+                    html += '</div>';
+                }
+            });
+
+            html += '</div></div>';
+            return hasAny ? html : '';
+        }
+
+        function buildCftAnalysisPrintHtml(ca) {
+            if (!ca.cftAnalysisMethod) {
+                return '<div class="print-field print-full" style="color:#999;">روش تحلیلی انتخاب نشده است.</div>';
+            }
+
+            var html = '';
+
+            if (ca.cftAnalysisMethod === 'fishbone') {
+                var checked = ca.cftFishboneChecked || [];
+                var subs = ca.cftFishboneSubItems || {};
+
+                if (checked.length > 0 || Object.keys(subs).length > 0) {
+                    html += '<div class="fishbone-print-section">';
+                    html += '<div class="fishbone-print-title">نمودار علت و معلول (Ishikawa Fishbone Diagram)</div>';
+                    html += '<div class="fishbone-print-svg-wrapper">' + buildCftFishboneSvg(ca.subject, checked, subs) + '</div>';
+                    html += '</div>';
+                    html += buildCftFishboneListHtml(checked, subs);
+                } else {
+                    html += '<div class="print-field print-full" style="color:#999;">داده‌ای برای نمودار Fishbone ثبت نشده است.</div>';
+                }
+            } else if (ca.cftAnalysisMethod === '5why') {
+                var whys = [ca.cftWhy1, ca.cftWhy2, ca.cftWhy3, ca.cftWhy4, ca.cftWhy5];
+                var hasAny = whys.some(function (w) { return w && String(w).trim(); });
+
+                if (hasAny) {
+                    html += '<div class="why-print-section">';
+                    html += '<div class="why-print-title">تحلیل 5 چرا (5 Why)</div>';
+                    html += '<ol class="why-print-list">';
+                    whys.forEach(function (value, idx) {
+                        var text = (value && String(value).trim()) ? value : '-';
+                        var isRoot = idx === 4 && text !== '-';
+                        html += '<li' + (isRoot ? ' class="root-cause"' : '') + '><strong>چرا ' + (idx + 1) + (idx === 4 ? ' (ریشه‌ای)' : '') + ':</strong> ' + escapeHtml(text) + '</li>';
+                    });
+                    html += '</ol></div>';
+                } else {
+                    html += '<div class="print-field print-full" style="color:#999;">پاسخی برای 5 چرا ثبت نشده است.</div>';
+                }
+            } else {
+                html += '<div class="print-field print-full" style="color:#999;">برای این روش تحلیلی، نمایش گرافیکی در دسترس نیست.</div>';
+            }
+
+            return html;
+        }
+
+        function renderCftFishboneDiagram() {
+            var container = document.getElementById('cftFishboneDiagramContainer');
+            var method = document.getElementById('cftAnalysisMethod');
+            if (!container) return;
+
+            var isFishbone = method && method.value === 'fishbone';
+            container.style.display = isFishbone ? 'block' : 'none';
+            if (!isFishbone) return;
+
+            var data = getCftFishboneData();
+            var subjectEl = document.getElementById('subject');
+            var problem = subjectEl ? subjectEl.value.trim() : '';
+
+            container.innerHTML = '<div class="fishbone-svg-wrapper">' +
+                buildCftFishboneSvg(problem, data.checked, data.subItems) +
+                '</div>';
+        }
+
+        function printCftFishboneDiagram() {
+            var data = getCftFishboneData();
+            var subjectEl = document.getElementById('subject');
+            var svg = buildCftFishboneSvg(subjectEl ? subjectEl.value : '', data.checked, data.subItems);
+
+            var win = window.open('', '_blank');
+            if (!win) { showToast('امکان باز کردن پنجره چاپ وجود ندارد.', 'error'); return; }
+
+            win.document.write('<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>نمودار استخوان ماهی</title>' +
+                '<style>@page{size:A4 landscape;margin:8mm}body{font-family:Vazirmatn,Tahoma,sans-serif;margin:0}.fishbone-print-title{font-weight:700;font-size:14px;text-align:center;margin:10px}</style>' +
+                '</head><body><div class="fishbone-print-title">نمودار علت و معلول (Ishikawa)</div>' + svg + '</body></html>');
+            win.document.close();
+            win.focus();
+            setTimeout(function () { win.print(); }, 500);
+        }
+
+        // File Handlers
+        function handleBeforeFileSelection(input) {
+            if(input.files) {
+                for (let i=0; i<input.files.length; i++) beforeSelectedFiles.push(input.files[i]);
+                document.getElementById('beforeFilesPreview').style.display = 'block';
+                document.getElementById('beforeFilesCount').textContent = beforeSelectedFiles.length;
+            }
+        }
+        function handleAfterFileSelection(input) {
+            if(input.files) {
+                for (let i=0; i<input.files.length; i++) afterSelectedFiles.push(input.files[i]);
+                document.getElementById('afterFilesPreview').style.display = 'block';
+                document.getElementById('afterFilesCount').textContent = afterSelectedFiles.length;
+            }
+        }
+
+        // ============================================
+        // اعلان مرحله بعدی گردش کار
+        // ============================================
+        async function notifyCAStage(status, ca) {
+            try {
+                var stageLabels = {
+                    pending_manager: 'تأیید مدیر مستقیم',
+                    pending_quality: 'تأیید مدیر کنترل کیفیت',
+                    pending_implementation: 'اجرای اقدامات اصلاحی',
+                    pending_verification: 'پایش اثربخشی',
+                    closed: 'بسته شدن فرم',
+                    rejected: 'رد شدن فرم'
+                };
+
+                var usersRes = await fetch(window.NCR_API + '/get_users.php', { cache: 'no-store' });
+                var usersJson = await usersRes.json();
+                var users = (usersJson && usersJson.data) || [];
+
+                var myId = (currentUser && currentUser.id) ? String(currentUser.id) : '';
+                var targets = [];
+
+                function pickByRole(roles, department) {
+                    return users.filter(function (u) {
+                        if (String(u.id) === myId) return false;
+                        if (roles.indexOf(u.role) === -1) return false;
+                        if (department && u.department && u.department !== department) return false;
+                        return true;
+                    });
+                }
+
+                if (status === 'pending_manager') {
+                    targets = pickByRole(['supervisor', 'manager'], ca.issuerDepartment);
+                    if (!targets.length) targets = pickByRole(['admin']);
+                } else if (status === 'pending_quality') {
+                    targets = pickByRole(['quality']);
+                    if (!targets.length) targets = pickByRole(['admin']);
+                } else if (status === 'pending_implementation') {
+                    var leader = (ca.teamLeader || '').trim();
+                    if (leader) {
+                        targets = users.filter(function (u) {
+                            return String(u.id) !== myId && (u.full_name || '').trim() === leader;
+                        });
+                    }
+                    if (!targets.length) targets = pickByRole(['production', 'quality']);
+                } else if (status === 'pending_verification') {
+                    targets = pickByRole(['quality']);
+                    if (!targets.length) targets = pickByRole(['admin']);
+                } else if (status === 'rejected' || status === 'closed') {
+                    var creator = (ca.creatorUsername || '').trim();
+                    if (creator) {
+                        targets = users.filter(function (u) {
+                            return String(u.id) !== myId && u.username === creator;
+                        });
+                    }
+                    if (!targets.length && ca.issuerName) {
+                        targets = users.filter(function (u) {
+                            return String(u.id) !== myId && (u.full_name || '').trim() === ca.issuerName.trim();
+                        });
+                    }
+                }
+
+                // حذف تکراری‌ها
+                var seen = {};
+                targets = targets.filter(function (u) {
+                    var key = String(u.id);
+                    if (seen[key]) return false;
+                    seen[key] = true;
+                    return true;
+                });
+
+                var stageLabel = stageLabels[status] || status;
+                var sender = (currentUser && (currentUser.full_name || currentUser.username)) || 'کاربر';
+                var title;
+                var message;
+
+                if (status === 'rejected') {
+                    title = '⚠️ اقدام اصلاحی ' + (ca.actionNumber || '') + ' رد شد';
+                    message = 'فرم اقدام اصلاحی ' + (ca.actionNumber || '') +
+                        (ca.subject ? ' («' + ca.subject + '»)' : '') +
+                        ' توسط ' + sender + ' رد و به صادرکننده بازگردانده شد.';
+                } else if (status === 'closed') {
+                    title = '✅ اقدام اصلاحی ' + (ca.actionNumber || '') + ' بسته شد';
+                    message = 'فرم اقدام اصلاحی ' + (ca.actionNumber || '') +
+                        (ca.subject ? ' («' + ca.subject + '»)' : '') +
+                        ' پس از پایش اثربخشی توسط ' + sender + ' بسته شد.';
+                } else {
+                    title = '📋 اقدام اصلاحی ' + (ca.actionNumber || '') + ' در انتظار ' + stageLabel;
+                    message = 'فرم اقدام اصلاحی ' + (ca.actionNumber || '') +
+                        (ca.subject ? ' («' + ca.subject + '»)' : '') +
+                        ' توسط ' + sender + ' به مرحله «' + stageLabel + '» ارسال شد.';
+                }
+                var type = (status === 'rejected' || status === 'closed') ? 'info' : 'warning';
+                var link = 'corrective-action.html?ca=' + encodeURIComponent(ca.actionNumber || '');
+
+                var recipients = targets.length ? targets.map(function (u) { return u.id; }) : [null];
+
+                for (var i = 0; i < recipients.length; i++) {
+                    try {
+                        await fetch(window.NCR_API + '/save_notification.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                user_id: recipients[i],
+                                title: title,
+                                message: message,
+                                type: type,
+                                link: link
+                            })
+                        });
+                    } catch (err) {
+                        console.warn('⚠️ Notification send failed:', err);
+                    }
+                }
+
+                console.log('🔔 CA notifications sent:', recipients.length, '| status:', status);
+            } catch (e) {
+                console.warn('⚠️ notifyCAStage failed:', e);
+            }
+        }
+
+        // ============================================
+        // چاپ فرم اقدام اصلاحی (A4 حرفه‌ای)
+        // ============================================
+        function prField(label, value) {
+            return '<div class="field"><span class="label">' + label + ':</span><span class="value">' + escapeHtml(value || '-') + '</span></div>';
+        }
+
+        function prFull(label, value) {
+            return '<div class="print-field print-full"><span class="print-label">' + label + ':</span><span class="print-value">' + escapeHtml(value || '-') + '</span></div>';
+        }
+
+        function buildCAPrintHeader(ca) {
+            var logoSrc = (orgSettings.company_logo || '').trim();
+            if (logoSrc && !/^(https?:|data:|\/)/.test(logoSrc)) {
+                logoSrc = (window.NCR_ROOT || '') + logoSrc;
+            }
+
+            var logoHtml = logoSrc
+                ? '<img class="p-logo" src="' + escapeHtml(logoSrc) + '" alt="لوگو" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="p-logo-ph" style="display:none;">لوگو</div>'
+                : '<div class="p-logo-ph">لوگو</div>';
+
+            return '<div class="print-dynamic-header">' +
+                '<div class="p-right">' + logoHtml +
+                '<div class="p-name">' + escapeHtml(orgSettings.company_name || '') + '</div>' +
+                '<div class="p-sub">' + escapeHtml(orgSettings.company_subtitle || '') + '</div>' +
+                '<div class="p-sub">' + escapeHtml(orgSettings.company_subtitle2 || '') + '</div>' +
+                '</div>' +
+                '<div class="p-center">' +
+                '<h1 class="p-title">' + escapeHtml(orgSettings.form_title || 'فرم اقدام اصلاحی و بهبود (CA / CAR)') + '</h1>' +
+                '<div class="p-std">' + escapeHtml(orgSettings.form_standard || '') + '</div>' +
+                '</div>' +
+                '<div class="p-left">' +
+                '<div>کد فرم: <strong>' + escapeHtml(orgSettings.form_code || 'FM-CA01/00') + '</strong></div>' +
+                '<div>تاریخ ایجاد: <strong>' + formatPersianDate(ca.issueDate || getToday()) + '</strong></div>' +
+                '</div>' +
+                '</div>';
+        }
+
+        function buildCAPrintActions(ca) {
+            var actions = (ca.actions || []).filter(function (a) {
+                return a && (a.description || a.responsible || a.department || a.deadline);
+            });
+
+            if (!actions.length) {
+                return '<div style="padding:8px;color:#999;">اقدامی ثبت نشده است</div>';
+            }
+
+            var statusMap = { pending: 'در انتظار', in_progress: 'در حال اجرا', done: 'تکمیل شده', cancelled: 'لغو شده' };
+            var html = '<table style="width:100%;border-collapse:collapse;font-size:9.5px;">' +
+                '<thead><tr style="background:#e0e0e0;">' +
+                '<th style="border:1px solid #000;padding:3px;">#</th>' +
+                '<th style="border:1px solid #000;padding:3px;">شرح اقدام</th>' +
+                '<th style="border:1px solid #000;padding:3px;">مسئول</th>' +
+                '<th style="border:1px solid #000;padding:3px;">دپارتمان</th>' +
+                '<th style="border:1px solid #000;padding:3px;">مهلت</th>' +
+                '<th style="border:1px solid #000;padding:3px;">وضعیت</th>' +
+                '<th style="border:1px solid #000;padding:3px;">توضیحات</th>' +
+                '</tr></thead><tbody>';
+
+            actions.forEach(function (a, i) {
+                html += '<tr>' +
+                    '<td style="border:1px solid #000;padding:3px;text-align:center;">' + (i + 1) + '</td>' +
+                    '<td style="border:1px solid #000;padding:3px;">' + escapeHtml(a.description || '-') + '</td>' +
+                    '<td style="border:1px solid #000;padding:3px;">' + escapeHtml(a.responsible || '-') + '</td>' +
+                    '<td style="border:1px solid #000;padding:3px;">' + escapeHtml(a.department || '-') + '</td>' +
+                    '<td style="border:1px solid #000;padding:3px;">' + escapeHtml(a.deadline ? formatPersianDate(a.deadline) : '-') + '</td>' +
+                    '<td style="border:1px solid #000;padding:3px;">' + escapeHtml(statusMap[a.status] || '-') + '</td>' +
+                    '<td style="border:1px solid #000;padding:3px;">' + escapeHtml(a.notes || '-') + '</td>' +
+                    '</tr>';
+            });
+
+            return html + '</tbody></table>';
+        }
+
+        // محاسبه تراکم چاپ بر اساس حجم اطلاعات (برای جا شدن در یک صفحه A4)
+        function getCAPrintDensity(ca, docsText) {
+            var volume = 0;
+
+            ['subject', 'problemDescription', 'rootCause', 'standardRef', 'noActionReason',
+                'approvalNotes', 'teamMembers', 'cftAnalysisConclusion', 'verificationNotes',
+                'horizontalDeployDetails', 'teamLeader', 'issuerName'].forEach(function (key) {
+                volume += String(ca[key] || '').length;
+            });
+
+            volume += String(docsText || '').length;
+
+            var actions = ca.actions || [];
+            actions.forEach(function (a) {
+                volume += String(a.description || '').length + String(a.notes || '').length +
+                    String(a.responsible || '').length + String(a.department || '').length;
+            });
+            volume += actions.length * 110;
+
+            var subs = ca.cftFishboneSubItems || {};
+            Object.keys(subs).forEach(function (cat) {
+                (subs[cat] || []).forEach(function (s) {
+                    volume += String(s || '').length + 30;
+                });
+            });
+
+            ['cftWhy1', 'cftWhy2', 'cftWhy3', 'cftWhy4', 'cftWhy5'].forEach(function (key) {
+                if (ca[key]) volume += String(ca[key]).length + 40;
+            });
+
+            if (ca.cftAnalysisMethod === 'fishbone') volume += 550;
+            if (ca.cftAnalysisMethod === '5why') volume += 260;
+
+            var levels = [
+                { margin: 8, fs: 9.5, headerPad: 6, secMb: 6, titleFs: 10, titlePad: '3px 8px', bodyPad: '5px 8px', fieldFs: 9, fieldPad: '2px 0', labelWidth: 95, sigMt: 12, sigPt: 8, sigGap: 8, sigH: 55, sigPad: '6px', sigTitleMb: 20, sigTitleFs: 9, svgMax: 300, tableFs: 9.5 },
+                { margin: 7, fs: 9, headerPad: 5, secMb: 5, titleFs: 9.5, titlePad: '2px 7px', bodyPad: '4px 7px', fieldFs: 8.6, fieldPad: '1.5px 0', labelWidth: 88, sigMt: 9, sigPt: 6, sigGap: 6, sigH: 46, sigPad: '4px', sigTitleMb: 14, sigTitleFs: 8.5, svgMax: 255, tableFs: 9 },
+                { margin: 6, fs: 8.4, headerPad: 4, secMb: 4, titleFs: 9, titlePad: '2px 6px', bodyPad: '3px 6px', fieldFs: 8, fieldPad: '1px 0', labelWidth: 82, sigMt: 7, sigPt: 5, sigGap: 5, sigH: 38, sigPad: '3px', sigTitleMb: 10, sigTitleFs: 8, svgMax: 210, tableFs: 8.4 },
+                { margin: 5, fs: 7.9, headerPad: 3, secMb: 3, titleFs: 8.5, titlePad: '1.5px 5px', bodyPad: '2px 5px', fieldFs: 7.5, fieldPad: '0.5px 0', labelWidth: 76, sigMt: 6, sigPt: 4, sigGap: 4, sigH: 32, sigPad: '2px', sigTitleMb: 8, sigTitleFs: 7.5, svgMax: 175, tableFs: 7.9 },
+                { margin: 4, fs: 7.4, headerPad: 3, secMb: 2, titleFs: 8, titlePad: '1px 5px', bodyPad: '2px 4px', fieldFs: 7, fieldPad: '0 0', labelWidth: 70, sigMt: 5, sigPt: 3, sigGap: 3, sigH: 28, sigPad: '2px', sigTitleMb: 6, sigTitleFs: 7, svgMax: 145, tableFs: 7.4 }
+            ];
+
+            var level = 0;
+            if (volume > 3200) level = 4;
+            else if (volume > 2400) level = 3;
+            else if (volume > 1600) level = 2;
+            else if (volume > 900) level = 1;
+
+            return levels[level];
+        }
+
+        function buildCAPrintHtml(ca) {
+            var effectsText = (ca.effects || []).map(function (e) { return CA_EFFECT_LABELS[e] || e; }).join('، ') || '-';
+            var priorityText = CA_PRIORITY_LABELS[ca.priority] || ca.priority || '-';
+            var managerText = { pending: 'در انتظار بررسی', approved: 'تأیید شد', rejected: 'رد شد' }[ca.managerApproval] || 'در انتظار';
+            var needActionText = ca.needAction === 'yes' ? 'بله، نیاز به اقدام اصلاحی وجود دارد' : (ca.needAction === 'no' ? 'خیر، اقدام فوری کافی بوده است' : '-');
+            var verificationText = { effective: 'اثربخش', partially: 'تا حدی اثربخش', ineffective: 'غیراثربخش', pending: 'در انتظار' }[ca.verificationResult] || '-';
+            var horizontalText = { yes: 'بله', no: 'خیر', na: 'کاربرد ندارد' }[ca.horizontalDeploy] || '-';
+            var methodText = ca.cftAnalysisMethod ? (CA_METHOD_LABELS[ca.cftAnalysisMethod] || ca.cftAnalysisMethod) : '-';
+
+            var docsText = '-';
+            if (ca.updatedDocuments && ca.updatedDocuments.length) {
+                docsText = ca.updatedDocuments.map(function (docId) {
+                    var label = CA_DOC_LABELS[docId] || docId;
+                    var num = (ca.docNumbers && ca.docNumbers[docId]) ? ca.docNumbers[docId] : '';
+                    return num ? (label + ' (' + num + ')') : label;
+                }).join('، ');
+            }
+
+            var analysisHtml = buildCftAnalysisPrintHtml(ca);
+            var headerHtml = buildCAPrintHeader(ca);
+            var actionsHtml = buildCAPrintActions(ca);
+
+            // تراکم و اندازه‌ها بر اساس حجم واقعی اطلاعات
+            var density = getCAPrintDensity(ca, docsText);
+            var fitCss = `
+                @page { margin: ${density.margin}mm; }
+                body { font-size: ${density.fs}px; }
+                .print-dynamic-header { padding: ${density.headerPad}px 8px; margin-bottom: ${density.secMb}px; }
+                .print-dynamic-header .p-right .p-logo { max-height: ${Math.max(26, density.fs * 4)}px; }
+                .section { margin-bottom: ${density.secMb}px; }
+                .section-title { font-size: ${density.titleFs}px; padding: ${density.titlePad}; }
+                .section-body { padding: ${density.bodyPad}; }
+                .field { font-size: ${density.fieldFs}px; padding: ${density.fieldPad}; }
+                .print-field { font-size: ${density.fieldFs}px; padding: ${density.fieldPad}; }
+                .print-field .print-label { min-width: ${density.labelWidth}px; }
+                table { font-size: ${density.tableFs}px !important; }
+                table th, table td { padding: 2px 3px !important; }
+                .signatures { margin-top: ${density.sigMt}px; padding-top: ${density.sigPt}px; gap: ${density.sigGap}px; }
+                .sig-box { min-height: ${density.sigH}px; padding: ${density.sigPad}; }
+                .sig-box .title { margin-bottom: ${density.sigTitleMb}px; font-size: ${density.sigTitleFs}px; }
+                .fishbone-print-svg-wrapper svg { max-height: ${density.svgMax}px !important; }
+                .fishbone-print-section { margin: 4px 0; padding: 4px; }
+                .why-print-section, .fishbone-list-print { margin-top: 3px; padding: 4px; }
+                .fishbone-cat-item-print { padding: 2px 4px; }
+                body, .section-title, table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+                /* چیدمان دو/سه ستونی بخش‌ها برای صرفه‌جویی در کاغذ */
+                .print-row { display: grid; gap: ${density.secMb}px; margin-bottom: ${density.secMb}px; align-items: start; }
+                .print-row > .section { margin-bottom: 0; height: 100%; }
+                .print-row.cols-2 { grid-template-columns: 1fr 1fr; }
+                .print-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+                .print-row .row, .print-row .row-3 { grid-template-columns: 1fr; gap: 2px; }
+                .print-row .field .label { min-width: 68px; }
+                .print-row .print-field .print-label { min-width: 70px; }
+            `;
+
+            var css = `
+                @page { size: A4 portrait; margin: 8mm; }
+                * { box-sizing: border-box; }
+                body { font-family: 'Vazirmatn', Tahoma, Arial, sans-serif; font-size: 9.5px; color: #000; margin: 0; }
+                .print-dynamic-header { display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: stretch; gap: 8px; border: 1.5px solid #000; padding: 6px 10px; margin-bottom: 8px; }
+                .print-dynamic-header .p-right { display: flex; flex-direction: column; align-items: center; gap: 3px; border-inline-end: 1px solid #000; padding-inline-end: 8px; text-align: center; }
+                .print-dynamic-header .p-right .p-logo { max-width: 110px; max-height: 45px; object-fit: contain; }
+                .print-dynamic-header .p-right .p-logo-ph { width: 100px; height: 40px; border: 1px dashed #666; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #666; }
+                .print-dynamic-header .p-right .p-name { font-size: 9px; font-weight: 800; line-height: 1.4; }
+                .print-dynamic-header .p-right .p-sub { font-size: 7.5px; line-height: 1.4; }
+                .print-dynamic-header .p-center { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+                .print-dynamic-header .p-center .p-title { font-size: 13px; font-weight: 800; margin: 0 0 3px 0; }
+                .print-dynamic-header .p-center .p-std { font-size: 8px; color: #333; }
+                .print-dynamic-header .p-left { font-size: 8.5px; line-height: 1.5; border-inline-start: 1px solid #000; padding-inline-start: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; gap: 4px; color: #2c3e50; }
+                .print-dynamic-header .p-left strong { color: #000; }
+                .section { border: 1.2px solid #000; margin-bottom: 6px; page-break-inside: avoid; }
+                .section-title { background: #e0e0e0; padding: 3px 8px; font-weight: 700; font-size: 10px; border-bottom: 1px solid #000; }
+                .section-body { padding: 5px 8px; }
+                .row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 4px; }
+                .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 4px; }
+                .field { display: flex; gap: 4px; padding: 2px 0; border-bottom: 1px dotted #999; }
+                .field .label { font-weight: 700; min-width: 80px; }
+                .field .value { flex: 1; }
+                .full { grid-column: 1 / -1; }
+                .print-field { display: flex; gap: 4px; padding: 2px 0; border-bottom: 1px dotted #aaa; font-size: 8.5px; align-items: baseline; }
+                .print-field .print-label { font-weight: 700; color: #333; min-width: 95px; flex-shrink: 0; }
+                .print-field .print-value { flex: 1; color: #000; }
+                .print-field.print-full { grid-column: 1 / -1; }
+                .fishbone-print-section { margin: 8px 0; padding: 8px; border: 1.2px solid #000; border-radius: 4px; background: #fafafa; page-break-inside: avoid; }
+                .fishbone-print-title { font-weight: 700; font-size: 10px; text-align: center; margin-bottom: 6px; color: #1e293b; }
+                .fishbone-print-svg-wrapper { width: 100%; background: #fff; border-radius: 4px; padding: 4px; }
+                .fishbone-print-svg-wrapper svg { width: 100%; height: auto; display: block; max-height: 300px; }
+                .fishbone-list-print { margin-top: 6px; padding: 6px; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; }
+                .fishbone-list-print-title { font-weight: 700; font-size: 9px; margin-bottom: 4px; }
+                .fishbone-cat-print { display: flex; flex-wrap: wrap; gap: 4px; }
+                .fishbone-cat-item-print { flex: 1 1 30%; min-width: 120px; background: #f8faff; border: 1px solid #e0e0e0; border-radius: 3px; padding: 4px 6px; }
+                .fishbone-cat-item-print .cat-name { font-weight: 700; font-size: 8.5px; color: #dc2626; margin-bottom: 2px; }
+                .fishbone-cat-item-print ul { margin: 0; padding-right: 14px; font-size: 8px; }
+                .why-print-section { margin-top: 6px; padding: 6px 8px; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; }
+                .why-print-title { font-weight: 700; font-size: 9px; margin-bottom: 4px; }
+                .why-print-list { margin: 0; padding-right: 16px; font-size: 8.5px; }
+                .why-print-list li { margin-bottom: 2px; }
+                .why-print-list li.root-cause { background: #d4edda; padding: 2px 4px; border-radius: 3px; border-right: 2px solid #27ae60; }
+                .signatures { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 8px; border-top: 1px solid #000; }
+                .sig-box { border: 1px solid #000; padding: 6px; text-align: center; min-height: 55px; }
+                .sig-box .title { font-weight: 700; margin-bottom: 20px; font-size: 9px; }
+                .sig-box .line { border-top: 1px solid #000; padding-top: 2px; font-size: 8.5px; }
+            `;
+
+            var section1 = '<div class="section"><div class="section-title">۱. اطلاعات مرجع</div><div class="section-body">' +
+                '<div class="row-3">' +
+                prField('شماره فرم', ca.actionNumber) +
+                prField('تاریخ صدور', formatPersianDate(ca.issueDate)) +
+                prField('مبنا', ca.linkedNCRNumber ? ('NCR ' + ca.linkedNCRNumber) : (ca.sourceRef || '-')) +
+                '</div><div class="row-3">' +
+                prField('صادرکننده', ca.issuerName) +
+                prField('دپارتمان', ca.issuerDepartment) +
+                prField('سمت', ca.issuerPosition) +
+                '</div><div class="row">' +
+                prField('موضوع', ca.subject) +
+                prField('اولویت', priorityText) +
+                '</div></div></div>';
+
+            var section2 = '<div class="section"><div class="section-title">۲. اطلاعات منبع</div><div class="section-body">' +
+                prFull('شرح مشکل', ca.problemDescription) +
+                prFull('ریشه اصلی', ca.rootCause) +
+                prFull('مرجع استاندارد', ca.standardRef) +
+                '</div></div>';
+
+            var section3 = '<div class="section"><div class="section-title">۳. تشریح مسئله / پیشنهاد</div><div class="section-body">' +
+                prFull('شرح عدم انطباق', ca.problemDescription) +
+                prFull('ریشه اصلی', ca.rootCause) +
+                "<div class='field full'><span class='label'>پیامدهای بالقوه:</span><span class='value'>" + escapeHtml(effectsText) + '</span></div>' +
+                "<div class='field full'><span class='label'>نیاز به اقدام اصلاحی:</span><span class='value'>" + escapeHtml(needActionText) + '</span></div>' +
+                (ca.noActionReason ? prFull('دلیل عدم نیاز به اقدام', ca.noActionReason) : '') +
+                '</div></div>';
+
+            var section4 = '<div class="section"><div class="section-title">۴. پیوست‌های قبل از اقدام اصلاحی</div><div class="section-body">' +
+                "<div class='field full'><span class='label'>تعداد فایل‌های پیوست:</span><span class='value'>" + beforeSelectedFiles.length + ' فایل</span></div>' +
+                '</div></div>';
+
+            var section5 = '<div class="section"><div class="section-title">۵. تأیید اولیه (مدیر مستقیم)</div><div class="section-body">' +
+                '<div class="row">' + prField('تأیید مدیر مستقیم', managerText) + '</div>' +
+                (ca.approvalNotes ? prFull('توضیحات', ca.approvalNotes) : '') +
+                '</div></div>';
+
+            var section6 = '<div class="section"><div class="section-title">۶. تأیید ثانویه (مدیر کنترل کیفیت)</div><div class="section-body">' +
+                prFull('ارزیابی نیاز به اقدام اصلاحی', needActionText) +
+                prFull('پیامدهای بالقوه', effectsText) +
+                '</div></div>';
+
+            var section7 = '<div class="section"><div class="section-title">۷. تیم حل مسئله (CFT)</div><div class="section-body">' +
+                '<div class="row-3">' +
+                prField('سرپرست تیم', ca.teamLeader) +
+                prField('اعضا', ca.teamMembers) +
+                prField('تاریخ جلسه', ca.teamMeetingDate ? formatPersianDate(ca.teamMeetingDate) : '-') +
+                '</div>' +
+                prFull('روش تحلیل', methodText) +
+                analysisHtml +
+                (ca.cftAnalysisConclusion ? prFull('نتیجه‌گیری تحلیل', ca.cftAnalysisConclusion) : '') +
+                '</div></div>';
+
+            var section8 = '<div class="section"><div class="section-title">۸. اقدامات اصلاحی (' + ((ca.actions || []).length) + ' مورد)</div><div class="section-body">' +
+                actionsHtml + '</div></div>';
+
+            var section9 = '<div class="section"><div class="section-title">۹. انتشار افقی</div><div class="section-body">' +
+                prFull('انتشار در سایر خطوط', horizontalText) +
+                prFull('جزئیات', ca.horizontalDeployDetails) +
+                '</div></div>';
+
+            var section10 = '<div class="section"><div class="section-title">۱۰. به‌روزرسانی مستندات</div><div class="section-body">' +
+                prFull('مستندات به‌روزرسانی شده', docsText) +
+                '</div></div>';
+
+            var section11 = '<div class="section"><div class="section-title">۱۱. پایش اثربخشی</div><div class="section-body">' +
+                '<div class="row-3">' +
+                prField('تاریخ پایش', ca.verificationDate ? formatPersianDate(ca.verificationDate) : '-') +
+                prField('مسئول پایش', ca.verifier) +
+                prField('نتیجه', verificationText) +
+                '</div>' +
+                prFull('یادداشت پایش', ca.verificationNotes) +
+                '</div></div>';
+
+            var section12 = '<div class="section"><div class="section-title">۱۲. پیوست‌های بعد از اقدام اصلاحی</div><div class="section-body">' +
+                "<div class='field full'><span class='label'>تعداد فایل‌های پیوست:</span><span class='value'>" + afterSelectedFiles.length + ' فایل</span></div>' +
+                '</div></div>';
+
+            var signatures = '<div class="signatures">' +
+                '<div class="sig-box"><div class="title">درخواست‌کننده</div><div class="line">' + escapeHtml(ca.issuerName || 'نام و امضا') + '</div></div>' +
+                '<div class="sig-box"><div class="title">مدیر مستقیم</div><div class="line">نام و امضا</div></div>' +
+                '<div class="sig-box"><div class="title">مدیریت کیفیت</div><div class="line">نام و امضا</div></div>' +
+                '</div>';
+
+            var screenCss = `
+                body { background: #e9edf3 !important; margin: 0; padding: 0; }
+                .print-page {
+                    background: #fff;
+                    width: 210mm;
+                    max-width: 100%;
+                    min-height: 297mm;
+                    margin: 18px auto;
+                    padding: 8mm;
+                    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+                }
+                .print-actions {
+                    display: flex;
+                    justify-content: center;
+                    gap: 10px;
+                    margin: 16px 0 4px;
+                }
+                .print-actions button {
+                    padding: 9px 26px;
+                    border: none;
+                    border-radius: 6px;
+                    font-family: inherit;
+                    font-size: 13px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                }
+                .btn-print-action { background: #667eea; color: #fff; }
+                .btn-print-action:hover { background: #5568e0; }
+                .btn-close-action { background: #6c757d; color: #fff; }
+                @media print {
+                    body { background: #fff !important; }
+                    .print-page {
+                        width: auto;
+                        max-width: none;
+                        min-height: 0;
+                        margin: 0;
+                        padding: 0;
+                        box-shadow: none;
+                    }
+                    .print-actions { display: none !important; }
+                }
+            `;
+
+            var printScript = 'function caDoPrint(){' +
+                'var page=document.querySelector(".print-page");' +
+                'var b=document.body;' +
+                'b.style.zoom="1";' +
+                'var prev="";' +
+                'if(page){prev=page.style.minHeight;page.style.minHeight="0";}' +
+                'var h=page?page.scrollHeight:b.scrollHeight;' +
+                'if(page){page.style.minHeight=prev||"297mm";}' +
+                'var ph=1040;' +
+                'if(h>ph){b.style.zoom=Math.max(0.62,ph/h).toFixed(3);}' +
+                'window.print();' +
+                '}' +
+                'window.addEventListener("afterprint",function(){document.body.style.zoom="1";});';
+
+            var printActions = '<div class="print-actions">' +
+                '<button class="btn-print-action" onclick="caDoPrint()">🖨️ چاپ فرم</button>' +
+                '<button class="btn-close-action" onclick="window.close()">✖ بستن</button>' +
+                '</div>';
+
+            return '<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8">' +
+                '<title>فرم اقدام اصلاحی - ' + escapeHtml(ca.actionNumber || '') + '</title>' +
+                '<style>' + css + fitCss + screenCss + '</style></head><body>' +
+                '<div class="print-page">' +
+                headerHtml + section1 +
+                '<div class="print-row cols-2">' + section2 + section3 + '</div>' +
+                '<div class="print-row cols-3">' + section4 + section5 + section6 + '</div>' +
+                section7 + section8 +
+                '<div class="print-row cols-2">' + section9 + section10 + '</div>' +
+                '<div class="print-row cols-2">' + section11 + section12 + '</div>' +
+                signatures +
+                '<div style="text-align:center;margin-top:8px;font-size:8.5px;color:#666;">تاریخ چاپ: ' + formatPersianDate(getToday()) + '</div>' +
+                printActions +
+                '</div>' +
+                '<script>' + printScript + '<\/script>' +
+                '</body></html>';
+        }
+
+        function printForm() {
+            caData = collectData();
+
+            // باز کردن پنجره مستقل پیش‌نمایش چاپ (مشابه فرم NCR)
+            var win = window.open('', '_blank', 'width=900,height=1000');
+            if (!win) {
+                showToast('امکان باز کردن پنجره چاپ وجود ندارد. لطفاً پاپ‌آپ را مجاز کنید.', 'error');
+                return;
+            }
+
+            var html = buildCAPrintHtml(caData);
+            win.document.open();
+            win.document.write(html);
+            win.document.close();
+            win.focus();
+        }
+
+        function goBack() { history.back(); }
+
+        // Expose to window
+        window.submitForm = submitForm;
+        window.saveDraft = saveDraft;
+        window.addActionRow = addActionRow;
+        window.removeActionRow = removeActionRow;
+        window.toggleManagerNotes = toggleManagerNotes;
+        window.toggleNeedActionSubs = toggleNeedActionSubs;
+        window.printForm = printForm;
+        window.goBack = goBack;
+    </script>
+</body>
+</html>

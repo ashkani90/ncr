@@ -310,7 +310,7 @@ textarea,
 }
 
 .btn-sm {
-    padding: 5px 12px;
+    padding: 5px 5px;
     font-size: 12px;
 }
 
@@ -972,6 +972,25 @@ html.ltr .table-container td {
     color: var(--success);
 }
 
+.process-steps .step.cft {
+    background: var(--secondary);
+    color: white;
+}
+
+.process-steps .step.cft .step-number {
+    background: white;
+    color: var(--secondary);
+}
+.process-steps .step.action {
+    background: var(--warning);
+    color: white;
+}
+
+.process-steps .step.action .step-number {
+    background: white;
+    color: var(--warning);
+}
+
 /* ============================================
    فرم‌ها
    ============================================ */
@@ -1554,3 +1573,419 @@ html.ltr .sidebar-nav a i {
     }
 }
 /* ============================================ */
+
+/* ============================================
+   بج اعلان در سایدبار
+   ============================================ */
+.sidebar-notification-badge {
+    margin-right: auto;
+    background: #e74c3c;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    line-height: 1;
+}
+
+html.ltr .sidebar-notification-badge {
+    margin-right: 0;
+    margin-left: auto;
+}
+
+/* ============================================
+   بج اعلان در هدر
+   ============================================ */
+.header-notifications .badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 10px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+}
+
+html.rtl .header-notifications .badge {
+    right: auto;
+    left: -6px;
+}
+/* ============================================ */
+/* نمایش نقش کاربر در هدر */
+/* ============================================ */
+.user-profile .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    line-height: 1.2;
+}
+
+.user-profile .user-info #userName {
+    font-weight: 600;
+    font-size: 13px;
+    color: #2c3e50;
+    white-space: nowrap;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-profile .user-role-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 1px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+/* رنگ نقش‌های مختلف */
+.user-profile .user-role-badge.role-admin { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+.user-profile .user-role-badge.role-quality { color: #3498db; background: rgba(52, 152, 219, 0.1); }
+.user-profile .user-role-badge.role-production { color: #f39c12; background: rgba(243, 156, 18, 0.1); }
+.user-profile .user-role-badge.role-engineering { color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+.user-profile .user-role-badge.role-ceo { color: #9b59b6; background: rgba(155, 89, 182, 0.1); }
+.user-profile .user-role-badge.role-purchasing { color: #16a085; background: rgba(22, 160, 133, 0.1); }
+.user-profile .user-role-badge.role-warehouse { color: #e67e22; background: rgba(230, 126, 34, 0.1); }
+
+/* در موبایل مخفی شود */
+@media (max-width: 768px) {
+    .user-profile .user-info {
+        display: none;
+    }
+}
+
+/* ============================================
+   نسخه ۳: اصلاح چیدمان RTL/LTR + ریسپانسیو (تبلت و موبایل)
+   ============================================ */
+
+/* --- هدر ---
+   RTL: از چپ به راست → نام کاربر، آواتار، چرخ‌دنده، زنگوله، زبان، تاریخ
+   LTR: از چپ به راست → تاریخ، زبان، زنگوله، چرخ‌دنده، آواتار، نام کاربر */
+html.rtl .header-right,
+html.ltr .header-right {
+    flex-direction: row;
+}
+
+html.rtl .user-profile,
+html.ltr .user-profile {
+    flex-direction: row;
+}
+
+/* --- سایدبار: آیکون سمت راستِ متن در RTL و سمت چپِ متن در LTR --- */
+.sidebar-nav a span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+html.rtl .sidebar-nav a,
+html.ltr .sidebar-nav a {
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+/* نشان تعداد اعلان‌ها در انتهای آیتم */
+.sidebar-nav a .sidebar-notification-badge {
+    margin-inline-start: auto;
+}
+
+/* --- پروفایل در هدر: در RTL ترتیب نام، آواتار، فلش --- */
+html.rtl .user-profile .user-info {
+    order: 3;
+}
+
+html.rtl .user-profile img {
+    order: 2;
+}
+
+html.rtl .user-profile > i {
+    order: 1;
+}
+
+html.rtl .sidebar-nav a i,
+html.ltr .sidebar-nav a i {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* --- پرده پشت سایدبار در موبایل --- */
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+@media (max-width: 768px) {
+    body.sidebar-open .sidebar-backdrop {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* --- تبلت --- */
+@media (max-width: 1200px) {
+    .app-header {
+        padding: 0 18px;
+    }
+
+    .header-right {
+        gap: 14px;
+    }
+}
+
+@media (max-width: 992px) {
+    .header-center h2 {
+        font-size: 16px;
+    }
+
+    .header-date span {
+        display: none;
+    }
+
+    .header-date {
+        gap: 0;
+    }
+
+    .header-right {
+        gap: 12px;
+    }
+}
+
+/* --- موبایل --- */
+@media (max-width: 768px) {
+    .app-header {
+        height: 62px;
+        padding: 0 10px;
+        gap: 6px;
+    }
+
+    .sidebar {
+        top: 62px;
+        padding: 16px;
+    }
+
+    .main-content {
+        margin-top: 62px !important;
+        min-height: calc(100vh - 62px);
+        padding: 12px;
+    }
+
+    .header-left {
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .header-center h2 {
+        font-size: 15px;
+    }
+
+    .breadcrumb {
+        font-size: 12px;
+        max-width: 40vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .header-right {
+        gap: 10px;
+    }
+
+    .header-date {
+        display: none;
+    }
+
+    .header-language .language-label {
+        display: none;
+    }
+
+    .lang-select {
+        padding: 4px 6px;
+        font-size: 12px;
+        max-width: 96px;
+    }
+
+    .user-profile {
+        gap: 6px;
+    }
+
+    .user-profile img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .user-profile span {
+        font-size: 12px;
+    }
+
+    .header-notifications .badge {
+        font-size: 9px;
+        padding: 1px 6px;
+    }
+
+    .notifications-dropdown {
+        width: min(330px, 92vw);
+        left: auto;
+        right: 0;
+    }
+
+    .hamburger {
+        font-size: 20px;
+        padding: 4px;
+    }
+
+    .table-container thead th,
+    .table-container tbody td {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .filter-actions .btn {
+        flex: 1 1 calc(50% - 6px);
+        justify-content: center;
+    }
+
+    .table-footer {
+        padding: 10px 12px;
+    }
+
+    .sidebar-nav a {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-center {
+        display: none;
+    }
+
+    .header-settings {
+        display: none;
+    }
+
+    .user-profile .user-role-badge {
+        display: none;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-actions .btn {
+        flex: 1 1 100%;
+    }
+}
+
+/* ============================================
+   ریسپانسیو عمومی فرم‌ها و جدول‌ها (تبلت/موبایل)
+   ============================================ */
+@media (max-width: 992px) {
+    .ca-grid,
+    .form-grid,
+    .grid-3,
+    .grid-2 {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    img,
+    svg {
+        max-width: 100%;
+    }
+
+    .ca-grid,
+    .form-grid,
+    .grid-3,
+    .grid-2,
+    .ca-grid .half-width,
+    .ca-grid .full-width {
+        grid-template-columns: 1fr !important;
+        grid-column: auto !important;
+    }
+
+    .form-actions,
+    .modal-actions,
+    .table-actions {
+        flex-wrap: wrap;
+    }
+
+    .form-actions .btn,
+    .modal-actions .btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+
+    /* جلوگیری از بزرگ‌نمایی خودکار در iOS */
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+/* ============================================
+   چاپ: حذف عناصر ثابت صفحه
+   ============================================ */
+@media print {
+    .sidebar,
+    #headerContainer,
+    #sidebarContainer,
+    #footerContainer,
+    .sidebar-backdrop,
+    .filter-section,
+    .no-print {
+        display: none !important;
+    }
+
+    .app-header {
+        position: static !important;
+        box-shadow: none !important;
+    }
+
+    .main-content,
+    html.rtl .main-content,
+    html.ltr .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+}

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="claim_list_title">لیست کلیم‌ها</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="list-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="headerContainer"></div>
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" id="mainContent">
+            <!-- فیلترها -->
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label data-i18n="search">جستجو</label>
+                        <input type="text" id="searchInput" placeholder="جستجو در شماره، قطعه، موضوع..." data-i18n-placeholder="search_placeholder" oninput="applyFilters()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="status">وضعیت</label>
+                        <select id="statusFilter" onchange="applyFilters()">
+                            <option value="" data-i18n="all_statuses">همه وضعیت‌ها</option>
+                            <option value="open" data-i18n="status_open">باز</option>
+                            <option value="in_progress" data-i18n="status_in_progress">در حال بررسی</option>
+                            <option value="closed" data-i18n="status_closed">بسته</option>
+                            <option value="rejected" data-i18n="status_rejected">رد شده</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="priority">اولویت</label>
+                        <select id="priorityFilter" onchange="applyFilters()">
+                            <option value="" data-i18n="all_priorities">همه اولویت‌ها</option>
+                            <option value="critical" data-i18n="priority_critical">بحرانی</option>
+                            <option value="high" data-i18n="priority_high">بالا</option>
+                            <option value="medium" data-i18n="priority_medium">متوسط</option>
+                            <option value="low" data-i18n="priority_low">کم</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="date_from">تاریخ از</label>
+                        <input type="date" id="dateFrom" onchange="applyFilters()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="date_to">تاریخ تا</label>
+                        <input type="date" id="dateTo" onchange="applyFilters()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="supplier">تأمین‌کننده</label>
+                        <select id="supplierFilter" onchange="applyFilters()">
+                            <option value="">همه تأمین‌کننده‌ها</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()"><i class="fas fa-undo"></i> <span data-i18n="reset">بازنشانی</span></button>
+                    <button class="btn btn-success" onclick="exportData()"><i class="fas fa-file-excel"></i> <span data-i18n="export_excel">خروجی اکسل</span></button>
+                    <button class="btn btn-warning" onclick="printPage()"><i class="fas fa-print"></i> <span data-i18n="print">چاپ</span></button>
+                </div>
+            </div>
+
+            <!-- جدول کلیم‌ها -->
+            <div class="table-container">
+                <div class="print-only">
+                    <h2 data-i18n="claim_list_title">لیست کلیم‌ها</h2>
+                    <p id="printMeta"></p>
+                </div>
+                <div class="table-header">
+                    <h3><i class="fas fa-file-signature"></i> <span data-i18n="list_claims_full">لیست کامل کلیم‌ها</span></h3>
+                    <span class="table-count" id="recordCount" data-i18n="count_label">تعداد</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="claim_number"><span data-i18n="claim_code">کد کلیم</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="claim_date"><span data-i18n="table_date">تاریخ</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="supplier_name"><span data-i18n="supplier">تأمین‌کننده</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="part_name"><span data-i18n="table_part">قطعه</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th><span data-i18n="return_reason">علت مرجوعی</span></th>
+                                <th data-sort="ncr_number"><span data-i18n="linked_ncr">NCR مرتبط</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="priority"><span data-i18n="table_priority">اولویت</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th data-sort="final_status"><span data-i18n="table_status">وضعیت</span> <i class="fas fa-sort sort-icon"></i></th>
+                                <th class="no-print"><span data-i18n="table_actions">عملیات</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="9" class="loading-row"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">در حال بارگذاری...</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <div class="pagination">
+                        <button onclick="listPage.prev()" aria-label="previous"><i class="fas fa-chevron-right"></i></button>
+                        <span id="pageInfo" data-i18n="page_info">صفحه</span>
+                        <button onclick="listPage.next()" aria-label="next"><i class="fas fa-chevron-left"></i></button>
+                    </div>
+                    <div class="page-size">
+                        <label data-i18n="per_page">تعداد در صفحه</label>
+                        <select id="pageSize" onchange="listPage.setPageSize(this.value)">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footerContainer"></div>
+        </main>
+    </div>
+
+    <script src="i18n.js?v=3"></script>
+    <script src="i18n-literals.js?v=1"></script>
+    <script src="database.js?v=20261101"></script>
+    <script src="permissions.js?v=20261101"></script>
+    <script src="app.js"></script>
+    <script src="list-tools.js"></script>
+    <script src="components/loader.js?v=20261101"></script>
+    <script>
+    // ============================================
+    // لیست کلیم‌ها
+    // ============================================
+    var esc = window.ListTools.esc;
+    var badge = window.ListTools.badge;
+    var tr = window.ListTools.tr;
+
+    var STATUS_MAP = {
+        open: { key: 'status_open', type: 'danger' },
+        in_progress: { key: 'status_in_progress', type: 'warning' },
+        closed: { key: 'status_closed', type: 'success' },
+        rejected: { key: 'status_rejected', type: 'secondary' }
+    };
+
+    var PRIORITY_MAP = {
+        critical: { key: 'priority_critical', type: 'danger' },
+        high: { key: 'priority_high', type: 'danger' },
+        medium: { key: 'priority_medium', type: 'warning' },
+        low: { key: 'priority_low', type: 'info' }
+    };
+
+    var listPage = window.ListPage({
+        tableId: 'dataTable',
+        tbodyId: 'tableBody',
+        countId: 'recordCount',
+        defaultSort: 'claim_date',
+        defaultSortDir: 'desc',
+        columns: [
+            {
+                key: 'claim_number',
+                label: 'claim_code',
+                render: function (row) {
+                    var num = row.claim_number || '-';
+                    return '<a class="link-primary" href="claim-form.html?claim=' + encodeURIComponent(num) + '">' + esc(num) + '</a>';
+                },
+                text: function (row) { return row.claim_number || ''; }
+            },
+            { key: 'claim_date', label: 'table_date', render: function (row) { return esc(row.claim_date || '-'); } },
+            { key: 'supplier_name', label: 'supplier', render: function (row) { return esc(row.supplier_name || '-'); } },
+            { key: 'part_name', label: 'table_part', render: function (row) { return esc(row.part_name || '-'); } },
+            {
+                key: 'return_reason',
+                label: 'return_reason',
+                render: function (row) { return esc(row.return_reason_description || row.return_reason || '-'); }
+            },
+            {
+                key: 'ncr_number',
+                label: 'linked_ncr',
+                render: function (row) {
+                    if (!row.ncr_number) return '-';
+                    return '<a class="link-primary" href="new-ncr.html?number=' + encodeURIComponent(row.ncr_number) + '">' + esc(row.ncr_number) + '</a>';
+                },
+                text: function (row) { return row.ncr_number || ''; }
+            },
+            {
+                key: 'priority',
+                label: 'table_priority',
+                render: function (row) {
+                    var item = PRIORITY_MAP[row.priority];
+                    return item ? badge(tr(item.key, row.priority), item.type) : esc(row.priority || '-');
+                },
+                text: function (row) {
+                    var item = PRIORITY_MAP[row.priority];
+                    return item ? tr(item.key, row.priority) : (row.priority || '');
+                }
+            },
+            {
+                key: 'final_status',
+                label: 'table_status',
+                render: function (row) {
+                    var item = STATUS_MAP[row.final_status];
+                    return item ? badge(tr(item.key, row.final_status), item.type) : esc(row.final_status || '-');
+                },
+                text: function (row) {
+                    var item = STATUS_MAP[row.final_status];
+                    return item ? tr(item.key, row.final_status) : (row.final_status || '');
+                }
+            },
+            {
+                label: 'table_actions',
+                noExport: true,
+                cellClass: 'no-print',
+                render: function (row) {
+                    var num = row.claim_number || '';
+                    return '<div class="action-buttons">' +
+                        '<a class="btn btn-primary btn-sm" title="' + esc(tr('view', 'مشاهده')) + '" href="claim-form.html?claim=' + encodeURIComponent(num) + '"><i class="fas fa-eye"></i></a>' +
+                        '</div>';
+                }
+            }
+        ]
+    });
+
+    var allClaims = [];
+
+    function filterValue(id) {
+        var el = document.getElementById(id);
+        return el ? String(el.value || '') : '';
+    }
+
+    function populateSuppliers() {
+        var select = document.getElementById('supplierFilter');
+        if (!select) return;
+
+        var current = select.value;
+        var names = [];
+        allClaims.forEach(function (c) {
+            var name = (c.supplier_name || '').trim();
+            if (name && names.indexOf(name) === -1) names.push(name);
+        });
+        names.sort();
+
+        var html = '<option value="">' + esc(tr('all_suppliers', 'همه تأمین‌کننده‌ها')) + '</option>';
+        names.forEach(function (name) {
+            html += '<option value="' + esc(name) + '">' + esc(name) + '</option>';
+        });
+        select.innerHTML = html;
+
+        if (names.indexOf(current) !== -1) select.value = current;
+    }
+
+    function applyFilters() {
+        var search = filterValue('searchInput').trim().toLowerCase();
+        var status = filterValue('statusFilter');
+        var priority = filterValue('priorityFilter');
+        var dateFrom = filterValue('dateFrom');
+        var dateTo = filterValue('dateTo');
+        var supplier = filterValue('supplierFilter');
+
+        var filtered = allClaims.filter(function (row) {
+            var searchable = [
+                row.claim_number, row.supplier_name, row.part_name, row.part_code,
+                row.ncr_number, row.invoice_number, row.return_reason,
+                row.return_reason_description
+            ];
+
+            var matchSearch = !search || searchable.some(function (field) {
+                return String(field || '').toLowerCase().indexOf(search) !== -1;
+            });
+
+            var matchStatus = !status || (row.final_status || '') === status;
+            var matchPriority = !priority || (row.priority || '') === priority;
+            var matchSupplier = !supplier || (row.supplier_name || '') === supplier;
+
+            var date = row.claim_date || '';
+            var matchDate = (!dateFrom || (date && date >= dateFrom)) &&
+                            (!dateTo || (date && date <= dateTo));
+
+            return matchSearch && matchStatus && matchPriority && matchSupplier && matchDate;
+        });
+
+        listPage.setData(filtered);
+        updatePrintMeta(filtered.length);
+    }
+
+    function updatePrintMeta(total) {
+        var meta = document.getElementById('printMeta');
+        if (!meta) return;
+        var now = new Date();
+        var lang = localStorage.getItem('userLanguage') || 'fa';
+        var locale = lang === 'fa' ? 'fa-IR' : (lang === 'zh' ? 'zh-CN' : 'en-GB');
+        var stamp = now.toLocaleDateString(locale) + ' - ' + now.toLocaleTimeString(locale);
+        var count = total === undefined ? allClaims.length : total;
+        meta.textContent = tr('records_count', 'تعداد رکوردها') + ': ' + count + ' | ' + tr('print_date', 'تاریخ چاپ') + ': ' + stamp;
+    }
+
+    function resetFilters() {
+        ['searchInput', 'statusFilter', 'priorityFilter', 'dateFrom', 'dateTo', 'supplierFilter'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        applyFilters();
+        if (typeof window.showNotification === 'function') {
+            window.showNotification(tr('reset', 'بازنشانی') + ' ✓', 'info');
+        }
+    }
+
+    function exportData() {
+        var stamp = new Date().toISOString().slice(0, 10);
+        listPage.exportCSV('claims-' + stamp + '.csv');
+    }
+
+    function printPage() {
+        updatePrintMeta();
+        window.print();
+    }
+
+    async function loadClaims() {
+        try {
+            var response = await fetch(window.NCR_API + '/get_claims.php', { cache: 'no-store' });
+            var text = await response.text();
+            var result = JSON.parse(text);
+
+            if (result && result.success && Array.isArray(result.data)) {
+                allClaims = result.data;
+            } else {
+                throw new Error(result && result.error ? result.error : 'Invalid response');
+            }
+        } catch (error) {
+            console.warn('⚠️ دریافت کلیم‌ها از API ناموفق بود؛ استفاده از localStorage:', error);
+            try {
+                allClaims = JSON.parse(localStorage.getItem('claims') || '[]');
+            } catch (e) {
+                allClaims = [];
+            }
+        }
+
+        populateSuppliers();
+        applyFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadClaims();
+    });
+
+    // با تغییر زبان، جدول و برچسب‌های داینامیک دوباره رندر می‌شوند
+    document.addEventListener('languagechange', function () {
+        populateSuppliers();
+        applyFilters();
+    });
+    </script>
+</body>
+</html>

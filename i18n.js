@@ -69,10 +69,10 @@ var TRANSLATIONS = {
         'draft': 'ذخیره پیش‌نویس',
         'required': 'الزامی',
         'workflow_title': 'گردش کار فرآیند قطعه نامنطبق',
-        'step_1': 'ثبت NCR',
-        'step_2': 'ریشه‌یابی',
-        'step_3': 'FMEA',
-        'step_4': 'CFT',
+        'step_1': 'شناسایی و ثبت NCR',
+        'step_2': 'ارزیابی و تحلیل NCR',
+        'step_3': 'تعیین تکلیف NCR',
+        'step_4': 'پایش اقدامات تعریف شده',
         'step_5': 'بررسی نهایی',
         'step_6': 'بسته شدن',
         'table_number': 'شماره',
@@ -341,10 +341,10 @@ var TRANSLATIONS = {
         'draft': 'Save Draft',
         'required': 'Required',
         'workflow_title': 'Workflow Process',
-        'step_1': 'Register NCR',
-        'step_2': 'Root Cause',
-        'step_3': 'FMEA',
-        'step_4': 'CFT',
+        'step_1': 'Identification and recording of NCR',
+        'step_2': 'NCR Evaluation and Analysis',
+        'step_3': 'Determining the disposition of the NCR',
+        'step_4': 'Monitoring of actions taken',
         'step_5': 'Final Review',
         'step_6': 'Closure',
         'table_number': 'Number',
@@ -599,10 +599,10 @@ var TRANSLATIONS = {
         'draft': '保存草稿',
         'required': '必填',
         'workflow_title': '工作流程',
-        'step_1': '注册NCR',
-        'step_2': '根本原因',
-        'step_3': 'FMEA',
-        'step_4': 'CFT',
+        'step_1': '识别并记录不合格报告 (NCR)',
+        'step_2': '评估并分析不合格报告 (NCR)',
+        'step_3': '分配不合格报告 (NCR) 处理任务',
+        'step_4': '监控已采取的措施',
         'step_5': '最终审查',
         'step_6': '关闭',
         'table_number': '编号',
@@ -796,6 +796,346 @@ var TRANSLATIONS = {
     }
 };
 
+// ============================================
+// ترجمه‌های تکمیلی (صفحه‌های لیست، سایدبار، هدر و وضعیت‌ها)
+// ============================================
+var EXTRA_TRANSLATIONS = {
+    fa: {
+        'language': 'زبان',
+        'status': 'وضعیت',
+        'priority': 'اولویت',
+        'no_data': 'داده‌ای برای نمایش وجود ندارد.',
+        'count_label': 'تعداد',
+        'page_info': 'صفحه',
+        'per_page': 'تعداد در صفحه',
+        'supplier': 'تأمین‌کننده',
+        'urgency': 'فوریت',
+        'view': 'مشاهده',
+        'issue_date': 'تاریخ صدور',
+        'linked_ncr': 'NCR مرتبط',
+        'claim_code': 'کد کلیم',
+        'form_number': 'شماره فرم',
+        'issuer': 'صادرکننده',
+        'quantity': 'تعداد',
+        'return_reason': 'علت مرجوعی',
+        'request_number': 'شماره درخواست',
+        'requester': 'درخواست‌کننده',
+        'rows_per_page': 'تعداد در صفحه',
+        'all_suppliers': 'همه تأمین‌کننده‌ها',
+        'all_urgencies': 'همه فوریت‌ها',
+        'menu_claim_list': 'لیست کلیم‌ها',
+        'menu_purchase_list': 'لیست درخواست‌های خرید',
+        'menu_ca_list': 'لیست اقدامات اصلاحی',
+        'menu_corrective_action': 'ثبت اقدام اصلاحی',
+        'menu_users': 'مدیریت کاربران',
+        'add_user_title': 'افزودن کاربر جدید',
+        'edit_user_title': 'ویرایش کاربر موجود',
+        'user_photo': 'تصویر کاربر',
+        'upload_photo': 'انتخاب تصویر',
+        'remove_photo': 'حذف تصویر',
+        'avatar_help': 'فرمت JPG/PNG - حداکثر ۲ مگابایت',
+        'profile_photo': 'تصویر پروفایل',
+        'personal_info': 'اطلاعات شخصی',
+        'account_security': 'امنیت حساب',
+        'current_password': 'رمز عبور فعلی',
+        'new_password': 'رمز عبور جدید',
+        'confirm_password': 'تکرار رمز عبور جدید',
+        'password_changed': 'رمز عبور با موفقیت تغییر کرد',
+        'password_mismatch': 'رمز عبور جدید و تکرار آن یکسان نیستند',
+        'password_min': 'رمز عبور باید حداقل ۶ کاراکتر باشد',
+        'wrong_current_password': 'رمز عبور فعلی اشتباه است',
+        'profile_saved': 'پروفایل با موفقیت ذخیره شد',
+        'change_password_title': 'تغییر رمز عبور',
+        'save_changes': 'ذخیره تغییرات',
+        'back_to_dashboard': 'بازگشت به داشبورد',
+        'security_tip': 'برای امنیت بیشتر از رمز قوی شامل حروف، اعداد و نمادها استفاده کنید',
+        'claim_list_title': 'لیست کلیم‌ها',
+        'purchase_list_title': 'لیست درخواست‌های خرید',
+        'ca_list_title': 'لیست اقدامات اصلاحی',
+        'list_claims_full': 'لیست کامل کلیم‌ها',
+        'list_purchases_full': 'لیست کامل درخواست‌های خرید',
+        'list_cas_full': 'لیست فرم‌های اقدام اصلاحی',
+        'print_date': 'تاریخ چاپ',
+        'records_count': 'تعداد رکوردها',
+        'ca_status_draft': 'پیش‌نویس',
+        'ca_status_pending_manager': 'در انتظار تأیید مدیر',
+        'ca_status_pending_quality': 'در انتظار تأیید کیفیت',
+        'ca_status_pending_implementation': 'در حال اجرا',
+        'ca_status_pending_verification': 'در انتظار پایش',
+        'ca_status_closed': 'بسته شده',
+        'ca_status_rejected': 'رد شده',
+        'status_in_progress': 'در حال بررسی',
+        'status_completed': 'تکمیل شده',
+        'priority_critical': 'بحرانی',
+        'urgency_critical': 'بحرانی',
+        'urgency_high': 'بالا',
+        'urgency_normal': 'معمولی',
+        'urgency_low': 'کم',
+        'all_urgencies': 'همه فوریت‌ها'
+    },
+    en: {
+        'language': 'Language',
+        'status': 'Status',
+        'priority': 'Priority',
+        'no_data': 'No data to display.',
+        'count_label': 'Count',
+        'page_info': 'Page',
+        'per_page': 'Rows per page',
+        'supplier': 'Supplier',
+        'urgency': 'Urgency',
+        'view': 'View',
+        'issue_date': 'Issue Date',
+        'linked_ncr': 'Linked NCR',
+        'claim_code': 'Claim No.',
+        'form_number': 'Form No.',
+        'issuer': 'Issuer',
+        'quantity': 'Quantity',
+        'return_reason': 'Return Reason',
+        'request_number': 'Request No.',
+        'requester': 'Requester',
+        'rows_per_page': 'Rows per page',
+        'all_suppliers': 'All Suppliers',
+        'all_urgencies': 'All Urgencies',
+        'menu_claim_list': 'Claim List',
+        'menu_purchase_list': 'Purchase Requests',
+        'menu_ca_list': 'Corrective Actions',
+        'menu_corrective_action': 'New Corrective Action',
+        'menu_users': 'User Management',
+        'add_user_title': 'Add New User',
+        'edit_user_title': 'Edit Existing User',
+        'user_photo': 'User Photo',
+        'upload_photo': 'Choose Photo',
+        'remove_photo': 'Remove Photo',
+        'avatar_help': 'JPG/PNG - max 2 MB',
+        'profile_photo': 'Profile Photo',
+        'personal_info': 'Personal Information',
+        'account_security': 'Account Security',
+        'current_password': 'Current Password',
+        'new_password': 'New Password',
+        'confirm_password': 'Confirm New Password',
+        'password_changed': 'Password changed successfully',
+        'password_mismatch': 'Passwords do not match',
+        'password_min': 'Password must be at least 6 characters',
+        'wrong_current_password': 'Current password is incorrect',
+        'profile_saved': 'Profile saved successfully',
+        'change_password_title': 'Change Password',
+        'save_changes': 'Save Changes',
+        'back_to_dashboard': 'Back to Dashboard',
+        'security_tip': 'Use a strong password containing letters, numbers and symbols',
+        'claim_list_title': 'Claim List',
+        'purchase_list_title': 'Purchase Requests',
+        'ca_list_title': 'Corrective Actions',
+        'list_claims_full': 'Full Claims List',
+        'list_purchases_full': 'Full Purchase Requests List',
+        'list_cas_full': 'Corrective Action Forms',
+        'print_date': 'Printed on',
+        'records_count': 'Records',
+        'ca_status_draft': 'Draft',
+        'ca_status_pending_manager': 'Pending Manager Approval',
+        'ca_status_pending_quality': 'Pending Quality Approval',
+        'ca_status_pending_implementation': 'In Progress',
+        'ca_status_pending_verification': 'Pending Verification',
+        'ca_status_closed': 'Closed',
+        'ca_status_rejected': 'Rejected',
+        'status_in_progress': 'In Progress',
+        'status_completed': 'Completed',
+        'urgency_critical': 'Critical',
+        'urgency_high': 'High',
+        'urgency_normal': 'Normal',
+        'urgency_low': 'Low',
+        'all_urgencies': 'All Urgencies'
+    },
+    zh: {
+        'language': '语言',
+        'status': '状态',
+        'priority': '优先级',
+        'no_data': '没有可显示的数据。',
+        'count_label': '数量',
+        'page_info': '页',
+        'per_page': '每页条数',
+        'supplier': '供应商',
+        'urgency': '紧急程度',
+        'view': '查看',
+        'issue_date': '签发日期',
+        'linked_ncr': '关联 NCR',
+        'claim_code': '索赔编号',
+        'form_number': '表单编号',
+        'issuer': '签发人',
+        'quantity': '数量',
+        'return_reason': '退货原因',
+        'request_number': '申请编号',
+        'requester': '申请人',
+        'rows_per_page': '每页条数',
+        'all_suppliers': '全部供应商',
+        'all_urgencies': '全部紧急程度',
+        'menu_claim_list': '索赔列表',
+        'menu_purchase_list': '采购申请列表',
+        'menu_ca_list': '纠正措施列表',
+        'menu_corrective_action': '新建纠正措施',
+        'menu_users': '用户管理',
+        'add_user_title': '添加新用户',
+        'edit_user_title': '编辑现有用户',
+        'user_photo': '用户照片',
+        'upload_photo': '选择照片',
+        'remove_photo': '删除照片',
+        'avatar_help': 'JPG/PNG - 最大 2 MB',
+        'profile_photo': '个人资料照片',
+        'personal_info': '个人信息',
+        'account_security': '账户安全',
+        'current_password': '当前密码',
+        'new_password': '新密码',
+        'confirm_password': '确认新密码',
+        'password_changed': '密码修改成功',
+        'password_mismatch': '两次输入的密码不一致',
+        'password_min': '密码至少需要6个字符',
+        'wrong_current_password': '当前密码错误',
+        'profile_saved': '个人资料保存成功',
+        'change_password_title': '修改密码',
+        'save_changes': '保存更改',
+        'back_to_dashboard': '返回仪表盘',
+        'security_tip': '请使用包含字母、数字和符号的强密码',
+        'claim_list_title': '索赔列表',
+        'purchase_list_title': '采购申请列表',
+        'ca_list_title': '纠正措施列表',
+        'list_claims_full': '完整索赔列表',
+        'list_purchases_full': '完整采购申请列表',
+        'list_cas_full': '纠正措施表单列表',
+        'print_date': '打印日期',
+        'records_count': '记录数',
+        'ca_status_draft': '草稿',
+        'ca_status_pending_manager': '待经理批准',
+        'ca_status_pending_quality': '待质量批准',
+        'ca_status_pending_implementation': '执行中',
+        'ca_status_pending_verification': '待验证',
+        'ca_status_closed': '已关闭',
+        'ca_status_rejected': '已拒绝',
+        'status_in_progress': '处理中',
+        'status_completed': '已完成',
+        'urgency_critical': '紧急',
+        'urgency_high': '高',
+        'urgency_normal': '普通',
+        'urgency_low': '低',
+        'all_urgencies': '全部紧急程度'
+    }
+};
+
+(function () {
+    for (var lang in EXTRA_TRANSLATIONS) {
+        if (!Object.prototype.hasOwnProperty.call(EXTRA_TRANSLATIONS, lang)) continue;
+        TRANSLATIONS[lang] = TRANSLATIONS[lang] || {};
+        var dict = EXTRA_TRANSLATIONS[lang];
+        for (var key in dict) {
+            if (Object.prototype.hasOwnProperty.call(dict, key)) {
+                TRANSLATIONS[lang][key] = dict[key];
+            }
+        }
+    }
+})();
+
+// ============================================
+// واژه‌نامه معکوس برای ترجمه خودکار متن‌های صفحه‌ها
+// (هر متن فارسی/انگلیسی/چینی که در واژه‌نامه باشد ترجمه می‌شود)
+// ============================================
+var REVERSE_TRANSLATIONS = {};
+
+function normalizeI18nText(text) {
+    return String(text)
+        .replace(/[\u200c\u200e\u200f]/g, '')
+        .replace(/\s+/g, ' ')
+        .replace(/[:：]\s*$/, '')
+        .trim()
+        .toLowerCase();
+}
+
+(function () {
+    ['fa', 'en', 'zh'].forEach(function (lang) {
+        var dict = TRANSLATIONS[lang] || {};
+        for (var key in dict) {
+            if (!Object.prototype.hasOwnProperty.call(dict, key)) continue;
+            var value = dict[key];
+            if (typeof value !== 'string') continue;
+            var norm = normalizeI18nText(value);
+            if (!norm) continue;
+            if (!REVERSE_TRANSLATIONS[norm]) {
+                REVERSE_TRANSLATIONS[norm] = key;
+            }
+        }
+    });
+})();
+
+function t(key) {
+    if (!key) return '';
+    var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.fa || {};
+    if (dict[key] !== undefined) return dict[key];
+    if (TRANSLATIONS.fa && TRANSLATIONS.fa[key] !== undefined) return TRANSLATIONS.fa[key];
+    return key;
+}
+
+function translateTextNodes(root) {
+    if (!root) return;
+
+    var skipTags = {
+        SCRIPT: 1, STYLE: 1, NOSCRIPT: 1, TEXTAREA: 1,
+        INPUT: 1, SELECT: 1, CODE: 1, PRE: 1
+    };
+
+    // ابتدا واژه‌نامه کلیدی، سپس واژه‌نامه متنی (i18n-literals.js)
+    function lookup(text) {
+        var norm = normalizeI18nText(text);
+        var key = REVERSE_TRANSLATIONS[norm];
+        var target = null;
+
+        if (key && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key] !== undefined) {
+            target = TRANSLATIONS[currentLang][key];
+        }
+
+        if ((!target || target === text) && window.LITERAL_INDEX) {
+            var item = window.LITERAL_INDEX[norm];
+            if (item && item[currentLang]) target = item[currentLang];
+        }
+
+        return target;
+    }
+
+    var nodes = [];
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach(function (node) {
+        var parent = node.parentNode;
+        if (!parent || skipTags[parent.tagName]) return;
+
+        var original = node.nodeValue;
+        var trimmed = original.trim();
+        if (!trimmed) return;
+
+        var target = lookup(trimmed);
+        if (!target || target === trimmed) return;
+
+        var colon = /[:：]\s*$/.test(trimmed) ? ':' : '';
+        node.nodeValue = original.replace(trimmed, target + colon);
+    });
+
+    // ترجمه placeholder / title / aria-label / alt
+    ['placeholder', 'title', 'aria-label', 'alt'].forEach(function (attr) {
+        var els = document.querySelectorAll('[' + attr + ']');
+        for (var i = 0; i < els.length; i++) {
+            var el = els[i];
+            var value = (el.getAttribute(attr) || '').trim();
+            if (!value) continue;
+
+            var target = lookup(value);
+            if (target && target !== value) {
+                el.setAttribute(attr, target);
+            }
+        }
+    });
+}
+
+window.t = t;
+window.translateTextNodes = translateTextNodes;
+window.normalizeI18nText = normalizeI18nText;
+
 var currentLang = 'fa';
 
 function setDirection(lang) {
@@ -861,6 +1201,18 @@ function setLanguage(lang) {
     // بروزرسانی سلکتور زبان
     var selector = document.getElementById('languageSelector');
     if (selector) { selector.value = lang; }
+
+    // ترجمه خودکار متن‌های ثابت صفحه‌ها (بدون نیاز به data-i18n)
+    try {
+        translateTextNodes(document.body);
+    } catch (e) {
+        console.warn('⚠️ auto translate failed:', e);
+    }
+
+    // اعلام تغییر زبان به بقیه اسکریپت‌ها (برای بازرندر جدول‌ها)
+    try {
+        document.dispatchEvent(new CustomEvent('languagechange', { detail: { lang: lang } }));
+    } catch (e) { /* ignore */ }
 }
 function translate(key) {
     if (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key] !== undefined) {
