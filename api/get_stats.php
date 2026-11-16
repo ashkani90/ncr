@@ -56,8 +56,8 @@ $result = executeQuery("SELECT COUNT(*) as total FROM purchase_requests");
 $row = $result->fetch_assoc();
 $stats['total_purchases'] = (int)$row['total'];
 
-// اولویت بالا
-$result = executeQuery("SELECT COUNT(*) as total FROM ncrs WHERE priority = 'high'");
+// شدت بالا (در جدول ncrs ستونی به نام priority وجود ندارد؛ شدت در ستون severity ذخیره می‌شود)
+$result = executeQuery("SELECT COUNT(*) as total FROM ncrs WHERE severity = 'بحرانی'");
 $row = $result->fetch_assoc();
 $stats['high_priority_ncr'] = (int)$row['total'];
 

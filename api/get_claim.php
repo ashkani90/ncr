@@ -4,7 +4,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once '../config/database.php';
 
-$number = isset($_GET['number']) ? $_GET['number'] : '';
+$number = isset($_GET['number']) ? $_GET['number'] : (isset($_GET['claim_number']) ? $_GET['claim_number'] : '');
 
 if (empty($number)) {
     jsonResponse(['success' => false, 'error' => 'شماره کلیم الزامی است']);
